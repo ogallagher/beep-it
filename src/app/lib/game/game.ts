@@ -146,7 +146,7 @@ export default class Game {
       this.setBoardDisplayMode(configEvent.boardDisplayMode)
     }
     if (configEvent.gameTurnMode !== undefined) {
-      // TODO handle config event turn mode
+      this.setTurnMode(configEvent.gameTurnMode)
     }
     if (configEvent.widgets !== undefined) {
       this.setWidgets(configEvent.widgets)

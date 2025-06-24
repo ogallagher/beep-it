@@ -7,6 +7,7 @@ import Game from '@lib/game/game'
 import GameDevices from './devices'
 import GamePlayers from './players'
 import BoardMode from './boardMode'
+import TurnMode from './turnMode'
 
 export default function GameControls(
   { widgetsDrawerOpen, setWidgetsDrawerOpen, startGame, game, deviceId } : {
@@ -29,6 +30,8 @@ export default function GameControls(
       <GamePlayers game={game} deviceId={deviceId} />
 
       <BoardMode game={game} deviceId={deviceId} />
+
+      <TurnMode game={game} deviceId={deviceId} />
 
       <div className='flex flex-col justify-center'>
         <button 
