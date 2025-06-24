@@ -3,9 +3,7 @@ import Game, {  } from '@lib/game/game'
 import { GameConfigListenerKey, GameStateListenerKey } from '@lib/game/const'
 import StaticRef from '@lib/staticRef'
 import { ChangeEvent, RefObject, useEffect, useState } from 'react'
-import { ApiRoute, gameServerPort } from '@api/const'
-import { clientSendConfigEvent, ConfigEvent, GameEventType } from '@lib/game/gameEvent'
-import assert from 'assert'
+import { clientSendConfigEvent, GameEventType } from '@lib/game/gameEvent'
 
 export default function GamePlayers(
   { game, deviceId }: {
@@ -31,8 +29,8 @@ export default function GamePlayers(
       console.log('skip players.count invalid NaN')
     }
     else {
-      // update local game model
-      game.current.config.players.count = e.target.valueAsNumber
+      // update local game model and render new value
+      game.current.setPlayerCount(e.target.valueAsNumber)
 
       if (game.current.getDeviceCount() > 1) {
         // send config event to server
@@ -44,9 +42,6 @@ export default function GamePlayers(
         })
       }
     }
-
-    // render new value
-    setPlayerCount(e.target.valueAsNumber)
   }
 
   return (

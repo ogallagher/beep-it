@@ -25,8 +25,8 @@ export default function BoardMode(
   )
 
   function onClick() {
-    // update local game model
-    game.current.config.boardDisplayMode = (
+    // update local game model and render new value
+    game.current.setBoardDisplayMode(
       boardMode === BoardDisplayMode.Extend
       ? BoardDisplayMode.Mirror
       : BoardDisplayMode.Extend
@@ -41,9 +41,6 @@ export default function BoardMode(
         boardDisplayMode: game.current.config.boardDisplayMode
       })
     }
-
-    // render new value
-    setBoardMode(game.current.config.boardDisplayMode)
   }
 
   return (

@@ -25,8 +25,8 @@ export default function TurnMode(
   )
 
   function onClick() {
-    // update local game model
-    game.current.config.gameTurnMode = (
+    // update local game model and render new value
+    game.current.setTurnMode(
       turnMode === GameTurnMode.Competitive
       ? GameTurnMode.Collaborative
       : GameTurnMode.Competitive
@@ -41,9 +41,6 @@ export default function TurnMode(
         gameTurnMode: game.current.config.gameTurnMode
       })
     }
-
-    // render new value
-    setTurnMode(game.current.config.gameTurnMode)
   }
 
   return (

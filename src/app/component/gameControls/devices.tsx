@@ -23,7 +23,7 @@ export default function GameDevices(
       <div className="flex flex-row gap-2">
         <div>device count:</div>
         <div className="font-bold">
-          {game.current.getDeviceCount()}
+          {deviceCount}
         </div>
       </div>
     </div>

@@ -29,12 +29,20 @@ export default class Game {
     }
   }
   protected startTimeout: NodeJS.Timeout | null = null
+  /**
+   * Methods to call when the given config attr changes.
+   * Used to propogate game model changes to UI components.
+   */
   protected configListeners: Map<string, ConfigListener[]> = new Map([
     [GameConfigListenerKey.PlayersCount, []],
     [GameConfigListenerKey.Widgets, []],
     [GameConfigListenerKey.BoardDisplayMode, []],
     [GameConfigListenerKey.GameTurnMode, []]
   ])
+  /**
+   * Methods to call when the given state attr changes.
+   * Very similar to `configListeners`.
+   */
   protected stateListeners: Map<string, StateListener[]> = new Map([
     [GameStateListenerKey.DevicesCount, []]
   ])
@@ -50,6 +58,17 @@ export default class Game {
       difficulty: 0.5,
       widgets: new Map()
     }
+
+    // Listeners for transitively dependent attributes. Ex. if board mode changes, then the placement
+    // of widgets across devices must change.
+
+    // board mode, devices --> widgets
+    this.addConfigListener(GameConfigListenerKey.BoardDisplayMode, () => {
+      this.configListeners.get(GameConfigListenerKey.Widgets)?.forEach(l => l(this.config.widgets))
+    })
+    this.addStateListener(GameStateListenerKey.DevicesCount, () => {
+      this.configListeners.get(GameConfigListenerKey.Widgets)?.forEach(l => l(this.config.widgets))
+    })
   }
 
   getDeviceCount() {
