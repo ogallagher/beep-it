@@ -8,13 +8,15 @@ import GameDevices from './devices'
 import GamePlayers from './players'
 import BoardMode from './boardMode'
 import TurnMode from './turnMode'
+import WidgetsDrawerControl from './widgets'
+import GamePlay from './play'
 
 export default function GameControls(
   { widgetsDrawerOpen, setWidgetsDrawerOpen, startGame, game, deviceId } : {
-    widgetsDrawerOpen: boolean,
-    setWidgetsDrawerOpen: Dispatch<SetStateAction<boolean>>,
-    startGame: () => void,
-    game: StaticRef<Game> | RefObject<Game>,
+    widgetsDrawerOpen: boolean
+    setWidgetsDrawerOpen: Dispatch<SetStateAction<boolean>>
+    startGame: () => void
+    game: StaticRef<Game> | RefObject<Game>
     deviceId: StaticRef<string> | RefObject<string>
   }
 ) {
@@ -33,25 +35,11 @@ export default function GameControls(
 
       <TurnMode game={game} deviceId={deviceId} />
 
-      <div className='flex flex-col justify-center'>
-        <button 
-          className='cursor-pointer hover:scale-105 text-4xl'
-          type='button' onClick={() => setWidgetsDrawerOpen(!widgetsDrawerOpen)}
-          title={
-            widgetsDrawerOpen ? 'Close widgets drawer' : 'Add widgets to the board'
-          } >
-          {widgetsDrawerOpen ? <ChevronBarDown className='rotate-180' /> : <PatchPlus />}
-        </button>
-      </div>
+      <WidgetsDrawerControl 
+        game={game} 
+        widgetsDrawerOpen={widgetsDrawerOpen} setWidgetsDrawerOpen={setWidgetsDrawerOpen} />
       
-      <div className='flex flex-col justify-center'>
-        <button 
-          className='cursor-pointer hover:scale-105 text-4xl'
-          type='button' onClick={startGame}
-          title='Start new game' >
-          <PlayCircle />
-        </button>
-      </div>
+      <GamePlay game={game} startGame={startGame} />
     </div>
   )
 }
