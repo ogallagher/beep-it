@@ -24,3 +24,24 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/*
+  Icons within header bar.
+*/
+header .bi {
+  font-size: 2em;
+}
+
+h2 {
+  font-size: 2em;
+  margin-top: 0.25em;
+}
+
+ul {
+  list-style: circle;
+  list-style-position: inside;
+}
+
+header button {
+  cursor: pointer;
+}

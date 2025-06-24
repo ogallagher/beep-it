@@ -1,0 +1,45 @@
+import { JSX } from 'react'
+
+export default function Grid(
+  { children, className }: {
+    children: JSX.Element[],
+    className?: string
+  }
+) {
+  let screenAspectRatio = 1
+  try {
+    const screenWidth = window.innerWidth
+    const screenHeight = window.innerHeight
+    screenAspectRatio = screenWidth / screenHeight
+  }
+  catch (_err) {
+    // DOM not ready; assume dimensions
+  }
+
+  // a = aspectRatio; r = rowCount; n = widgets.length; a*r * r = n
+  const rowCount = Math.round(Math.sqrt(children.length / screenAspectRatio))
+  const rowLength = Math.round(children.length / rowCount)
+
+  const rows = new Array(rowCount)
+  let c = 0
+  for (let r=0; r < rowCount; r++) {
+    rows[r] = (
+      <div
+        key={`row-${r}`}
+        className='flex flex-wrap gap-4 justify-center' >
+        {children.slice(c, c+rowLength)}
+      </div>
+    )
+
+    c += rowLength
+  }
+
+  return (
+    <div className={
+      'bg-blue-900 '
+      + (className === undefined ? '' : className)
+      } >
+      {rows}
+    </div>
+  )
+}

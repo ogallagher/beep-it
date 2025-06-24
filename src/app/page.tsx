@@ -1,103 +1,213 @@
-import Image from "next/image";
+'use client'
+
+import { useState, JSX, useRef, useEffect } from 'react'
+import Board from '@component/board'
+import GameControls from '@component/gameControls/gameControls'
+import WidgetsDrawer from '@component/widgetsDrawer'
+import Widget, { WidgetParams } from '@component/widget/widget'
+import { widgetTypes, defaultWidgetLabel } from '@lib/widget/const'
+import Game from '@lib/game/game'
+import { useSearchParams } from 'next/navigation'
+import { ApiRoute, gameServerPort } from '@api/const'
+import { CommandEvent, ConfigEvent, DoWidgetEvent, GameEvent, GameEventKey, GameEventType, JoinEvent } from '@lib/game/gameEvent'
+import { ulid } from 'ulid'
+
+let widgetNextId = 0
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const urlParams = useSearchParams()
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
+  const clientDeviceId = useRef(urlParams.get(GameEventKey.DeviceId) || ulid())
+  const game = useRef(Game.loadGame(urlParams) || new Game())
+  console.log(`game=${game.current}`)
+
+  let gameEventSource: EventSource | undefined
+
+  const [widgetsDrawerOpen, setWidgetsDrawerOpen] = useState(false)
+
+  const _emptyWidgets: {
+    map: Map<string, JSX.Element>
+  } = {
+    map: new Map()
+  }
+  const [widgets, setWidgets] = useState(_emptyWidgets)
+
+  function closeGameEventSource() {
+    gameEventSource!.close()
+    gameEventSource = undefined
+  }
+
+  function onGameEvent(rawEvent: MessageEvent, onJoin: () => void) {
+    const gameEvent: GameEvent = JSON.parse(rawEvent.data)
+    console.log(`game event: game=${gameEvent.gameId} type=${gameEvent.gameEventType} device=${gameEvent.deviceId}`)
+
+    // handle game events
+    switch (gameEvent.gameEventType) {
+      case GameEventType.Join:
+        if (gameEvent.deviceId === clientDeviceId.current) {
+          // join confirmed
+          console.log(`joined ${game.current}`)
+          onJoin()
+        }
+
+        // update device count
+        game.current.setDeviceCount((gameEvent as JoinEvent).deviceCount)
+        break
+
+      case GameEventType.Config:
+        if (gameEvent.deviceId !== clientDeviceId.current) {
+          // update game config
+          game.current.updateConfig(gameEvent as ConfigEvent)
+        }
+        // else, we already have latest config
+        break
+
+      case GameEventType.Start:
+        console.log(`confirmed start of game=${gameEvent.gameId}`)
+        break
+
+      case GameEventType.Command:
+        console.log(
+          `command=${(gameEvent as CommandEvent).command} widget=${(gameEvent as CommandEvent).widgetIdx}`
+        )
+        break
+
+      case GameEventType.DoWidget:
+        const deviceName = (
+          gameEvent.deviceId === clientDeviceId.current ? 'local' : 'remote'
+        )
+        console.log(`do widget=${(gameEvent as DoWidgetEvent).widgetIdx} device[${deviceName}]=${gameEvent.deviceId}`)
+        break
+
+      case GameEventType.End:
+        console.log('game ended; close connection')
+        closeGameEventSource()
+        break
+
+      default:
+        console.log(`ERROR ignore invalid event type=$${gameEvent.gameEventType}`)
+        break
+    }
+  }
+
+  async function joinGame() {
+    const requestParams = new URLSearchParams()
+    // set game id
+    Game.saveGameId(game.current.id, requestParams)
+    // set client device
+    requestParams.set(GameEventKey.DeviceId, clientDeviceId.current)
+
+    // game game id to url 
+    window.history.replaceState(null, '', '?' + requestParams)
+
+    // subscribe to game events
+    await new Promise((res: (v?: undefined) => void) => {
+      if (gameEventSource === undefined) {
+        gameEventSource = new EventSource(
+          `http://${window.location.hostname}:${gameServerPort}${ApiRoute.JoinGame}?${requestParams}`
+        )
+
+        gameEventSource.onmessage = (rawEvent) => {
+          onGameEvent(rawEvent, res)
+        }
+
+        gameEventSource.onerror = (rawEvent) => {
+          console.log(`game event error = ${rawEvent}; close connection`)
+          closeGameEventSource()
+        }
+      }
+      else {
+        // already joined
+        res()
+      }
+    })
+
+    return
+  }
+
+  async function startGame() {
+    // Rejoin on start in case game ended on expire.
+    await joinGame()
+
+    const requestParams = game.current.save()
+
+    if (game.current.getDeviceCount() > 1) {
+      // game is hosted on server; request start
+      console.log(`start ${game.current} on server`)
+
+      fetch(`${ApiRoute.StartGame}?${requestParams}`)
+      .then(async (res: Response) => {
+        if (res.ok) {
+          const event: GameEvent = await res.json()
+          if (event.gameEventType === GameEventType.Start) {
+            console.log(`started ${game.current}`)
+          }
+          else {
+            console.log(`start game invalid response ${event}`)
+          }
+        }
+        else {
+          console.log(`start game error ${res.statusText}. ${res.text}`)
+        }
+      })
+    }
+    else {
+      // game is hosted on client
+      console.log(`start ${game.current} on local client device=${clientDeviceId.current}`)
+    }
+  }
+
+  // Join game.
+  useEffect(
+    () => {
+      joinGame()
+    },
+    [ game ]
+  )
+
+  return (
+    <div className='p-4 font-[family-name:var(--font-geist-sans)] flex flex-col gap-4'>
+      <main className="flex flex-col gap-[32px] items-center sm:items-start">
+        <GameControls
+          widgetsDrawerOpen={widgetsDrawerOpen} 
+          setWidgetsDrawerOpen={setWidgetsDrawerOpen}
+          startGame={startGame}
+          game={game}
+          deviceId={clientDeviceId} />
+        
+        <WidgetsDrawer 
+          open={widgetsDrawerOpen}
+          widgets={widgetTypes.map(
+            type => (
+              <Widget 
+                key={type} id={type} type={type} className='max-w-100'
+                onClick={(params: WidgetParams) => {
+                  params.label = `${defaultWidgetLabel(params.type)} ${widgetNextId}`
+                  params.id = `${params.id}-${widgetNextId}`
+                  params.labelEditable = true
+
+                  // widget can delete itself from the board
+                  params.onDelete = (id) => {
+                    widgets.map.delete(id)
+                    setWidgets({
+                      map: widgets.map
+                    })
+                  }
+
+                  // add selected widget from drawer to board
+                  widgets.map.set(params.id, Widget(params))
+                  widgetNextId++
+                  setWidgets({
+                    map: widgets.map
+                  })
+                }} />
+            )
+          )} />
+
+        <Board widgets={[...widgets.map.values()]} />
       </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
     </div>
-  );
+  )
 }
+
+
