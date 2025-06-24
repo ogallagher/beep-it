@@ -1,7 +1,8 @@
 import { Input } from '@headlessui/react'
+import { GameStateListenerKey } from '@lib/game/const'
 import Game from '@lib/game/game'
 import StaticRef from '@lib/staticRef'
-import { RefObject, useRef, useState } from 'react'
+import { RefObject, useEffect, useRef, useState } from 'react'
 import { Share } from 'react-bootstrap-icons'
 
 export default function ShareGame(
@@ -11,9 +12,21 @@ export default function ShareGame(
 ) {
   const [gameLinkOpen, setGameLinkOpen] = useState(false)
   const shareUrl = useRef(new URL(window.location.href))
+  const [gameStarted, setGameStarted] = useState(game.current.getStarted())
+
+  useEffect(
+    () => {
+      // render on game state.start
+      game.current.addStateListener(GameStateListenerKey.Started, setGameStarted)
+    },
+    [ game ]
+  )
 
   return (
-    <div className='flex flex-col justify-center'>
+    <div className={
+      'flex flex-col justify-center '
+      + (gameStarted ? 'hidden' : '')
+    }>
       <div className='flex flex-row justify-center gap-2'>
         <button
           className='cursor-pointer hover:scale-105 text-4xl'
