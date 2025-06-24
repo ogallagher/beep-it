@@ -6,6 +6,7 @@ import StaticRef from '@lib/staticRef'
 import Game from '@lib/game/game'
 import GameDevices from './devices'
 import GamePlayers from './players'
+import BoardMode from './boardMode'
 
 export default function GameControls(
   { widgetsDrawerOpen, setWidgetsDrawerOpen, startGame, game, deviceId } : {
@@ -27,6 +28,8 @@ export default function GameControls(
 
       <GamePlayers game={game} deviceId={deviceId} />
 
+      <BoardMode game={game} deviceId={deviceId} />
+
       <div className='flex flex-col justify-center'>
         <button 
           className='cursor-pointer hover:scale-105 text-4xl'
@@ -37,6 +40,7 @@ export default function GameControls(
           {widgetsDrawerOpen ? <ChevronBarDown className='rotate-180' /> : <PatchPlus />}
         </button>
       </div>
+      
       <div className='flex flex-col justify-center'>
         <button 
           className='cursor-pointer hover:scale-105 text-4xl'

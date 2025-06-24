@@ -21,11 +21,11 @@ export default function GameDevices(
   return (
     <div className="flex flex-col justify-center">
       <div className="flex flex-row gap-2">
-      <div>device count:</div>
-      <div className="font-bold">
-        {game.current.getDeviceCount()}
+        <div>device count:</div>
+        <div className="font-bold">
+          {game.current.getDeviceCount()}
+        </div>
       </div>
-    </div>
     </div>
   )
 }

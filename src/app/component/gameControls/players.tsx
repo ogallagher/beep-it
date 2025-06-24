@@ -52,13 +52,15 @@ export default function GamePlayers(
   return (
     <div className="flex flex-col justify-center">
       <div className="flex flex-row gap-2">
-        <div>player count:</div>
-        <Input
-          className='rounded-lg bg-white/5 text-white px-3 py-1.5 text-lg font-bold w-20'
-          disabled={gameStarted ? true : undefined}
-          type='number' min={0}
-          value={playerCount}
-          onChange={onChange} />
+          <div className='flex flex-col justify-center'>
+            <div>player count:</div>
+          </div>
+          <Input
+            className='rounded-lg bg-white/5 text-white px-3 py-1.5 text-2xl font-bold w-20'
+            disabled={gameStarted ? true : undefined}
+            type='number' min={0}
+            value={playerCount}
+            onChange={onChange} />
       </div>
     </div>
   )

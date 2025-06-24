@@ -31,7 +31,9 @@ export default class Game {
   protected startTimeout: NodeJS.Timeout | null = null
   protected configListeners: Map<string, ConfigListener[]> = new Map([
     [GameConfigListenerKey.PlayersCount, []],
-    [GameConfigListenerKey.Widgets, []]
+    [GameConfigListenerKey.Widgets, []],
+    [GameConfigListenerKey.BoardDisplayMode, []],
+    [GameConfigListenerKey.GameTurnMode, []]
   ])
   protected stateListeners: Map<string, StateListener[]> = new Map([
     [GameStateListenerKey.DevicesCount, []]
@@ -139,6 +141,12 @@ export default class Game {
     }
     if (configEvent.playerCount !== undefined) {
       this.setPlayerCount(configEvent.playerCount)
+    }
+    if (configEvent.boardDisplayMode !== undefined) {
+      this.setBoardDisplayMode(configEvent.boardDisplayMode)
+    }
+    if (configEvent.gameTurnMode !== undefined) {
+      // TODO handle config event turn mode
     }
     if (configEvent.widgets !== undefined) {
       this.setWidgets(configEvent.widgets)
