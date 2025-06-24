@@ -1,7 +1,8 @@
 import { ulid } from 'ulid'
-import { deserializeWidget, serializeWidget } from '@lib/widget/widgetExport'
+import Widget from '@lib/widget/widget'
 import { CommandEvent, ConfigEvent, DoWidgetEvent, EndEvent, GameEvent, GameEventListener, GameEventType } from './gameEvent'
 import { BoardDisplayMode, GameTurnMode, GameConfigListenerKey, GameStateListenerKey, commandDelayMin, ConfigListener, GameConfig, gameStartDelayMax, GameState, StateListener } from './const'
+import { WidgetExport } from '@lib/widget/const'
 
 export default class Game {
   public id: string
@@ -15,7 +16,7 @@ export default class Game {
     commandCount: 0,
     commandDelay: 3000,
     commandTimeout: null,
-    commandWidgetIdx: -1,
+    commandWidgetId: '',
     lastEventType: GameEventType.Pending,
     started: false,
     /**
@@ -23,12 +24,14 @@ export default class Game {
      */
     deviceId: null,
     devices: {
-      count: 1
+      count: 1,
+      ids: new Set()
     }
   }
   protected startTimeout: NodeJS.Timeout | null = null
   protected configListeners: Map<string, ConfigListener[]> = new Map([
-    [GameConfigListenerKey.PlayersCount, []]
+    [GameConfigListenerKey.PlayersCount, []],
+    [GameConfigListenerKey.Widgets, []]
   ])
   protected stateListeners: Map<string, StateListener[]> = new Map([
     [GameStateListenerKey.DevicesCount, []]
@@ -43,7 +46,7 @@ export default class Game {
         count: 1
       },
       difficulty: 0.5,
-      widgets: []
+      widgets: new Map()
     }
   }
 
@@ -54,6 +57,30 @@ export default class Game {
   setDeviceCount(deviceCount: number) {
     this.state.devices.count = deviceCount
     this.stateListeners.get(GameStateListenerKey.DevicesCount)?.forEach(l => l(deviceCount))
+  }
+
+  getDevices() {
+    return this.state.devices.ids
+  }
+
+  /**
+   * Append to devices list. Internally calls `setDeviceCount`.
+   * 
+   * @param deviceId 
+   */
+  addDevice(deviceId: string) {
+    this.state.devices.ids.add(deviceId)
+    this.setDeviceCount(this.state.devices.ids.size)
+  }
+
+  /**
+   * Replace devices list. Internally calls `setDeviceCount`.
+   * 
+   * @param deviceIds 
+   */
+  setDevices(deviceIds: Iterable<string>) {
+    this.state.devices.ids = new Set(deviceIds)
+    this.setDeviceCount(this.state.devices.ids.size)
   }
 
   getStarted() {
@@ -84,6 +111,25 @@ export default class Game {
     this.configListeners.get(GameConfigListenerKey.GameTurnMode)?.forEach(l => l(turnMode))
   }
 
+  addWidget(widget: Widget) {
+    this.config.widgets.set(widget.id, widget)
+    this.configListeners.get(GameConfigListenerKey.Widgets)?.forEach(l => l(this.config.widgets))
+  }
+
+  deleteWidget(widgetId: string) {
+    this.config.widgets.delete(widgetId)
+    this.configListeners.get(GameConfigListenerKey.Widgets)?.forEach(l => l(this.config.widgets))
+  }
+
+  setWidgets(widgets: WidgetExport[]) {
+    this.config.widgets.clear()
+    this.config.widgets = new Map(widgets.map((widgetExport) => {
+      const widget = new Widget(widgetExport)
+      return [widgetExport.id, widget]
+    }))
+    this.configListeners.get(GameConfigListenerKey.Widgets)?.forEach(l => l(this.config.widgets))
+  }
+
   updateConfig(configEvent: ConfigEvent) {
     if (configEvent.boardDisplayMode !== undefined) {
       this.setBoardDisplayMode(configEvent.boardDisplayMode)
@@ -94,8 +140,14 @@ export default class Game {
     if (configEvent.playerCount !== undefined) {
       this.setPlayerCount(configEvent.playerCount)
     }
+    if (configEvent.widgets !== undefined) {
+      this.setWidgets(configEvent.widgets)
+    }
   }
 
+  /**
+   * @returns Game host device id.
+   */
   getDeviceId() {
     return this.state.deviceId
   }
@@ -124,7 +176,7 @@ export default class Game {
     urlParams.set('players.count', this.config.players.count.toString())
     urlParams.set('difficulty', this.config.difficulty.toString())
     this.config.widgets.forEach(w => {
-      urlParams.append('widget', serializeWidget(w))
+      urlParams.append('widget', Widget.save(w))
     })
 
     return urlParams
@@ -177,15 +229,16 @@ export default class Game {
     this.state.lastEventType = GameEventType.Command
 
     // select a random widget
-    this.state.commandWidgetIdx = Math.round(Math.random() * this.config.widgets.length-1)
+    const commandWidgetIdx = Math.round(Math.random() * this.config.widgets.size-1)
+    this.state.commandWidgetId = [...this.config.widgets.keys()][commandWidgetIdx]
 
     // send command
     const command: CommandEvent = {
       deviceId: this.state.deviceId!,
       gameId: this.id,
       gameEventType: this.state.lastEventType,
-      widgetIdx: this.state.commandWidgetIdx,
-      command: this.config.widgets[this.state.commandWidgetIdx].command!
+      widgetId: this.state.commandWidgetId,
+      command: this.config.widgets.get(this.state.commandWidgetId)!.command
     }
     listener(command)
 
@@ -211,7 +264,7 @@ export default class Game {
     }
 
     // confirm whether widget matches last command
-    if (event.widgetIdx === this.state.commandWidgetIdx) {
+    if (event.widgetId === this.state.commandWidgetId) {
       // send next command
       this.sendCommand(listener)
     }
@@ -261,7 +314,13 @@ export default class Game {
           count: parseInt(urlParams.get('players.count') || '1')
         },
         difficulty: parseFloat(urlParams.get('difficulty') || '0.5'),
-        widgets: urlParams.getAll('widget').map(deserializeWidget)
+        widgets: new Map(
+          urlParams.getAll('widget')
+          // deserialize
+          .map(Widget.load)
+          // list to map
+          .map((w) => [w.id, w])
+        )
       })
     }
     else {

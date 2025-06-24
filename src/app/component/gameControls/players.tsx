@@ -4,12 +4,12 @@ import { GameConfigListenerKey, GameStateListenerKey } from '@lib/game/const'
 import StaticRef from '@lib/staticRef'
 import { ChangeEvent, RefObject, useEffect, useState } from 'react'
 import { ApiRoute, gameServerPort } from '@api/const'
-import { ConfigEvent, GameEventType } from '@lib/game/gameEvent'
+import { clientSendConfigEvent, ConfigEvent, GameEventType } from '@lib/game/gameEvent'
 import assert from 'assert'
 
 export default function GamePlayers(
   { game, deviceId }: {
-    game: StaticRef<Game> | RefObject<Game>,
+    game: StaticRef<Game> | RefObject<Game>
     deviceId: StaticRef<string> | RefObject<string>
   }
 ) {
@@ -23,7 +23,7 @@ export default function GamePlayers(
       // disable input on game start
       game.current.addStateListener(GameStateListenerKey.Started, setGameStarted)
     },
-    []
+    [ game ]
   )
 
   function onChange(e: ChangeEvent<HTMLInputElement>) {
@@ -36,35 +36,12 @@ export default function GamePlayers(
 
       if (game.current.getDeviceCount() > 1) {
         // send config event to server
-        const configEvent: ConfigEvent = {
+        clientSendConfigEvent({
           gameEventType: GameEventType.Config,
           gameId: game.current.id,
           deviceId: deviceId.current,
           playerCount: game.current.config.players.count
-        }
-
-        fetch(
-          `http://${window.location.hostname}:${gameServerPort}${ApiRoute.ConfigGame}`, 
-          {
-            method: 'POST',
-            body: JSON.stringify(configEvent),
-            headers: {
-              'Content-Type': 'application/json'
-            }
-          }
-        )
-        .then(
-          async (res) => {
-            const configEvent = await res.json() as ConfigEvent
-            assert.ok(
-              configEvent.gameEventType === GameEventType.Config, 
-              'POST config did not receive valid confirmation'
-            )
-          },
-          (err) => {
-            console.log(`ERROR ${err}`)
-          }
-        )
+        })
       }
     }
 

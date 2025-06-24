@@ -1,18 +1,14 @@
 'use client'
 
-import { useState, JSX, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import Board from '@component/board'
 import GameControls from '@component/gameControls/gameControls'
 import WidgetsDrawer from '@component/widgetsDrawer'
-import Widget, { WidgetParams } from '@component/widget/widget'
-import { widgetTypes, defaultWidgetLabel } from '@lib/widget/const'
 import Game from '@lib/game/game'
 import { useSearchParams } from 'next/navigation'
 import { ApiRoute, gameServerPort } from '@api/const'
 import { CommandEvent, ConfigEvent, DoWidgetEvent, GameEvent, GameEventKey, GameEventType, JoinEvent } from '@lib/game/gameEvent'
 import { ulid } from 'ulid'
-
-let widgetNextId = 0
 
 export default function Home() {
   const urlParams = useSearchParams()
@@ -24,13 +20,6 @@ export default function Home() {
   let gameEventSource: EventSource | undefined
 
   const [widgetsDrawerOpen, setWidgetsDrawerOpen] = useState(false)
-
-  const _emptyWidgets: {
-    map: Map<string, JSX.Element>
-  } = {
-    map: new Map()
-  }
-  const [widgets, setWidgets] = useState(_emptyWidgets)
 
   function closeGameEventSource() {
     gameEventSource!.close()
@@ -50,8 +39,8 @@ export default function Home() {
           onJoin()
         }
 
-        // update device count
-        game.current.setDeviceCount((gameEvent as JoinEvent).deviceCount)
+        // update devices
+        game.current.setDevices((gameEvent as JoinEvent).deviceIds)
         break
 
       case GameEventType.Config:
@@ -68,7 +57,7 @@ export default function Home() {
 
       case GameEventType.Command:
         console.log(
-          `command=${(gameEvent as CommandEvent).command} widget=${(gameEvent as CommandEvent).widgetIdx}`
+          `command=${(gameEvent as CommandEvent).command} widget=${(gameEvent as CommandEvent).widgetId}`
         )
         break
 
@@ -76,7 +65,7 @@ export default function Home() {
         const deviceName = (
           gameEvent.deviceId === clientDeviceId.current ? 'local' : 'remote'
         )
-        console.log(`do widget=${(gameEvent as DoWidgetEvent).widgetIdx} device[${deviceName}]=${gameEvent.deviceId}`)
+        console.log(`do widget=${(gameEvent as DoWidgetEvent).widgetId} device[${deviceName}]=${gameEvent.deviceId}`)
         break
 
       case GameEventType.End:
@@ -177,34 +166,10 @@ export default function Home() {
         
         <WidgetsDrawer 
           open={widgetsDrawerOpen}
-          widgets={widgetTypes.map(
-            type => (
-              <Widget 
-                key={type} id={type} type={type} className='max-w-100'
-                onClick={(params: WidgetParams) => {
-                  params.label = `${defaultWidgetLabel(params.type)} ${widgetNextId}`
-                  params.id = `${params.id}-${widgetNextId}`
-                  params.labelEditable = true
+          game={game}
+          deviceId={clientDeviceId} />
 
-                  // widget can delete itself from the board
-                  params.onDelete = (id) => {
-                    widgets.map.delete(id)
-                    setWidgets({
-                      map: widgets.map
-                    })
-                  }
-
-                  // add selected widget from drawer to board
-                  widgets.map.set(params.id, Widget(params))
-                  widgetNextId++
-                  setWidgets({
-                    map: widgets.map
-                  })
-                }} />
-            )
-          )} />
-
-        <Board widgets={[...widgets.map.values()]} />
+        <Board game={game} deviceId={clientDeviceId} />
       </main>
     </div>
   )

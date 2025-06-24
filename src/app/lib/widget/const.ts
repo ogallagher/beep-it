@@ -69,3 +69,10 @@ export function defaultWidgetLabel(type: WidgetType) {
       throw new Error(`cannot get default command for invalid widget type ${type}`)
   }
 }
+
+export interface WidgetExport {
+  id: string
+  type: WidgetType
+  label: string
+  command: string
+}

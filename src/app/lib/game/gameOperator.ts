@@ -12,9 +12,9 @@ const logger = pino({
  */
 const games: Map<string, Game> = new Map()
 /**
- * Map games to clients. Each client is map of device id to web response with a server event stream.
+ * Map client devices web response server event streams.
  */
-const clients: Map<string, Map<string, Response>> = new Map()
+const clients: Map<string, Response> = new Map()
 /**
  * Game event listeners, which broadcast game events to client devices.
  */
@@ -38,10 +38,6 @@ export function getGame(gameUrlParams: URLSearchParams, deviceId: string, replac
 
     games.set(gameId, game)
 
-    if (!clients.has(gameId)) {
-      clients.set(gameId, new Map())
-    }
-
     const gameStartDelayMax = game.setStartTimeout(() => {
       // end game and notify clients
       game.end(getGameEventListener(gameId), deviceId)
@@ -63,26 +59,26 @@ export function getGame(gameUrlParams: URLSearchParams, deviceId: string, replac
  * @param client Response object to stream game events to the client device.
  */
 export function addGameClient(gameId: string, deviceId: string, client: Response) {
-  if (!clients.has(gameId)) {
+  if (!games.has(gameId)) {
     throw new Error(`cannot add client to missing game ${gameId}`)
   }
-  if (clients.get(gameId)!.has(deviceId)) {
+  if (clients.has(deviceId)) {
     logger.info(`replace client stream for device=${deviceId} already in game=${gameId}`)
   }
 
-  clients.get(gameId)!.set(deviceId, client)
+  clients.set(deviceId, client)
 
   // update game state with new device
   const game = games.get(gameId)!
-  const deviceCount = clients.get(gameId)!.size
-  game.setDeviceCount(deviceCount)
+  game.addDevice(deviceId)
 
   // send join event to clients in this game
   const event: JoinEvent = {
     gameId,
     gameEventType: GameEventType.Join,
     deviceId,
-    deviceCount: deviceCount
+    deviceCount: game.getDeviceCount(),
+    deviceIds: [...game.getDevices()]
   }
   getGameEventListener(gameId)(event)
 }
@@ -98,10 +94,10 @@ export function getGameEventListener(gameId: string): GameEventListener {
     logger.info(`create listener for ${gameId}`)
     listeners.set(gameId, (event) => {
       // send event to all client devices
-      for (let client of clients.get(gameId)!.values()) {
+      games.get(gameId)!.getDevices().forEach((clientDeviceId) => {
         // write message that conforms to text/event-stream spec https://html.spec.whatwg.org/multipage/server-sent-events.html#the-eventsource-interface
-        client.write(`data: ${JSON.stringify(event)}\n\n`)
-      }
+        clients.get(clientDeviceId)!.write(`data: ${JSON.stringify(event)}\n\n`)
+      })
 
       // delete game
       if (event.gameEventType === GameEventType.End) {
@@ -117,7 +113,7 @@ export function configGame(configEvent: ConfigEvent) {
   if (!games.has(configEvent.gameId)) {
     throw new Error(`cannot config missing game ${configEvent.gameId}`)
   }
-  if (!clients.get(configEvent.gameId)!.has(configEvent.deviceId)) {
+  if (!games.get(configEvent.gameId)!.getDevices().has(configEvent.deviceId)) {
     throw new Error(`client cannot config without join game=${configEvent.gameId}`)
   }
 
@@ -130,6 +126,6 @@ export function configGame(configEvent: ConfigEvent) {
 
 function deleteGame(gameId: string) {
   listeners.delete(gameId)
-  clients.delete(gameId)
+  games.get(gameId)?.getDevices().forEach((deviceId) => clients.delete(deviceId))
   games.delete(gameId)
 }

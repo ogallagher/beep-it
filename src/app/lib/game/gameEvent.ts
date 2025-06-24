@@ -1,4 +1,7 @@
+import { WidgetExport } from '@lib/widget/const'
 import { BoardDisplayMode, GameTurnMode } from './const'
+import assert from 'assert'
+import { ApiRoute, gameServerPort } from '@api/const'
 
 export enum GameEventType {
   Pending = 'pending',
@@ -45,21 +48,23 @@ export interface GameEvent {
 
 export interface JoinEvent extends GameEvent {
   deviceCount: number
+  deviceIds: string[]
 }
 
 export interface ConfigEvent extends GameEvent {
   boardDisplayMode?: BoardDisplayMode
   gameTurnMode?: GameTurnMode
   playerCount?: number
+  widgets?: WidgetExport[]
 }
 
 export interface CommandEvent extends GameEvent {
-  widgetIdx: number
+  widgetId: string
   command: string
 }
 
 export interface DoWidgetEvent extends GameEvent {
-  widgetIdx: number
+  widgetId: string
 }
 
 export interface EndEvent extends GameEvent {
@@ -67,3 +72,27 @@ export interface EndEvent extends GameEvent {
 }
 
 export type GameEventListener = (event: GameEvent) => void
+
+export async function clientSendConfigEvent(event: ConfigEvent) {
+  try {
+    let res = await fetch(
+      `http://${window.location.hostname}:${gameServerPort}${ApiRoute.ConfigGame}`, 
+      {
+        method: 'POST',
+        body: JSON.stringify(event),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }
+    )
+
+    const resEvent = await res.json() as ConfigEvent
+    assert.ok(
+      resEvent.gameEventType === GameEventType.Config, 
+      'POST config did not receive valid confirmation'
+    )
+  }
+  catch (err) {
+    console.log(`ERROR ${err}`)
+  }
+}

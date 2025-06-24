@@ -22,7 +22,9 @@ app.use(cors({
   origin: '*'
 }))
 app.use(bodyParser.urlencoded({extended: false}))
-app.use(bodyParser.json())
+app.use(bodyParser.json({
+  limit: '5MB'
+}))
 
 let server: Server | undefined
 

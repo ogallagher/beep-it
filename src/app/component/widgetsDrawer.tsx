@@ -1,17 +1,51 @@
-import { JSX } from 'react'
+import { RefObject } from 'react'
 import Grid from '@component/grid'
+import { WidgetExport, widgetTypes } from '@lib/widget/const'
+import WidgetCmp from './widget/widgetCmp'
+import Widget from '@lib/widget/widget'
+import StaticRef from '@lib/staticRef'
+import Game from '@lib/game/game'
+import { clientSendConfigEvent, GameEventType } from '@lib/game/gameEvent'
 
 export default function WidgetsDrawer(
-  { widgets, open }: {
-    widgets: JSX.Element[]
-    open: boolean
+  { open, game, deviceId }: {
+    open: boolean,
+    game: StaticRef<Game> | RefObject<Game>,
+    deviceId: StaticRef<string> | RefObject<string>
   }
 ) {
+  function addWidget(widgetExport: WidgetExport) {
+    const widget = Widget.clone(widgetExport)
+    // update local game model and render
+    game.current.addWidget(widget)
+
+    if (game.current.getDeviceCount() > 1) {
+      // send config event to server
+      clientSendConfigEvent({
+        gameEventType: GameEventType.Config,
+        gameId: game.current.id,
+        deviceId: deviceId.current,
+        widgets: [...game.current.config.widgets.values()]
+      })
+    }
+  }
+
   return (
     <div
       className={(open ? '' : 'hidden') + ' w-full'}>
       <Grid>
-        {widgets}
+        {widgetTypes.map(type => {
+          const widget = Widget.new(type)
+          widget.id = type
+          widget.label = type
+
+          return <WidgetCmp 
+              key={type}
+              widget={widget.save()} 
+              labelEditable={false}
+              className='max-w-100'
+              onClick={addWidget} />
+        })}
       </Grid>
     </div>
   )

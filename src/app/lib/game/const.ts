@@ -1,5 +1,5 @@
-import { WidgetExport } from '@lib/widget/widgetExport'
 import { GameEventType } from './gameEvent'
+import Widget from '@lib/widget/widget'
 
 /**
  * Max delay between the definition of a game (first join) and game start.
@@ -22,7 +22,8 @@ export enum GameTurnMode {
 export enum GameConfigListenerKey {
   BoardDisplayMode = 'boardDisplayMode',
   GameTurnMode = 'gameTurnMode',
-  PlayersCount = 'players.count'
+  PlayersCount = 'players.count',
+  Widgets = 'widgets'
 }
 
 export enum GameStateListenerKey {
@@ -37,7 +38,7 @@ export interface GameConfig {
     count: number
   }
   difficulty: number
-  widgets: WidgetExport[]
+  widgets: Map<string, Widget>
 }
 
 export interface GameState {
@@ -50,7 +51,7 @@ export interface GameState {
    */
   commandDelay: number
   commandTimeout: NodeJS.Timeout | null
-  commandWidgetIdx: number
+  commandWidgetId: string
   lastEventType: GameEventType
   started: boolean
   /**
@@ -62,6 +63,10 @@ export interface GameState {
    */
   devices: {
     count: number
+    /**
+     * Set of participant/player device ids.
+     */
+    ids: Set<string>
   }
 }
 
