@@ -50,15 +50,13 @@ export default function Board(
     // update local game model
     game.current.config.widgets.delete(id)
 
-    if (game.current.getDeviceCount() > 1) {
-      // send config event to server
-      clientSendConfigEvent({
-        gameEventType: GameEventType.Config,
-        gameId: game.current.id,
-        deviceId: deviceId.current,
-        widgets: [...game.current.config.widgets.values()]
-      })
-    }
+    // send config event to server
+    clientSendConfigEvent({
+      gameEventType: GameEventType.Config,
+      gameId: game.current.id,
+      deviceId: deviceId.current,
+      widgets: [...game.current.config.widgets.values()]
+    })
 
     // render
     placeWidgets()

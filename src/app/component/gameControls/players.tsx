@@ -32,15 +32,13 @@ export default function GamePlayers(
       // update local game model and render new value
       game.current.setPlayerCount(e.target.valueAsNumber)
 
-      if (game.current.getDeviceCount() > 1) {
-        // send config event to server
-        clientSendConfigEvent({
-          gameEventType: GameEventType.Config,
-          gameId: game.current.id,
-          deviceId: deviceId.current,
-          playerCount: game.current.config.players.count
-        })
-      }
+      // send config event to server
+      clientSendConfigEvent({
+        gameEventType: GameEventType.Config,
+        gameId: game.current.id,
+        deviceId: deviceId.current,
+        playerCount: game.current.config.players.count
+      })
     }
   }
 

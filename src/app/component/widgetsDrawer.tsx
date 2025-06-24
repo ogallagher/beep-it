@@ -19,15 +19,13 @@ export default function WidgetsDrawer(
     // update local game model and render
     game.current.addWidget(widget)
 
-    if (game.current.getDeviceCount() > 1) {
-      // send config event to server
-      clientSendConfigEvent({
-        gameEventType: GameEventType.Config,
-        gameId: game.current.id,
-        deviceId: deviceId.current,
-        widgets: [...game.current.config.widgets.values()]
-      })
-    }
+    // send config event to server
+    clientSendConfigEvent({
+      gameEventType: GameEventType.Config,
+      gameId: game.current.id,
+      deviceId: deviceId.current,
+      widgets: [...game.current.config.widgets.values()]
+    })
   }
 
   return (

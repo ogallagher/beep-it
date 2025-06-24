@@ -32,15 +32,13 @@ export default function TurnMode(
       : GameTurnMode.Competitive
     )
 
-    if (game.current.getDeviceCount() > 1) {
-      // send config event to server
-      clientSendConfigEvent({
-        gameEventType: GameEventType.Config,
-        gameId: game.current.id,
-        deviceId: deviceId.current,
-        gameTurnMode: game.current.config.gameTurnMode
-      })
-    }
+    // send config event to server
+    clientSendConfigEvent({
+      gameEventType: GameEventType.Config,
+      gameId: game.current.id,
+      deviceId: deviceId.current,
+      gameTurnMode: game.current.config.gameTurnMode
+    })
   }
 
   return (

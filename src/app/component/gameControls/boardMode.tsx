@@ -32,15 +32,13 @@ export default function BoardMode(
       : BoardDisplayMode.Extend
     )
 
-    if (game.current.getDeviceCount() > 1) {
-      // send config event to server
-      clientSendConfigEvent({
-        gameEventType: GameEventType.Config,
-        gameId: game.current.id,
-        deviceId: deviceId.current,
-        boardDisplayMode: game.current.config.boardDisplayMode
-      })
-    }
+    // send config event to server
+    clientSendConfigEvent({
+      gameEventType: GameEventType.Config,
+      gameId: game.current.id,
+      deviceId: deviceId.current,
+      boardDisplayMode: game.current.config.boardDisplayMode
+    })
   }
 
   return (
