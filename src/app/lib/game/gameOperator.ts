@@ -1,7 +1,8 @@
 import pino from 'pino'
 import Game from './game'
-import { ConfigEvent, GameEventListener, GameEventType, JoinEvent } from './gameEvent'
+import { ConfigEvent, GameEventListener, GameEventType, JoinEvent, serverSendGameEvent } from './gameEvent'
 import { Response } from 'express'
+import { serverDeviceId } from '@api/const'
 
 const logger = pino({
   name: 'gameOperator'
@@ -81,6 +82,19 @@ export function addGameClient(gameId: string, deviceId: string, client: Response
     deviceIds: [...game.getDevices()]
   }
   getGameEventListener(gameId)(event)
+
+  // send config event for latest game model to new client
+  const configEvent: ConfigEvent = {
+    gameId,
+    gameEventType: GameEventType.Config,
+    // set source to different device so client knows they don't have latest config
+    deviceId: serverDeviceId,
+    boardDisplayMode: game.config.boardDisplayMode,
+    gameTurnMode: game.config.gameTurnMode,
+    playerCount: game.config.players.count,
+    widgets: [...game.config.widgets.values()]
+  }
+  serverSendGameEvent(configEvent, client)
 }
 
 /**
@@ -95,8 +109,7 @@ export function getGameEventListener(gameId: string): GameEventListener {
     listeners.set(gameId, (event) => {
       // send event to all client devices
       games.get(gameId)!.getDevices().forEach((clientDeviceId) => {
-        // write message that conforms to text/event-stream spec https://html.spec.whatwg.org/multipage/server-sent-events.html#the-eventsource-interface
-        clients.get(clientDeviceId)!.write(`data: ${JSON.stringify(event)}\n\n`)
+        serverSendGameEvent(event, clients.get(clientDeviceId)!)
       })
 
       // delete game

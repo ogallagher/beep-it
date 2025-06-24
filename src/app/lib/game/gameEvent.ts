@@ -2,6 +2,7 @@ import { WidgetExport } from '@lib/widget/const'
 import { BoardDisplayMode, GameTurnMode } from './const'
 import assert from 'assert'
 import { ApiRoute, gameServerPort } from '@api/const'
+import { Response } from 'express'
 
 export enum GameEventType {
   Pending = 'pending',
@@ -95,4 +96,9 @@ export async function clientSendConfigEvent(event: ConfigEvent) {
   catch (err) {
     console.log(`ERROR ${err}`)
   }
+}
+
+export function serverSendGameEvent(event: GameEvent, client: Response) {
+  // write message that conforms to text/event-stream spec https://html.spec.whatwg.org/multipage/server-sent-events.html#the-eventsource-interface
+  client.write(`data: ${JSON.stringify(event)}\n\n`)
 }

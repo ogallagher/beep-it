@@ -161,12 +161,6 @@ export default class Game {
     if (configEvent.playerCount !== undefined) {
       this.setPlayerCount(configEvent.playerCount)
     }
-    if (configEvent.boardDisplayMode !== undefined) {
-      this.setBoardDisplayMode(configEvent.boardDisplayMode)
-    }
-    if (configEvent.gameTurnMode !== undefined) {
-      this.setTurnMode(configEvent.gameTurnMode)
-    }
     if (configEvent.widgets !== undefined) {
       this.setWidgets(configEvent.widgets)
     }
