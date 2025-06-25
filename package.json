@@ -17,6 +17,7 @@
     "gray-matter": "^4.0.3",
     "next": "15.3.4",
     "pino": "^9.7.0",
+    "pts": "^0.12.9",
     "react": "^19.0.0",
     "react-bootstrap-icons": "^1.11.6",
     "react-dom": "^19.0.0",

@@ -76,3 +76,25 @@ export interface WidgetExport {
   label: string
   command: string
 }
+
+// converted from graphics lib pts.UIPointerActions
+export enum UIPointerAction {
+  up = 'up',
+  down = 'down',
+  move = 'move',
+  drag = 'drag',
+  uidrag = 'uidrag',
+  drop = 'drop',
+  uidrop = 'uidrop',
+  over = 'over',
+  out = 'out',
+  enter = 'enter',
+  leave = 'leave',
+  click = 'click',
+  keydown = 'keydown',
+  keyup = 'keyup',
+  pointerdown = 'pointerdown',
+  pointerup = 'pointerup',
+  contextmenu = 'contextmenu',
+  all = 'all'
+}
