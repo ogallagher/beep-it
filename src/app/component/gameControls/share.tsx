@@ -23,10 +23,11 @@ export default function ShareGame(
   )
 
   return (
-    <div className={
-      'flex flex-col justify-center '
-      + (gameStarted ? 'hidden' : '')
-    }>
+    <div 
+      className={
+        'flex flex-col justify-center '
+        + (gameStarted ? 'hidden' : '')
+      } >
       <div className='flex flex-row justify-center gap-2'>
         <button
           className='cursor-pointer hover:scale-105 text-4xl'

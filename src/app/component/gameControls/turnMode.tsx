@@ -51,7 +51,14 @@ export default function TurnMode(
         </div>
 
         <button 
-          className='cursor-pointer hover:scale-105 text-4xl'
+          className={
+            'text-4xl '
+            + (
+              gameStarted 
+              ? 'cursor-default' 
+              : 'hover:scale-105 cursor-pointer'
+            )
+          }
           type='button' onClick={onClick}
           disabled={gameStarted ? true : undefined}
           title={

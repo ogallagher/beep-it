@@ -1,6 +1,7 @@
+import { GameStateListenerKey } from '@lib/game/const'
 import Game from '@lib/game/game'
 import StaticRef from '@lib/staticRef'
-import { Dispatch, RefObject, SetStateAction } from 'react'
+import { Dispatch, RefObject, SetStateAction, useEffect, useState } from 'react'
 import { ChevronBarDown, PatchPlus } from 'react-bootstrap-icons'
 
 export default function WidgetsDrawerControl(
@@ -10,10 +11,28 @@ export default function WidgetsDrawerControl(
     game: StaticRef<Game> | RefObject<Game>,
   }
 ) {
-  // TODO state event listener for start
+  const [ gameStarted, setGameStarted ] = useState(game.current.getStarted())
+  
+  useEffect(
+    () => {
+      // state event listener for start
+      game.current.addStateListener(GameStateListenerKey.Started, (started: boolean) => {
+        if (started) {
+          setWidgetsDrawerOpen(false)
+        }
+        
+        setGameStarted(started)
+      })
+    },
+    [ game ]
+  )
 
   return (
-    <div className='flex flex-col justify-center'>
+    <div 
+      className={
+        'flex flex-col justify-center '
+        + (gameStarted ? 'hidden' : '')
+      } >
       <button
         className='cursor-pointer hover:scale-105 text-4xl'
         type='button' onClick={() => setWidgetsDrawerOpen(!widgetsDrawerOpen)}
