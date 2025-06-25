@@ -4,6 +4,8 @@ import WidgetLabel from './label'
 import StaticRef from '@lib/staticRef'
 import { WidgetExport } from '@lib/widget/const'
 import WidgetDelete from './delete'
+import Game from '@lib/game/game'
+import { RefObject } from 'react'
 
 /**
  * Inputs to widget UI component.
@@ -15,6 +17,8 @@ export interface WidgetParams {
   onClick?: (params: WidgetExport) => void
   onDelete?: (id: string) => void
   className?: string
+  game: RefObject<Game> | StaticRef<Game>
+  deviceId: StaticRef<string> | RefObject<string>
 }
 
 /**
@@ -22,7 +26,7 @@ export interface WidgetParams {
  * @returns Widget UI component.
  */
 export default function WidgetCmp(
-  { widget, labelEditable, configurable, onClick, onDelete, className }: WidgetParams
+  { widget, labelEditable, configurable, onClick, onDelete, className, game, deviceId }: WidgetParams
 ) {
   // something about how widgets can be dynamically added to the board
   // means I can't call useRef here
@@ -55,7 +59,7 @@ export default function WidgetCmp(
         disabled={!labelEditable} />
 
       <WidgetConfig 
-        type={widget.type} 
+        widgetId={widget.id} game={game} deviceId={deviceId}
         configRef={configRef}
         disabled={!configurable} />
 

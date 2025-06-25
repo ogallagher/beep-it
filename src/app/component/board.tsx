@@ -62,6 +62,8 @@ export default function Board(
   function renderWidget(widget: Widget): JSX.Element {
     return WidgetCmp({
       widget: widget.save(),
+      game: game,
+      deviceId: deviceId,
       labelEditable: !gameStarted,
       configurable: !gameStarted,
       // widget can delete itself from the board

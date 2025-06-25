@@ -38,8 +38,8 @@ export default function WidgetsDrawer(
           widget.label = type
 
           return <WidgetCmp 
-              key={type}
-              widget={widget.save()} 
+              key={type} game={game} deviceId={deviceId}
+              widget={widget.save()}
               labelEditable={false}
               configurable={true}
               className='max-w-100'
