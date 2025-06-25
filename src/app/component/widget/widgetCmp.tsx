@@ -55,6 +55,7 @@ export default function WidgetCmp(
         />
 
       <WidgetLabel 
+        widgetId={widget.id} game={game} deviceId={deviceId}
         valueRef={labelRef} 
         disabled={!labelEditable} />
 
