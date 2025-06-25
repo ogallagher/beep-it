@@ -293,7 +293,7 @@ export default class Game {
     )
   }
 
-  protected doWidget(event: DoWidgetEvent, listener: GameEventListener) {
+  public doWidget(event: DoWidgetEvent, listener: GameEventListener) {
     this.state.lastEventType = GameEventType.DoWidget
 
     // stop waiting
@@ -338,7 +338,7 @@ export default class Game {
   }
 
   static loadGameId(urlParams: URLSearchParams) {
-    return urlParams.get('id') || undefined
+    return urlParams.get('id') || urlParams.get('gameId') || undefined
   }
 
   static loadGame(urlParams: URLSearchParams) {

@@ -8,7 +8,7 @@ import { Server } from 'http'
 import pino from 'pino'
 import { ApiRoute, gameServerPort, serverDeviceId } from '@api/const'
 import Game from '@lib/game/game'
-import { ConfigEvent, GameEventKey } from '@lib/game/gameEvent'
+import { ConfigEvent, DoWidgetEvent, GameEventKey } from '@lib/game/gameEvent'
 import { addGameClient, configGame, getGame, getGameEventListener } from '@lib/game/gameOperator'
 import bodyParser from 'body-parser'
 import cors from 'cors'
@@ -93,8 +93,7 @@ app.get(
   ApiRoute.StartGame,
   (req, res) => {
     logger.debug(`GET.${ApiRoute.StartGame} start`)
-  
-    // replace game instance to capture changes since first join (ex. widgets list).
+
     const reqParams = new URLSearchParams(req.query as Record<string, string>)
     const game = getGame(reqParams, serverDeviceId)
   
@@ -103,6 +102,22 @@ app.get(
     const event = game.start(getGameEventListener(game.id), serverDeviceId)
   
     logger.debug(`GET.${ApiRoute.StartGame} end`)
+    res.json(event)
+  }
+)
+
+app.get(
+  ApiRoute.DoWidget,
+  (req, res) => {
+    logger.debug(`GET.${ApiRoute.DoWidget} start`)
+    
+    const game = getGame(new URLSearchParams(req.query as Record<string, string>), serverDeviceId)
+
+    // submit widget action to game to advance state
+    const event = req.query as unknown as DoWidgetEvent
+    game.doWidget(event, getGameEventListener(game.id))
+
+    logger.debug(`GET.${ApiRoute.DoWidget} end`)
     res.json(event)
   }
 )

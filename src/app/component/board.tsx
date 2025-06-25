@@ -6,6 +6,7 @@ import { BoardDisplayMode, GameConfigListenerKey, GameStateListenerKey } from '@
 import Widget from '@lib/widget/widget'
 import WidgetCmp from './widget/widgetCmp'
 import { clientSendConfigEvent, GameEventType } from '@lib/game/gameEvent'
+import { WidgetType } from '@lib/widget/const'
 
 export default function Board(
   { game, deviceId }: {

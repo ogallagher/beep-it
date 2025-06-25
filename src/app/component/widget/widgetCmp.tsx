@@ -6,6 +6,8 @@ import { WidgetExport } from '@lib/widget/const'
 import WidgetDelete from './delete'
 import Game from '@lib/game/game'
 import { RefObject } from 'react'
+import { ApiRoute, gameServerPort } from '@api/const'
+import { DoWidgetEvent, GameEvent, GameEventType } from '@lib/game/gameEvent'
 
 /**
  * Inputs to widget UI component.
@@ -35,6 +37,33 @@ export default function WidgetCmp(
     command: widget.command
   })
 
+  /**
+   * Action (button click, lever pull, knob twist) handler. Called when widget control detects a 
+   * complete action matching the widget type.
+   */
+  async function onAction() {
+    // send event to server
+    const event: DoWidgetEvent = {
+      gameEventType: GameEventType.DoWidget,
+      gameId: game.current.id,
+      deviceId: deviceId.current,
+      widgetId: widget.id
+    }
+    const requestParams = new URLSearchParams(Object.entries(event))
+    try {
+      const res = await fetch(
+        `http://${window.location.hostname}:${gameServerPort}${ApiRoute.DoWidget}?${requestParams}`
+      )
+      const resEvent: GameEvent = await res.json()
+      if (resEvent.gameEventType !== GameEventType.DoWidget) {
+        console.log(`error invalid response ${resEvent}`)
+      }
+    }
+    catch (err) {
+      console.log(`error "${err}" on widget action ${event}`)
+    }
+  }
+
   return (
     <div 
       key={widget.id} 
@@ -43,16 +72,21 @@ export default function WidgetCmp(
         + (className === undefined ? '' : className)
       } >
       <WidgetControl 
-        type={widget.type}
+        type={widget.type} 
+        gameStarted={
+          // currently we assume these states are always opposite
+          !configurable
+        }
         onClick={
-          onClick === undefined 
-          ? undefined 
-          : () => {
+          onClick === undefined ? undefined : () => {
+            // persist widget config updates to export copy for click handler input
+            widget.label = labelRef.current
             widget.command = configRef.current.command
+
             onClick(widget)
           }
         }
-        />
+        onAction={onAction} />
 
       <WidgetLabel 
         widgetId={widget.id} game={game} deviceId={deviceId}
