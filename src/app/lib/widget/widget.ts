@@ -58,8 +58,8 @@ export default class Widget {
     return ulid()
   }
 
-  private static generateLabel(type: WidgetType, id: string) {
-    return `${type} ${id.substring(id.length-8)}`
+  public static generateLabel(type: WidgetType, id: string) {
+    return `${type} ${id.substring(id.length-4)}`
   }
 }
 

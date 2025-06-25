@@ -44,7 +44,7 @@ export default function WidgetConfig(
       <div>TODO color</div>
       <div>TODO duration</div>
       <div className='w-full'>
-        <Field title='The verb done to this widget.'>
+        <Field title='The verb/action done to this widget.'>
           <Label>command</Label>
           <Input
             className='block rounded-lg px-3 py-1.5 mt-1 bg-white/5 text-white w-full'

@@ -16,6 +16,7 @@ export default function WidgetsDrawer(
 ) {
   function addWidget(widgetExport: WidgetExport) {
     const widget = Widget.clone(widgetExport)
+    widget.label = Widget.generateLabel(widget.type, widget.id)
     // update local game model and render
     game.current.addWidget(widget)
 
