@@ -27,7 +27,7 @@ function enableAction(
    * Static graphics.
    */
   function start() {
-    
+
   }
   /**
    * Dynamic graphics.
@@ -77,15 +77,16 @@ function enableAction(
   } as IPlayer)
 
   // enable event listeners
-  function onMouseWrapper(e: MouseEvent) {
+  function onMouseWrapper(e: MouseEvent | TouchEvent) {
     // check action    
     action(mouseEventToPointerAction(e), mouseEventToSvgPoint(svg, e), e)
 
-    // propogate to icon
+    // propagate to icon
     iconSvg.current!.dispatchEvent(new MouseEvent(e.type, e))
   }
   svg.addEventListener('mousemove', onMouseWrapper)
   svg.addEventListener('mousedown', onMouseWrapper)
+  svg.addEventListener('touchstart', onMouseWrapper)
   svg.addEventListener('mouseup', onMouseWrapper)
 
   space.play()
@@ -95,15 +96,19 @@ function enableAction(
  * Capture input events to make the icon graphic dynamic.
  */
 function enableIcon(type: WidgetType, svg: SVGSVGElement) {
-  svg.addEventListener('mousedown', () => {
+  function onDown() {
     svg.classList.remove(UIPointerAction.up)
     svg.classList.add(UIPointerAction.down)
-  })
+  }
+  svg.addEventListener('mousedown', onDown)
+  svg.addEventListener('touchstart', onDown)
 
-  svg.addEventListener('mouseup', () => {
+  function onUp() {
     svg.classList.remove(UIPointerAction.down)
     svg.classList.add(UIPointerAction.up)
-  })
+  }
+  svg.addEventListener('mouseup', onUp)
+  svg.addEventListener('touchend', onUp)
 }
 
 export default function WidgetControl(
