@@ -45,7 +45,8 @@ export default class Game {
    */
   protected stateListeners: Map<string, StateListener[]> = new Map([
     [GameStateListenerKey.DevicesCount, []],
-    [GameStateListenerKey.Started, []]
+    [GameStateListenerKey.Started, []],
+    [GameStateListenerKey.CommandWidgetId, []]
   ])
 
   constructor(id?: string | null, config?: GameConfig) {
@@ -172,6 +173,18 @@ export default class Game {
    */
   getDeviceId() {
     return this.state.deviceId
+  }
+
+  getCommandWidgetId() {
+    const commandWidgetId = this.state.commandWidgetId
+    return (
+      commandWidgetId === '' ? undefined : commandWidgetId
+    )
+  }
+
+  setCommandWidgetId(commandWidgetId: string) {
+    this.state.commandWidgetId = commandWidgetId
+    this.stateListeners.get(GameStateListenerKey.CommandWidgetId)?.forEach(l => l(commandWidgetId))
   }
 
   setStartTimeout(onTimeout: () => void): number {

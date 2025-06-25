@@ -28,7 +28,8 @@ export enum GameConfigListenerKey {
 
 export enum GameStateListenerKey {
   DevicesCount = 'devices.count',
-  Started = 'started'
+  Started = 'started',
+  CommandWidgetId = 'commandWidgetId'
 }
 
 export interface GameConfig {

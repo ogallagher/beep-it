@@ -82,10 +82,8 @@ export default function Board(
   )
 
   return (
-    <div className='bg-fuchsia-900 w-full h-dvh' >
-      <Grid>
-        {renderedWidgets.map(renderWidget)}
-      </Grid>
-    </div>
+    <Grid>
+      {renderedWidgets.map(renderWidget)}
+    </Grid>
   )
 }

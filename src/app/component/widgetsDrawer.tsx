@@ -9,8 +9,8 @@ import { clientSendConfigEvent, GameEventType } from '@lib/game/gameEvent'
 
 export default function WidgetsDrawer(
   { open, game, deviceId }: {
-    open: boolean,
-    game: StaticRef<Game> | RefObject<Game>,
+    open: boolean
+    game: StaticRef<Game> | RefObject<Game>
     deviceId: StaticRef<string> | RefObject<string>
   }
 ) {

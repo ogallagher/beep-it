@@ -9,6 +9,7 @@ import { useSearchParams } from 'next/navigation'
 import { ApiRoute, gameServerPort } from '@api/const'
 import { CommandEvent, ConfigEvent, DoWidgetEvent, GameEvent, GameEventKey, GameEventType, JoinEvent } from '@lib/game/gameEvent'
 import { ulid } from 'ulid'
+import CommandCaptions from '@component/commandCaptions'
 
 export default function Home() {
   const urlParams = useSearchParams()
@@ -60,6 +61,7 @@ export default function Home() {
         console.log(
           `command=${(gameEvent as CommandEvent).command} widget=${(gameEvent as CommandEvent).widgetId}`
         )
+        game.current.setCommandWidgetId((gameEvent as CommandEvent).widgetId)
         break
 
       case GameEventType.DoWidget:
@@ -170,7 +172,10 @@ export default function Home() {
           game={game}
           deviceId={clientDeviceId} />
 
-        <Board game={game} deviceId={clientDeviceId} />
+        <div className='bg-fuchsia-900 w-full h-dvh' >
+          <CommandCaptions game={game} />
+          <Board game={game} deviceId={clientDeviceId} />
+        </div>  
       </main>
     </div>
   )
