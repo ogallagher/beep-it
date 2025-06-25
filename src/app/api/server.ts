@@ -3,13 +3,13 @@
  */
 
 import assert from 'assert'
-import express, { Response } from 'express'
+import express from 'express'
 import { Server } from 'http'
 import pino from 'pino'
 import { ApiRoute, gameServerPort, serverDeviceId } from '@api/const'
 import Game from '@lib/game/game'
 import { ConfigEvent, GameEventKey } from '@lib/game/gameEvent'
-import { addGameClient, configGame, getGame } from '@lib/game/gameOperator'
+import { addGameClient, configGame, getGame, getGameEventListener } from '@lib/game/gameOperator'
 import bodyParser from 'body-parser'
 import cors from 'cors'
 
@@ -36,7 +36,7 @@ app.get(
    * @param req Request
    * @param res Response with streamed game events.
    */
-  (req, res: Response) => {
+  (req, res) => {
     logger.debug('GET.joinGame start')
     res.set({
       'Access-Control-Allow-Origin': '*',
@@ -78,13 +78,31 @@ app.get(
 
 app.post(
   ApiRoute.ConfigGame,
-  (req, res: Response) => {
+  (req, res) => {
     logger.debug(`POST.${ApiRoute.ConfigGame} start`)
 
     const event = req.body as ConfigEvent
     configGame(event)
 
     logger.debug(`POST.${ApiRoute.ConfigGame} end`)
+    res.json(event)
+  }
+)
+
+app.get(
+  ApiRoute.StartGame,
+  (req, res) => {
+    logger.debug(`GET.${ApiRoute.StartGame} start`)
+  
+    // replace game instance to capture changes since first join (ex. widgets list).
+    const reqParams = new URLSearchParams(req.query as Record<string, string>)
+    const game = getGame(reqParams, serverDeviceId)
+  
+    // start game
+    logger.info(`start ${game}`)
+    const event = game.start(getGameEventListener(game.id), serverDeviceId)
+  
+    logger.debug(`GET.${ApiRoute.StartGame} end`)
     res.json(event)
   }
 )

@@ -1,5 +1,4 @@
 import { Dispatch, RefObject, SetStateAction } from 'react'
-import { PatchPlus, ChevronBarDown, PlayCircle } from 'react-bootstrap-icons'
 import ShareGame from './share'
 import SaveConfig from './save'
 import StaticRef from '@lib/staticRef'

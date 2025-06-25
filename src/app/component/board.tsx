@@ -47,8 +47,8 @@ export default function Board(
   }
 
   function deleteWidget(id: string) {
-    // update local game model
-    game.current.config.widgets.delete(id)
+    // update local game model and render
+    game.current.deleteWidget(id)
 
     // send config event to server
     clientSendConfigEvent({
@@ -57,9 +57,6 @@ export default function Board(
       deviceId: deviceId.current,
       widgets: [...game.current.config.widgets.values()]
     })
-
-    // render
-    placeWidgets()
   }
 
   function renderWidget(widget: Widget): JSX.Element {

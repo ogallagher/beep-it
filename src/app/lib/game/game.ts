@@ -44,7 +44,8 @@ export default class Game {
    * Very similar to `configListeners`.
    */
   protected stateListeners: Map<string, StateListener[]> = new Map([
-    [GameStateListenerKey.DevicesCount, []]
+    [GameStateListenerKey.DevicesCount, []],
+    [GameStateListenerKey.Started, []]
   ])
 
   constructor(id?: string | null, config?: GameConfig) {
@@ -221,6 +222,9 @@ export default class Game {
   /**
    * Start game, send first command.
    * 
+   * This is an event sender method, called by the game host. 
+   * Does not call `setStarted`, which is an event recipient method.
+   * 
    * @param listener Game event handler that propogates to client pages.
    * @param deviceId Device hosting the game (server if multi device, client if single device).
    * @returns Game start event.
@@ -250,7 +254,7 @@ export default class Game {
     this.state.lastEventType = GameEventType.Command
 
     // select a random widget
-    const commandWidgetIdx = Math.round(Math.random() * this.config.widgets.size-1)
+    const commandWidgetIdx = Math.round(Math.random() * (this.config.widgets.size-1))
     this.state.commandWidgetId = [...this.config.widgets.keys()][commandWidgetIdx]
 
     // send command

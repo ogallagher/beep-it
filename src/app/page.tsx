@@ -53,6 +53,7 @@ export default function Home() {
 
       case GameEventType.Start:
         console.log(`confirmed start of game=${gameEvent.gameId}`)
+        game.current.setStarted(true)
         break
 
       case GameEventType.Command:
@@ -123,27 +124,27 @@ export default function Home() {
     if (game.current.getDeviceCount() > 1) {
       // game is hosted on server; request start
       console.log(`start ${game.current} on server`)
-
-      fetch(`${ApiRoute.StartGame}?${requestParams}`)
-      .then(async (res: Response) => {
-        if (res.ok) {
-          const event: GameEvent = await res.json()
-          if (event.gameEventType === GameEventType.Start) {
-            console.log(`started ${game.current}`)
-          }
-          else {
-            console.log(`start game invalid response ${event}`)
-          }
-        }
-        else {
-          console.log(`start game error ${res.statusText}. ${res.text}`)
-        }
-      })
     }
     else {
-      // game is hosted on client
+      // TODO game is hosted on client
       console.log(`start ${game.current} on local client device=${clientDeviceId.current}`)
     }
+
+    fetch(`http://${window.location.hostname}:${gameServerPort}${ApiRoute.StartGame}?${requestParams}`)
+    .then(async (res: Response) => {
+      if (res.ok) {
+        const event: GameEvent = await res.json()
+        if (event.gameEventType === GameEventType.Start) {
+          console.log(`started ${game.current}. Wait for corresponding streamed game event.`)
+        }
+        else {
+          console.log(`start game invalid response ${event}`)
+        }
+      }
+      else {
+        console.log(`start game error ${res.statusText}. ${res.text}`)
+      }
+    })
   }
 
   // Join game.

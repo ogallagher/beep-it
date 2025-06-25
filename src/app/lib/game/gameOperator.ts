@@ -25,15 +25,14 @@ const listeners: Map<string, GameEventListener> = new Map()
  * Create and register game if not exists and return.
  * 
  * @param gameUrlParams Serialized game as URL search params.
- * @param replace Replace game instance regardless of whether it exists to capture latest config.
  */
-export function getGame(gameUrlParams: URLSearchParams, deviceId: string, replace: boolean = false): Game {
+export function getGame(gameUrlParams: URLSearchParams, deviceId: string): Game {
   const gameId = Game.loadGameId(gameUrlParams)
   if (gameId === undefined) {
     throw new Error(`game id missing in ${gameUrlParams}`)
   }
 
-  if (!games.has(gameId) || replace) {
+  if (!games.has(gameId)) {
     const game = Game.loadGame(gameUrlParams)!
     logger.info(`create ${game}`)
 
