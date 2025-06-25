@@ -59,7 +59,9 @@ export default function Home() {
 
       case GameEventType.Command:
         console.log(
-          `command=${(gameEvent as CommandEvent).command} widget=${(gameEvent as CommandEvent).widgetId}`
+          `command=${(gameEvent as CommandEvent).command} `
+          + `widget=${(gameEvent as CommandEvent).widgetId} `
+          + `delay=${(gameEvent as CommandEvent).commandDelay}`
         )
         game.current.setCommandWidgetId((gameEvent as CommandEvent).widgetId)
         break

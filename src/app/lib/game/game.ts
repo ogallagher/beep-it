@@ -276,7 +276,8 @@ export default class Game {
       gameId: this.id,
       gameEventType: this.state.lastEventType,
       widgetId: this.state.commandWidgetId,
-      command: this.config.widgets.get(this.state.commandWidgetId)!.command
+      command: this.config.widgets.get(this.state.commandWidgetId)!.command,
+      commandDelay: this.state.commandDelay
     }
     listener(command)
 
