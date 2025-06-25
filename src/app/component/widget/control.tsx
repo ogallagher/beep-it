@@ -2,14 +2,19 @@ import { ReactSVG } from 'react-svg'
 import { UIPointerAction, WidgetType } from '../../lib/widget/const'
 import styles from './widget.module.css'
 import { IPlayer, SVGSpace, Circle, Polygon } from 'pts'
-import { Ref, useEffect, useRef } from 'react'
+import { Ref, RefObject, useEffect, useRef } from 'react'
 import { mouseEventToSvgPoint } from '@lib/widget/graphics'
 
 function controlImage(widgetType: string) {
   return 'vercel.svg'
 }
 
-function enableAction(type: WidgetType, svg: SVGSVGElement, onAction: () => void) {
+function enableAction(
+  type: WidgetType, 
+  svg: SVGSVGElement, 
+  onAction: () => void,
+  iconSvg: RefObject<SVGSVGElement | null>
+) {
   const space = new SVGSpace(svg)
   space.setup({
     bgcolor: '#fff0',
@@ -75,15 +80,32 @@ function enableAction(type: WidgetType, svg: SVGSVGElement, onAction: () => void
   } as IPlayer)
 
   // enable event listeners
-  svg.addEventListener('mousemove', (e) => {
+  function onMouseWrapper(e: MouseEvent) {
+    // check action
     action(UIPointerAction.move, mouseEventToSvgPoint(svg, e), e)
-  })
-  svg.addEventListener('mousedown', (e) => {
-    action(UIPointerAction.down, mouseEventToSvgPoint(svg, e), e)
-  })
+
+    // propogate to icon
+    iconSvg.current!.dispatchEvent(new MouseEvent(e.type, e))
+  }
+  svg.addEventListener('mousemove', onMouseWrapper)
+  svg.addEventListener('mousedown', onMouseWrapper)
+  svg.addEventListener('mouseup', onMouseWrapper)
   // space.bindMouse().bindTouch()
 
   space.play()
+}
+
+/**
+ * Capture input events to make the icon graphic dynamic.
+ */
+function enableIcon(type: WidgetType, svg: SVGSVGElement) {
+  svg.addEventListener('mousedown', () => {
+    svg.classList.add('pressed')
+  })
+
+  svg.addEventListener('mouseup', () => {
+    svg.classList.remove('pressed')
+  })
 }
 
 export default function WidgetControl(
@@ -94,12 +116,13 @@ export default function WidgetControl(
     gameStarted: boolean
   }
 ) {
+  const iconSvg: Ref<SVGSVGElement> = useRef(null)
   const interactiveSvg: Ref<SVGSVGElement> = useRef(null)
 
   useEffect(
     () => {
       if (onAction !== undefined && gameStarted && interactiveSvg.current) {
-        enableAction(type, interactiveSvg.current, onAction)
+        enableAction(type, interactiveSvg.current, onAction, iconSvg)
       }
     },
     [ gameStarted ]
@@ -116,8 +139,12 @@ export default function WidgetControl(
         className='w-full'
         src={controlImage(type)}
         width={1} height={1}
-        afterInjection={undefined} />
-        {/* TODO switch back to canvas? */}
+        afterInjection={(svg) => {
+          iconSvg.current = svg
+          enableIcon(type, svg)
+        }} />
+
+      {/* TODO switch back to canvas? */}
       <svg className='absolute w-full h-full' ref={interactiveSvg} />
     </div>
   )
