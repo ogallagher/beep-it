@@ -34,7 +34,7 @@ export default function WidgetsDrawerControl(
         + (gameStarted ? 'hidden' : '')
       } >
       <button
-        className='cursor-pointer hover:scale-105 text-4xl'
+        className='cursor-pointer hover:scale-105'
         type='button' onClick={() => setWidgetsDrawerOpen(!widgetsDrawerOpen)}
         title={
           widgetsDrawerOpen ? 'Close widgets drawer' : 'Add widgets to the board'

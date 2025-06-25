@@ -13,7 +13,7 @@ export default function WidgetDelete(
       className={disabled ? 'hidden' : ''} >
       <button type='button'
         className={
-          'cursor-pointer hover:scale-105 text-4xl '
+          'absolute top-0 right-0 cursor-pointer hover:scale-105 text-4xl '
           + (onDelete === undefined ? 'hidden' : '')
         }
         title={`Remove ${widgetLabel} from the board`}

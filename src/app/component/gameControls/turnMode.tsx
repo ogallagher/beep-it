@@ -52,8 +52,7 @@ export default function TurnMode(
 
         <button 
           className={
-            'text-4xl '
-            + (
+            (
               gameStarted 
               ? 'cursor-default' 
               : 'hover:scale-105 cursor-pointer'

@@ -16,7 +16,7 @@ export default function SaveConfig(
     <div className='flex flex-col justify-center'>
       <div className='flex flex-row justify-center gap-2'>
         <button
-          className='cursor-pointer hover:scale-105 text-4xl'
+          className='cursor-pointer hover:scale-105'
           title='Save game config link to load the same board later.'
           type='button' onClick={() => {
             if (!saveLinkOpen) {
@@ -33,7 +33,7 @@ export default function SaveConfig(
             title={saveUrl.current.toString()}
             size={Math.min(saveUrl.current.toString().length, 50)}
             className={
-              'rounded-lg bg-white/5 text-white min-w-auto px-3 py-1.5 text-sm '
+              'rounded-lg bg-white/5 text-white min-w-auto px-3 py-1.5 text-xs '
               + (saveLinkOpen ? '' : 'hidden')
             }
             disabled

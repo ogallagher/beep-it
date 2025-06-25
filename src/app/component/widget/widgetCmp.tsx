@@ -68,7 +68,7 @@ export default function WidgetCmp(
     <div 
       key={widget.id} 
       className={
-        'flex-1 border border-white/10 border-solid '
+        'flex-1 relative border border-white/10 border-solid '
         + (className === undefined ? '' : className)
       } >
       <WidgetControl 

@@ -13,8 +13,8 @@ export default function Header(
 
   return (
     <>
-      <header className='border-b'>
-        <nav className='mx-auto flex items-center justify-between p-6'>
+      <header className='border-b md:text-2xl text-sm'>
+        <nav className='mx-auto flex items-center justify-between md:p-4 p-1'>
           <div className='flex'>
             <a href={githubUrl}>
               <Github/>

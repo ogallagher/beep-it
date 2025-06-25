@@ -25,15 +25,16 @@ body {
   font-family: Arial, Helvetica, sans-serif;
 }
 
-/*
-  Icons within header bar.
-*/
-header .bi {
-  font-size: 2em;
+.gameControls button {
+  font-size: var(--text-2xl);
+}
+
+h1 {
+  font-size: var(--text-4xl);
 }
 
 h2 {
-  font-size: 2em;
+  font-size: var(--text-3xl);
   margin-top: 0.25em;
 }
 

@@ -38,7 +38,7 @@ export default function GamePlay(
       + (enable ? '' : 'hidden')
     }>
       <button
-        className='cursor-pointer hover:scale-105 text-4xl'
+        className='cursor-pointer hover:scale-105'
         type='button' onClick={startGame}
         title='Start new game'
         disabled={enable ? undefined : true} >

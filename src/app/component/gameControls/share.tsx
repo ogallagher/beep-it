@@ -30,7 +30,7 @@ export default function ShareGame(
       } >
       <div className='flex flex-row justify-center gap-2'>
         <button
-          className='cursor-pointer hover:scale-105 text-4xl'
+          className='cursor-pointer hover:scale-105'
           title='Share game link to add devices to the board.'
           type='button' onClick={() => {
             if (!gameLinkOpen) {
@@ -49,7 +49,7 @@ export default function ShareGame(
             title={shareUrl.current.toString()}
             size={shareUrl.current.toString().length}
             className={
-              'rounded-lg bg-white/5 text-white min-w-auto px-3 py-1.5 text-sm '
+              'rounded-lg bg-white/5 text-white min-w-auto px-3 py-1.5 text-xs '
               + (gameLinkOpen ? '' : 'hidden')
             }
             disabled

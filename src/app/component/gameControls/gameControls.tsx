@@ -21,7 +21,10 @@ export default function GameControls(
 ) {
   return (
     <div 
-      className='flex flex-wrap gap-4 justify-between bg-green-900 w-full text-2xl py-2 px-2'>
+      className={
+        'gameControls flex flex-wrap gap-2 justify-between bg-green-900 w-full '
+        + 'md:text-xl text-sm md:p-2 p-1'
+      }>
       <SaveConfig game={game} />
 
       <ShareGame game={game} />
