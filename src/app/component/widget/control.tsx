@@ -3,10 +3,10 @@ import { UIPointerAction, WidgetType } from '../../lib/widget/const'
 import styles from './widget.module.css'
 import { IPlayer, SVGSpace, Circle, Polygon } from 'pts'
 import { Ref, RefObject, useEffect, useRef } from 'react'
-import { mouseEventToSvgPoint } from '@lib/widget/graphics'
+import { mouseEventToPointerAction, mouseEventToSvgPoint } from '@lib/widget/graphics'
 
 function controlImage(widgetType: string) {
-  return 'vercel.svg'
+  return `widgetIcon/${widgetType}.svg`
 }
 
 function enableAction(
@@ -27,10 +27,7 @@ function enableAction(
    * Static graphics.
    */
   function start() {
-    form.fill('green')
-    form.polygon(Polygon.fromCenter(space.innerBound.center, space.innerBound.width/2 * 0.6, 3))
-    form.fill('yellow')
-    form.circle(Circle.fromCenter(space.innerBound.center, 10))
+    
   }
   /**
    * Dynamic graphics.
@@ -81,8 +78,8 @@ function enableAction(
 
   // enable event listeners
   function onMouseWrapper(e: MouseEvent) {
-    // check action
-    action(UIPointerAction.move, mouseEventToSvgPoint(svg, e), e)
+    // check action    
+    action(mouseEventToPointerAction(e), mouseEventToSvgPoint(svg, e), e)
 
     // propogate to icon
     iconSvg.current!.dispatchEvent(new MouseEvent(e.type, e))
@@ -90,7 +87,6 @@ function enableAction(
   svg.addEventListener('mousemove', onMouseWrapper)
   svg.addEventListener('mousedown', onMouseWrapper)
   svg.addEventListener('mouseup', onMouseWrapper)
-  // space.bindMouse().bindTouch()
 
   space.play()
 }
@@ -100,11 +96,13 @@ function enableAction(
  */
 function enableIcon(type: WidgetType, svg: SVGSVGElement) {
   svg.addEventListener('mousedown', () => {
-    svg.classList.add('pressed')
+    svg.classList.remove(UIPointerAction.up)
+    svg.classList.add(UIPointerAction.down)
   })
 
   svg.addEventListener('mouseup', () => {
-    svg.classList.remove('pressed')
+    svg.classList.remove(UIPointerAction.down)
+    svg.classList.add(UIPointerAction.up)
   })
 }
 
