@@ -69,8 +69,16 @@ export interface DoWidgetEvent extends GameEvent {
   widgetId: string
 }
 
+export enum GameEndReason {
+  Unknown = 'unknown',
+  StartDelay = 'startDelay',
+  ActionDelay = 'actionDelay',
+  ActionMismatch = 'actionMismatch'
+}
+
 export interface EndEvent extends GameEvent {
   commandCount: number
+  endReason: GameEndReason
 }
 
 export type GameEventListener = (event: GameEvent) => void

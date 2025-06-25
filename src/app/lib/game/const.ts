@@ -1,4 +1,4 @@
-import { GameEventType } from './gameEvent'
+import { GameEndReason, GameEventType } from './gameEvent'
 import Widget from '@lib/widget/widget'
 
 /**
@@ -27,8 +27,15 @@ export enum GameConfigListenerKey {
 }
 
 export enum GameStateListenerKey {
+  /**
+   * Used for any change to config.devices.
+   */
   DevicesCount = 'devices.count',
   Started = 'started',
+  /**
+   * Used for both setEnded and setEndReason.
+   */
+  Ended = 'ended',
   CommandWidgetId = 'commandWidgetId'
 }
 
@@ -55,6 +62,8 @@ export interface GameState {
   commandWidgetId: string
   lastEventType: GameEventType
   started: boolean
+  ended: boolean
+  endReason: GameEndReason
   /**
    * Game host device.
    */

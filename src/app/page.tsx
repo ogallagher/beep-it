@@ -7,7 +7,7 @@ import WidgetsDrawer from '@component/widgetsDrawer'
 import Game from '@lib/game/game'
 import { useSearchParams } from 'next/navigation'
 import { ApiRoute, gameServerPort } from '@api/const'
-import { CommandEvent, ConfigEvent, DoWidgetEvent, GameEvent, GameEventKey, GameEventType, JoinEvent } from '@lib/game/gameEvent'
+import { CommandEvent, ConfigEvent, DoWidgetEvent, EndEvent, GameEvent, GameEventKey, GameEventType, JoinEvent } from '@lib/game/gameEvent'
 import { ulid } from 'ulid'
 import CommandCaptions from '@component/commandCaptions'
 
@@ -76,6 +76,8 @@ export default function Home() {
       case GameEventType.End:
         console.log('game ended; close connection')
         closeGameEventSource()
+        game.current.setEnded(true)
+        game.current.setEndReason((gameEvent as EndEvent).endReason)
         break
 
       default:

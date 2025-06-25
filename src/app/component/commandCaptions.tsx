@@ -1,5 +1,6 @@
 import { GameStateListenerKey } from '@lib/game/const'
 import Game from '@lib/game/game'
+import { GameEndReason } from '@lib/game/gameEvent'
 import StaticRef from '@lib/staticRef'
 import { RefObject, useEffect, useState } from 'react'
 
@@ -18,12 +19,22 @@ export default function CommandCaptions(
       targetLabel: game.current.config.widgets.get(commandWidgetId)?.label
     }
   }
+  function getGameEnd() {
+    return {
+      ended: game.current.getEnded(),
+      endReason: game.current.getEndReason()
+    }
+  }
+
   const [command, setCommand] = useState(getCommand())
+  const [gameEnd, setGameEnd] = useState(getGameEnd())
 
   useEffect(
     () => {
       // state listener for command
       game.current.addStateListener(GameStateListenerKey.CommandWidgetId, () => setCommand(getCommand()))
+      // listener for game end
+      game.current.addStateListener(GameStateListenerKey.Ended, () => setGameEnd(getGameEnd()))
     },
     [ game ]
   )
@@ -32,14 +43,47 @@ export default function CommandCaptions(
     <div 
       className={
         'text-center w-full bg-orange-900 p-4 '
-        + (command === undefined ? 'hidden' : '')
+        + ((command === undefined && !gameEnd.ended) ? 'hidden' : '')
       } >
-      <div className='flex flex-row gap-2 justify-center'>
-        <div className='flex flex-col justify-center'>
-          <div className='font-bold text-3xl'>{command?.action}</div>
+      <div className='flex flex-row gap-2 justify-between'>
+        <div 
+          className={
+            'flex flex-row gap-2 justify-center '
+            + (command === undefined ? 'hidden' : '')
+          } >
+          <div className='flex flex-col justify-center'>
+            <div className='font-bold text-3xl'>{command?.action}</div>
+          </div>
+          <div className='flex flex-col justify-center'>
+            <div className='text-2xl'>{command?.targetLabel}</div>
+          </div>
         </div>
-        <div className='flex flex-col justify-center'>
-          <div className='text-2xl'>{command?.targetLabel}</div>
+        
+        <div 
+          className={
+            'flex flex-row gap-2 justify-center '
+            + (gameEnd.ended ? '' : 'hidden')
+          } >
+          <div className='flex flex-col justify-center'>
+            <div className='font-bold text-3xl'>Game Over</div>
+          </div>
+          <div className='flex flex-col justify-center'>
+            <div className='text-2xl'>
+              ({ ( () => {
+                switch (gameEnd.endReason) {
+                  case GameEndReason.StartDelay:
+                    return 'game expired; reconnect devices to play'
+                  case GameEndReason.ActionDelay:
+                    return 'too slow'
+                  case GameEndReason.ActionMismatch:
+                    return 'wrong widget'
+                  case GameEndReason.Unknown:
+                  default:
+                    return 'reason unknown'
+                }
+              } )() })
+            </div>
+          </div>
         </div>
       </div>
     </div>

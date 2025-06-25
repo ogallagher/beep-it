@@ -1,6 +1,6 @@
 import { ulid } from 'ulid'
 import Widget from '@lib/widget/widget'
-import { CommandEvent, ConfigEvent, DoWidgetEvent, EndEvent, GameEvent, GameEventListener, GameEventType } from './gameEvent'
+import { CommandEvent, ConfigEvent, DoWidgetEvent, EndEvent, GameEndReason, GameEvent, GameEventListener, GameEventType } from './gameEvent'
 import { BoardDisplayMode, GameTurnMode, GameConfigListenerKey, GameStateListenerKey, commandDelayMin, ConfigListener, GameConfig, gameStartDelayMax, GameState, StateListener } from './const'
 import { WidgetExport } from '@lib/widget/const'
 
@@ -19,6 +19,8 @@ export default class Game {
     commandWidgetId: '',
     lastEventType: GameEventType.Pending,
     started: false,
+    ended: false,
+    endReason: GameEndReason.Unknown,
     /**
      * The client device that is hosting the game (first to join).
      */
@@ -46,6 +48,7 @@ export default class Game {
   protected stateListeners: Map<string, StateListener[]> = new Map([
     [GameStateListenerKey.DevicesCount, []],
     [GameStateListenerKey.Started, []],
+    [GameStateListenerKey.Ended, []],
     [GameStateListenerKey.CommandWidgetId, []]
   ])
 
@@ -113,6 +116,24 @@ export default class Game {
   setStarted(started: boolean) {
     this.state.started = started
     this.stateListeners.get(GameStateListenerKey.Started)?.forEach(l => l(started))
+  }
+
+  getEnded() {
+    return this.state.ended
+  }
+
+  setEnded(ended: boolean) {
+    this.state.ended = ended
+    this.stateListeners.get(GameStateListenerKey.Ended)?.forEach(l => l(ended))
+  }
+
+  getEndReason() {
+    return this.state.endReason
+  }
+
+  setEndReason(reason: GameEndReason) {
+    this.state.endReason = reason
+    this.stateListeners.get(GameStateListenerKey.Ended)?.forEach(l => l(this.state.ended))
   }
 
   getPlayerCount() {
@@ -289,7 +310,7 @@ export default class Game {
 
     // wait for doWidget
     this.state.commandTimeout = setTimeout(
-      () => this.end(listener, this.state.deviceId!), 
+      () => this.end(GameEndReason.ActionDelay, listener, this.state.deviceId!), 
       this.state.commandDelay
     )
   }
@@ -309,7 +330,7 @@ export default class Game {
     }
     else {
       // wrong widget; end game
-      this.end(listener, this.state.deviceId!)
+      this.end(GameEndReason.ActionMismatch, listener, this.state.deviceId!)
     }
   }
 
@@ -319,13 +340,14 @@ export default class Game {
    * @param listener 
    * @param deviceId Device that emits end event. Does not use instance var in case this game was never started.
    */
-  public end(listener: GameEventListener, deviceId: string) {
+  public end(reason: GameEndReason, listener: GameEventListener, deviceId: string) {
     this.state.lastEventType = GameEventType.End
     const event: EndEvent = {
       deviceId,
       gameId: this.id,
       gameEventType: this.state.lastEventType,
-      commandCount: this.state.commandCount
+      commandCount: this.state.commandCount,
+      endReason: reason
     }
     listener(event)
   }

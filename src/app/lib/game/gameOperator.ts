@@ -1,6 +1,6 @@
 import pino from 'pino'
 import Game from './game'
-import { ConfigEvent, GameEventListener, GameEventType, JoinEvent, serverSendGameEvent } from './gameEvent'
+import { ConfigEvent, GameEndReason, GameEventListener, GameEventType, JoinEvent, serverSendGameEvent } from './gameEvent'
 import { Response } from 'express'
 import { serverDeviceId } from '@api/const'
 
@@ -40,7 +40,7 @@ export function getGame(gameUrlParams: URLSearchParams, deviceId: string): Game 
 
     const gameStartDelayMax = game.setStartTimeout(() => {
       // end game and notify clients
-      game.end(getGameEventListener(gameId), deviceId)
+      game.end(GameEndReason.StartDelay, getGameEventListener(gameId), deviceId)
 
       // delete game
       deleteGame(gameId)
