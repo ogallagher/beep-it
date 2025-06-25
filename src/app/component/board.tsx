@@ -63,6 +63,7 @@ export default function Board(
     return WidgetCmp({
       widget: widget.save(),
       labelEditable: !gameStarted,
+      configurable: !gameStarted,
       // widget can delete itself from the board
       onDelete: deleteWidget
     })

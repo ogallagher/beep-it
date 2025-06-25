@@ -1,14 +1,16 @@
 import { XCircle } from 'react-bootstrap-icons'
 
 export default function WidgetDelete(
-  { widgetLabel, widgetId, onDelete }: {
+  { widgetLabel, widgetId, onDelete, disabled }: {
     onDelete?: (id: string) => void
     widgetLabel: string
     widgetId: string
+    disabled: boolean
   }
 ) {
   return (
-    <div className='w-full text-right'>
+    <div 
+      className={disabled ? 'hidden' : ''} >
       <button type='button'
         className={
           'cursor-pointer hover:scale-105 text-4xl '

@@ -41,6 +41,7 @@ export default function WidgetsDrawer(
               key={type}
               widget={widget.save()} 
               labelEditable={false}
+              configurable={true}
               className='max-w-100'
               onClick={addWidget} />
         })}

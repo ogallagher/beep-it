@@ -10,15 +10,17 @@ interface Config {
 }
 
 export default function WidgetConfig(
-  {type, configRef}: {
-    type: WidgetType,
+  {type, configRef, disabled}: {
+    type: WidgetType
     configRef: RefObject<Config> | StaticRef<Config>
+    disabled: boolean
   }
 ) {
   return (
-    <div>
-      <div>color</div>
-      <div>duration</div>
+    <div
+      className={disabled ? 'hidden' : ''}>
+      <div>TODO color</div>
+      <div>TODO duration</div>
       <div className='w-full'>
         <Field title='The verb done to this widget.'>
           <Label>command</Label>

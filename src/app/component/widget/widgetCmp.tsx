@@ -11,6 +11,7 @@ import WidgetDelete from './delete'
 export interface WidgetParams {
   widget: WidgetExport
   labelEditable?: boolean
+  configurable: boolean
   onClick?: (params: WidgetExport) => void
   onDelete?: (id: string) => void
   className?: string
@@ -21,7 +22,7 @@ export interface WidgetParams {
  * @returns Widget UI component.
  */
 export default function WidgetCmp(
-  { widget, labelEditable, onClick, onDelete, className }: WidgetParams
+  { widget, labelEditable, configurable, onClick, onDelete, className }: WidgetParams
 ) {
   // something about how widgets can be dynamically added to the board
   // means I can't call useRef here
@@ -53,9 +54,14 @@ export default function WidgetCmp(
         valueRef={labelRef} 
         disabled={!labelEditable} />
 
-      <WidgetConfig type={widget.type} configRef={configRef} />
+      <WidgetConfig 
+        type={widget.type} 
+        configRef={configRef}
+        disabled={!configurable} />
 
-      <WidgetDelete onDelete={onDelete} widgetLabel={labelRef.current} widgetId={widget.id} />
+      <WidgetDelete 
+        onDelete={onDelete} widgetLabel={labelRef.current} widgetId={widget.id}
+        disabled={!configurable} />
     </div>
   )
 }
