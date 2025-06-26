@@ -1,12 +1,13 @@
 import { ReactSVG } from 'react-svg'
 import { UIPointerAction, WidgetType } from '../../lib/widget/const'
 import styles from './widget.module.css'
-import { IPlayer, SVGSpace, Circle, Pt, Line } from 'pts'
+import { SVGSpace, Circle, Pt } from 'pts'
 import { Ref, RefObject, useEffect, useRef } from 'react'
 import { mouseEventToPointerAction, mouseEventToSvgPoint } from '@lib/widget/graphics'
+import { websiteBasePath } from '@api/const'
 
 function controlImage(widgetType: string) {
-  return `widgetIcon/${widgetType}.svg`
+  return `${websiteBasePath}/widgetIcon/${widgetType}.svg`
 }
 
 function enableAction(
@@ -79,13 +80,15 @@ function enableAction(
 
         const isLong = (length || 0) > minLength
 
-        if (isLong) {
-          iconSvg.current?.classList.add('pull2')
-          iconSvg.current?.classList.remove('rest', 'pull1')
-        }
-        else if (pEnd) {
-          iconSvg.current?.classList.add('pull1')
-          iconSvg.current?.classList.remove('rest', 'pull2')
+        if (pStart) {
+          if (isLong) {
+            iconSvg.current?.classList.add('pull2')
+            iconSvg.current?.classList.remove('rest', 'pull1')
+          }
+          else {
+            iconSvg.current?.classList.add('pull1')
+            iconSvg.current?.classList.remove('rest', 'pull2')
+          }
         }
         else {
           iconSvg.current?.classList.add('rest')
@@ -132,7 +135,7 @@ function enableAction(
   space.add({ 
     start,
     action: (t,x,y,e) => action(t as UIPointerAction, new DOMPoint(x, y), e)
-  } as IPlayer)
+  })
 
   // enable event listeners
   const listenerAbortController = new AbortController()

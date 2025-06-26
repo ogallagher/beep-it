@@ -6,7 +6,7 @@ import assert from 'assert'
 import express from 'express'
 import { Server } from 'http'
 import pino from 'pino'
-import { ApiRoute, gameServerPort, serverDeviceId } from '@api/const'
+import { ApiRoute, gameServerPort, serverDeviceId, websiteBasePath } from '@api/const'
 import Game from '@lib/game/game'
 import { ConfigEvent, DoWidgetEvent, GameEventKey } from '@lib/game/gameEvent'
 import { addGameClient, configGame, getGame, getGameEventListener } from '@lib/game/gameOperator'
@@ -29,7 +29,7 @@ app.use(bodyParser.json({
 let server: Server | undefined
 
 app.get(
-  ApiRoute.JoinGame, 
+  `${websiteBasePath}/${ApiRoute.JoinGame}`, 
   /**
    * Add a client device to a game. All player devices should request this endpoint to join before the game starts. 
    * 
@@ -77,7 +77,7 @@ app.get(
 )
 
 app.post(
-  ApiRoute.ConfigGame,
+  `${websiteBasePath}/${ApiRoute.ConfigGame}`,
   (req, res) => {
     logger.debug(`POST.${ApiRoute.ConfigGame} start`)
 
@@ -90,7 +90,7 @@ app.post(
 )
 
 app.get(
-  ApiRoute.StartGame,
+  `${websiteBasePath}/${ApiRoute.StartGame}`,
   (req, res) => {
     logger.debug(`GET.${ApiRoute.StartGame} start`)
 
@@ -107,7 +107,7 @@ app.get(
 )
 
 app.get(
-  ApiRoute.DoWidget,
+  `${websiteBasePath}/${ApiRoute.DoWidget}`,
   (req, res) => {
     logger.debug(`GET.${ApiRoute.DoWidget} start`)
     

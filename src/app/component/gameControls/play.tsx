@@ -32,7 +32,7 @@ export default function GamePlay(
       // config event listener for widgets
       game.current.addConfigListener(GameConfigListenerKey.Widgets, updateEnable)
     },
-    [ game ]
+    []
   )
 
   return (

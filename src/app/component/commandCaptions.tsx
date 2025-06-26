@@ -36,7 +36,7 @@ export default function CommandCaptions(
       // listener for game end
       game.current.addStateListener(GameStateListenerKey.Ended, () => setGameEnd(getGameEnd()))
     },
-    [ game ]
+    []
   )
 
   return (

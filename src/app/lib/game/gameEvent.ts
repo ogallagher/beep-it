@@ -1,7 +1,7 @@
 import { WidgetExport } from '@lib/widget/const'
 import { BoardDisplayMode, GameTurnMode } from './const'
 import assert from 'assert'
-import { ApiRoute, gameServerPort } from '@api/const'
+import { ApiRoute, gameServerPort, websiteBasePath } from '@api/const'
 import { Response } from 'express'
 
 export enum GameEventType {
@@ -85,8 +85,8 @@ export type GameEventListener = (event: GameEvent) => void
 
 export async function clientSendConfigEvent(event: ConfigEvent) {
   try {
-    let res = await fetch(
-      `http://${window.location.hostname}:${gameServerPort}${ApiRoute.ConfigGame}`, 
+    const res = await fetch(
+      `http://${window.location.hostname}:${gameServerPort}${websiteBasePath}/${ApiRoute.ConfigGame}`, 
       {
         method: 'POST',
         body: JSON.stringify(event),

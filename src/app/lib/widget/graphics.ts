@@ -8,7 +8,7 @@ import { UIPointerAction } from "./const"
  * @returns 
  */
 export function mouseEventToSvgPoint(svg: SVGSVGElement, e: MouseEvent | TouchEvent | DragEvent) {
-  let l = svg.createSVGPoint()
+  const l = svg.createSVGPoint()
   
   if (e instanceof MouseEvent) {
     l.x = e.clientX

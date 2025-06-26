@@ -82,7 +82,7 @@ export default function Board({ game, deviceId }: BoardParams) {
       // render widgets
       game.current.addConfigListener(GameConfigListenerKey.Widgets, placeWidgets)
     },
-    [ game ]
+    []
   )
 
   return (

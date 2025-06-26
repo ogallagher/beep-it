@@ -28,7 +28,7 @@ export default function WidgetsDrawerControl(
       // game event listener for end
       game.current.addStateListener(GameStateListenerKey.Ended, setGameEnded)
     },
-    [ game ]
+    []
   )
 
   return (
