@@ -79,6 +79,9 @@ export default function Home() {
       case GameEventType.Start:
         console.log(`confirmed start of game=${gameEvent.gameId}`)
         game.current.setStarted(true)
+        // anchor scroll on game board
+        window.location.href = `#${boardId}`
+        scrollLockAbortController.current = scrollLock()
         break
 
       case GameEventType.Command:
@@ -150,10 +153,6 @@ export default function Home() {
   async function startGame() {
     // Rejoin on start in case game ended on expire.
     await joinGame()
-
-    // anchor scroll on game board
-    window.location.href = `#${boardId}`
-    scrollLockAbortController.current = scrollLock()
 
     const requestParams = game.current.save()
 
