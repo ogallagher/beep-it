@@ -14,6 +14,8 @@ export const commandDelayMin = 800
  */
 export const gameDeleteDelay = 1000 * 60 * 15
 
+export const commandDelayDefault = 1000 * 3
+
 export enum BoardDisplayMode {
   Mirror = 'mirror',
   Extend = 'extend',

@@ -1,7 +1,7 @@
 import { ulid } from 'ulid'
 import Widget from '@lib/widget/widget'
 import { CommandEvent, ConfigEvent, DoWidgetEvent, EndEvent, GameEndReason, GameEvent, GameEventListener, GameEventType } from './gameEvent'
-import { BoardDisplayMode, GameTurnMode, GameConfigListenerKey, GameStateListenerKey, commandDelayMin, ConfigListener, GameConfig, gameStartDelayMax, GameState, StateListener, gameDeleteDelay } from './const'
+import { BoardDisplayMode, GameTurnMode, GameConfigListenerKey, GameStateListenerKey, commandDelayMin, ConfigListener, GameConfig, gameStartDelayMax, GameState, StateListener, gameDeleteDelay, commandDelayDefault } from './const'
 import { WidgetExport } from '@lib/widget/const'
 
 export default class Game {
@@ -14,7 +14,7 @@ export default class Game {
   public config: GameConfig
   protected state: GameState = {
     commandCount: 0,
-    commandDelay: 3000,
+    commandDelay: commandDelayDefault,
     commandTimeout: null,
     commandWidgetId: '',
     lastEventType: GameEventType.Pending,
@@ -287,6 +287,7 @@ export default class Game {
     // reset state
     this.state.started = true
     this.state.commandCount = 0
+    this.state.commandDelay = commandDelayDefault
     this.state.ended = false
     this.state.endReason = GameEndReason.Unknown
 
