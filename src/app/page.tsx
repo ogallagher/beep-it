@@ -74,8 +74,8 @@ export default function Home() {
         break
 
       case GameEventType.End:
-        console.log('game ended; close connection')
-        closeGameEventSource()
+        console.log('game ended. do not close connection before game is deleted')
+        // closeGameEventSource()
         game.current.setEnded(true)
         game.current.setEndReason((gameEvent as EndEvent).endReason)
         break
