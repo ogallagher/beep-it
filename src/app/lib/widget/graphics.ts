@@ -7,7 +7,7 @@ import { UIPointerAction } from "./const"
  * @param e 
  * @returns 
  */
-export function mouseEventToSvgPoint(svg: SVGSVGElement, e: MouseEvent | TouchEvent) {
+export function mouseEventToSvgPoint(svg: SVGSVGElement, e: MouseEvent | TouchEvent | DragEvent) {
   let l = svg.createSVGPoint()
   
   if (e instanceof MouseEvent) {
@@ -24,17 +24,21 @@ export function mouseEventToSvgPoint(svg: SVGSVGElement, e: MouseEvent | TouchEv
   return l.matrixTransform(svg.getScreenCTM()!.inverse())
 }
 
-export function mouseEventToPointerAction(e: MouseEvent | TouchEvent): UIPointerAction {
+export function mouseEventToPointerAction(e: MouseEvent | TouchEvent | DragEvent): UIPointerAction {
   switch (e.type) {
     case 'mousemove':
+    case 'touchmove':
+    case 'drag':
       return UIPointerAction.move
 
     case 'mousedown':
     case 'touchstart':
+    case 'dragstart':
       return UIPointerAction.down
 
     case 'mouseup':
     case 'touchend':
+    case 'dragend':
       return UIPointerAction.up
 
     default:
