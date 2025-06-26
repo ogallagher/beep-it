@@ -43,7 +43,7 @@ export function getGame(gameUrlParams: URLSearchParams, deviceId: string): Game 
       game.end(GameEndReason.StartDelay, getGameEventListener(gameId), deviceId)
 
       // delete game
-      deleteGame(gameId)
+      queueDeleteGame(gameId)
     })
     logger.info(`${game} expires in ${gameStartDelayMax / 1000} sec`)
   }
@@ -113,7 +113,7 @@ export function getGameEventListener(gameId: string): GameEventListener {
 
       // delete game
       if (event.gameEventType === GameEventType.End) {
-        deleteGame(gameId)
+        queueDeleteGame(gameId)
       }
     })
   }
@@ -137,7 +137,20 @@ export function configGame(configEvent: ConfigEvent) {
 }
 
 function deleteGame(gameId: string) {
+  logger.info(`delete game ${gameId}`)
   listeners.delete(gameId)
   games.get(gameId)?.getDevices().forEach((deviceId) => clients.delete(deviceId))
   games.delete(gameId)
+}
+
+function queueDeleteGame(gameId: string) {
+  const game = games.get(gameId)
+  if (game === undefined) {
+    logger.info(`reference missing for game ${gameId}; delete without delay`)
+    deleteGame(gameId)
+  }
+  else {
+    const deleteDelay = game.setDeleteTimeout(() => deleteGame(gameId))
+    logger.info(`will delete game ${gameId} in ${deleteDelay / 1000}s`)
+  }
 }

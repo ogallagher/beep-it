@@ -6,7 +6,6 @@ import { BoardDisplayMode, GameConfigListenerKey, GameStateListenerKey } from '@
 import Widget from '@lib/widget/widget'
 import WidgetCmp from './widget/widgetCmp'
 import { clientSendConfigEvent, GameEventType } from '@lib/game/gameEvent'
-import { WidgetType } from '@lib/widget/const'
 
 export default function Board(
   { game, deviceId }: {
@@ -16,6 +15,7 @@ export default function Board(
 ) {
 
   const [gameStarted, setGameStarted] = useState(game.current.getStarted())
+  const [gameEnded, setGameEnded] = useState(game.current.getEnded())
   const [renderedWidgets, setRenderedWidgets] = useState([] as Widget[])
 
   /**
@@ -65,8 +65,8 @@ export default function Board(
       widget: widget.save(),
       game: game,
       deviceId: deviceId,
-      labelEditable: !gameStarted,
-      configurable: !gameStarted,
+      labelEditable: !gameStarted || gameEnded,
+      configurable: !gameStarted || gameEnded,
       // widget can delete itself from the board
       onDelete: deleteWidget
     })
@@ -75,8 +75,10 @@ export default function Board(
   // register game update listeners
   useEffect(
     () => {
-      // disable input on game start
+      // disable widget config on game start
       game.current.addStateListener(GameStateListenerKey.Started, setGameStarted)
+      // TODO enable widget config and disable action on game end
+      game.current.addStateListener(GameStateListenerKey.Ended, setGameEnded)
 
       // render widgets
       game.current.addConfigListener(GameConfigListenerKey.Widgets, placeWidgets)

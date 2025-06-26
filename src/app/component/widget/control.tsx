@@ -77,6 +77,8 @@ function enableAction(
   } as IPlayer)
 
   // enable event listeners
+  const listenerAbortController = new AbortController()
+
   function onMouseWrapper(e: MouseEvent | TouchEvent) {
     // check action    
     action(mouseEventToPointerAction(e), mouseEventToSvgPoint(svg, e), e)
@@ -84,12 +86,20 @@ function enableAction(
     // propagate to icon
     iconSvg.current!.dispatchEvent(new MouseEvent(e.type, e))
   }
-  svg.addEventListener('mousemove', onMouseWrapper)
-  svg.addEventListener('mousedown', onMouseWrapper)
-  svg.addEventListener('touchstart', onMouseWrapper)
-  svg.addEventListener('mouseup', onMouseWrapper)
+  svg.addEventListener('mousemove', onMouseWrapper, {signal: listenerAbortController.signal})
+  svg.addEventListener('mousedown', onMouseWrapper, {signal: listenerAbortController.signal})
+  svg.addEventListener('touchstart', onMouseWrapper, {signal: listenerAbortController.signal})
+  svg.addEventListener('mouseup', onMouseWrapper, {signal: listenerAbortController.signal})
+  svg.addEventListener('touchend', onMouseWrapper, {signal: listenerAbortController.signal})
 
   space.play()
+
+  return listenerAbortController
+}
+
+function disableAction(listenerAbortController: AbortController) {
+  // removes all input event listeners used for widget actions  
+  listenerAbortController.abort()
 }
 
 /**
@@ -112,23 +122,30 @@ function enableIcon(type: WidgetType, svg: SVGSVGElement) {
 }
 
 export default function WidgetControl(
-  {type, onClick, onAction, gameStarted}: {
+  {type, onClick, onAction, active}: {
     type: WidgetType
     onClick?: () => void
     onAction?: () => void
-    gameStarted: boolean
+    /**
+     * Whether widget control is accepting actions from user input.
+     */
+    active: boolean
   }
 ) {
   const iconSvg: Ref<SVGSVGElement> = useRef(null)
   const interactiveSvg: Ref<SVGSVGElement> = useRef(null)
+  const interactAbortController: Ref<AbortController> = useRef(null)
 
   useEffect(
     () => {
-      if (onAction !== undefined && gameStarted && interactiveSvg.current) {
-        enableAction(type, interactiveSvg.current, onAction, iconSvg)
+      if (onAction !== undefined && active && interactiveSvg.current) {
+        interactAbortController.current = enableAction(type, interactiveSvg.current, onAction, iconSvg)
+      }
+      else if (!active && interactiveSvg.current && interactAbortController.current) {
+        disableAction(interactAbortController.current)
       }
     },
-    [ gameStarted ]
+    [ active ]
   )
 
   return (
@@ -136,7 +153,7 @@ export default function WidgetControl(
       onClick={onClick}
       className={
         `${styles.WidgetControl} relative flex flex-row justify-center p-1 hover:bg-white/10 `
-        + (gameStarted ? 'cursor-none' : 'cursor-pointer')
+        + (active ? 'cursor-none' : 'cursor-pointer')
       } >
       <ReactSVG 
         className='w-full'

@@ -115,7 +115,13 @@ app.get(
 
     // submit widget action to game to advance state
     const event = req.query as unknown as DoWidgetEvent
-    game.doWidget(event, getGameEventListener(game.id))
+
+    if (game.getEnded()) {
+      logger.info(`ignore widget action ${JSON.stringify(event)} for game that ended`)
+    }
+    else {
+      game.doWidget(event, getGameEventListener(game.id))
+    }
 
     logger.debug(`GET.${ApiRoute.DoWidget} end`)
     res.json(event)

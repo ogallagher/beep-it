@@ -13,11 +13,13 @@ export default function ShareGame(
   const [gameLinkOpen, setGameLinkOpen] = useState(false)
   const shareUrl = useRef(new URL(window.location.href))
   const [gameStarted, setGameStarted] = useState(game.current.getStarted())
+  const [gameEnded, setGameEnded] = useState(game.current.getEnded())
 
   useEffect(
     () => {
-      // render on game state.start
+      // render on game start and end
       game.current.addStateListener(GameStateListenerKey.Started, setGameStarted)
+      game.current.addStateListener(GameStateListenerKey.Ended, setGameEnded)
     },
     [ game ]
   )
@@ -26,7 +28,7 @@ export default function ShareGame(
     <div 
       className={
         'flex flex-col justify-center '
-        + (gameStarted ? 'hidden' : '')
+        + (gameStarted && !gameEnded ? 'hidden' : '')
       } >
       <div className='flex flex-row justify-center gap-2'>
         <button

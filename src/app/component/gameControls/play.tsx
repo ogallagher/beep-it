@@ -13,7 +13,8 @@ export default function GamePlay(
   function getEnable() {
     return (
       game.current.config.widgets.size > 0
-      && !game.current.getStarted()
+      // before start or after end, for restart
+      && (!game.current.getStarted() || game.current.getEnded())
     )
   }
   const [ enable, setEnable ] = useState(getEnable)
@@ -26,6 +27,8 @@ export default function GamePlay(
 
       // state event listener for start
       game.current.addStateListener(GameStateListenerKey.Started, updateEnable)
+      // for end
+      game.current.addStateListener(GameStateListenerKey.Ended, updateEnable)
       // config event listener for widgets
       game.current.addConfigListener(GameConfigListenerKey.Widgets, updateEnable)
     },

@@ -14,7 +14,7 @@ import { DoWidgetEvent, GameEvent, GameEventType } from '@lib/game/gameEvent'
  */
 export interface WidgetParams {
   widget: WidgetExport
-  labelEditable?: boolean
+  labelEditable: boolean
   configurable: boolean
   onClick?: (params: WidgetExport) => void
   onDelete?: (id: string) => void
@@ -73,7 +73,7 @@ export default function WidgetCmp(
       } >
       <WidgetControl 
         type={widget.type} 
-        gameStarted={
+        active={
           // currently we assume these states are always opposite
           !configurable
         }
