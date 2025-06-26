@@ -11,7 +11,9 @@ export default function ShareGame(
   }
 ) {
   const [gameLinkOpen, setGameLinkOpen] = useState(false)
-  const shareUrl = useRef(new URL(window.location.href))
+  const shareUrl = useRef(
+    typeof window === 'undefined' ? undefined : new URL(window.location.href)
+  )
   const [gameStarted, setGameStarted] = useState(game.current.getStarted())
   const [gameEnded, setGameEnded] = useState(game.current.getEnded())
 
@@ -35,7 +37,7 @@ export default function ShareGame(
           className='cursor-pointer hover:scale-105'
           title='Share game link to add devices to the board.'
           type='button' onClick={() => {
-            if (!gameLinkOpen) {
+            if (!gameLinkOpen && shareUrl.current) {
               // update share url before render
               const shareUrlParams = new URLSearchParams()
               Game.saveGameId(game.current.id, shareUrlParams)
@@ -48,14 +50,15 @@ export default function ShareGame(
           <Share />
         </button>
         <Input 
-            title={shareUrl.current.toString()}
-            size={shareUrl.current.toString().length}
-            className={
-              'rounded-lg bg-white/5 text-white min-w-auto px-3 py-1.5 text-xs '
-              + (gameLinkOpen ? '' : 'hidden')
-            }
-            disabled
-            value={shareUrl.current.toString()} />
+          suppressHydrationWarning={true}
+          title={shareUrl.current?.toString() || ''}
+          size={shareUrl.current?.toString().length || 5}
+          className={
+            'rounded-lg bg-white/5 text-white min-w-auto px-3 py-1.5 text-xs '
+            + (gameLinkOpen ? '' : 'hidden')
+          }
+          disabled
+          value={shareUrl.current?.toString()} />
       </div>
     </div>
   )

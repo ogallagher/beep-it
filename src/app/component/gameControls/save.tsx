@@ -10,7 +10,9 @@ export default function SaveConfig(
   }
 ) {
   const [saveLinkOpen, setSaveLinkOpen] = useState(false)
-  const saveUrl = useRef(new URL(window.location.href))
+  const saveUrl = useRef(
+    typeof window === 'undefined' ? undefined : new URL(window.location.href)
+  )
 
   return (
     <div className='flex flex-col justify-center'>
@@ -19,7 +21,7 @@ export default function SaveConfig(
           className='cursor-pointer hover:scale-105'
           title='Save game config link to load the same board later.'
           type='button' onClick={() => {
-            if (!saveLinkOpen) {
+            if (!saveLinkOpen && saveUrl.current) {
               // update save url before render
               const saveUrlParams = game.current.save()
               saveUrl.current.search = saveUrlParams.toString()
@@ -30,14 +32,15 @@ export default function SaveConfig(
           <BookmarkPlus />
         </button>
         <Input 
-            title={saveUrl.current.toString()}
-            size={Math.min(saveUrl.current.toString().length, 50)}
-            className={
-              'rounded-lg bg-white/5 text-white min-w-auto px-3 py-1.5 text-xs '
-              + (saveLinkOpen ? '' : 'hidden')
-            }
-            disabled
-            value={saveUrl.current.toString()} />
+          suppressHydrationWarning={true}
+          title={saveUrl.current?.toString()}
+          size={Math.min(saveUrl.current?.toString().length || 5, 50)}
+          className={
+            'rounded-lg bg-white/5 text-white min-w-auto px-3 py-1.5 text-xs '
+            + (saveLinkOpen ? '' : 'hidden')
+          }
+          disabled
+          value={saveUrl.current?.toString()} />
       </div>
     </div>
   )
