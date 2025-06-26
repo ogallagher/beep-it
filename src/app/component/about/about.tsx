@@ -1,7 +1,5 @@
-'use client'
-
 import { Dialog, DialogPanel } from '@headlessui/react'
-import { Dispatch, SetStateAction, Suspense, useMemo } from 'react'
+import { Dispatch, SetStateAction, Suspense, useEffect, useMemo, useRef } from 'react'
 import Readme from '@component/about/readme'
 import { getMarkdown } from '@lib/markdown'
 
@@ -11,8 +9,26 @@ export function About(
     setOpen: Dispatch<SetStateAction<boolean>>
   }
 ) {
+  const renderCount = useRef(0)
   const readmePromise = useMemo(
-    () => getMarkdown('readme.md'),
+    () => {
+      // this complex workaround is to prevent attempting to call getMarkdown in server
+      if (renderCount.current > 0) {
+        return getMarkdown('readme.md')
+      }
+      else {
+        return Promise.resolve({
+          fileHtml: 'readme.md not yet loaded'
+        })
+      }
+    },
+    [renderCount.current]
+  )
+
+  useEffect(
+    () => {
+      renderCount.current++
+    },
     []
   )
 
@@ -31,7 +47,7 @@ export function About(
                     Loading from <pre>readme.md</pre>
                   </div>
                 }>
-                  <Readme fileHtmlPromise={readmePromise}/>
+                  <Readme fileHtmlPromise={readmePromise!}/>
               </Suspense>
             </div>
           </DialogPanel>
