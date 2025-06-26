@@ -7,13 +7,12 @@ import Widget from '@lib/widget/widget'
 import WidgetCmp from './widget/widgetCmp'
 import { clientSendConfigEvent, GameEventType } from '@lib/game/gameEvent'
 
-export default function Board(
-  { game, deviceId }: {
-    game: StaticRef<Game> | RefObject<Game>
-    deviceId: StaticRef<string> | RefObject<string>
-  }
-) {
+export type BoardParams = {
+  game: StaticRef<Game> | RefObject<Game>
+  deviceId: StaticRef<string> | RefObject<string>
+}
 
+export default function Board({ game, deviceId }: BoardParams) {
   const [gameStarted, setGameStarted] = useState(game.current.getStarted())
   const [gameEnded, setGameEnded] = useState(game.current.getEnded())
   const [renderedWidgets, setRenderedWidgets] = useState([] as Widget[])

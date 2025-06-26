@@ -1,3 +1,5 @@
+export const boardId = 'gameBoard'
+
 export enum WidgetType {
   Button = 'button',
   Lever = 'lever',

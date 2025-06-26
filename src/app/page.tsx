@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, RefObject } from 'react'
 import Board from '@component/board'
 import GameControls from '@component/gameControls/gameControls'
 import WidgetsDrawer from '@component/widgetsDrawer'
@@ -10,6 +10,29 @@ import { ApiRoute, gameServerPort } from '@api/const'
 import { CommandEvent, ConfigEvent, DoWidgetEvent, EndEvent, GameEvent, GameEventKey, GameEventType, JoinEvent } from '@lib/game/gameEvent'
 import { ulid } from 'ulid'
 import CommandCaptions from '@component/commandCaptions'
+import { boardId } from '@lib/widget/const'
+
+function scrollLock(): AbortController {
+  const abortController = new AbortController();
+
+  ['scroll', 'touchmove', 'wheel'].forEach((eventType) => {
+    document.body.addEventListener(
+      eventType, 
+      (e) => e.preventDefault(), 
+      { signal: abortController.signal, passive: false }
+    )
+  })
+
+  document.body.classList.add('overflow-hidden')
+
+  return abortController
+}
+
+function scrollUnlock(scrollLockAbortController: AbortController | null) {
+  scrollLockAbortController?.abort()
+
+  document.body.classList.remove('overflow-hidden')
+}
 
 export default function Home() {
   const urlParams = useSearchParams()
@@ -21,6 +44,7 @@ export default function Home() {
   let gameEventSource: EventSource | undefined
 
   const [widgetsDrawerOpen, setWidgetsDrawerOpen] = useState(false)
+  const scrollLockAbortController: RefObject<AbortController | null> = useRef(null)
 
   function closeGameEventSource() {
     gameEventSource!.close()
@@ -78,6 +102,8 @@ export default function Home() {
         // closeGameEventSource()
         game.current.setEnded(true)
         game.current.setEndReason((gameEvent as EndEvent).endReason)
+        // release scroll lock
+        scrollUnlock(scrollLockAbortController.current)
         break
 
       default:
@@ -94,7 +120,7 @@ export default function Home() {
     requestParams.set(GameEventKey.DeviceId, clientDeviceId.current)
 
     // game game id to url 
-    window.history.replaceState(null, '', '?' + requestParams)
+    window.history.replaceState(null, '', `?${requestParams}`)
 
     // subscribe to game events
     await new Promise((res: (v?: undefined) => void) => {
@@ -124,6 +150,10 @@ export default function Home() {
   async function startGame() {
     // Rejoin on start in case game ended on expire.
     await joinGame()
+
+    // anchor scroll on game board
+    window.location.href = `#${boardId}`
+    scrollLockAbortController.current = scrollLock()
 
     const requestParams = game.current.save()
 
@@ -176,7 +206,7 @@ export default function Home() {
           game={game}
           deviceId={clientDeviceId} />
 
-        <div className='bg-fuchsia-900 w-full h-dvh' >
+        <div className='bg-fuchsia-900 w-full h-dvh' id={boardId} >
           <CommandCaptions game={game} />
           <Board game={game} deviceId={clientDeviceId} />
         </div>  

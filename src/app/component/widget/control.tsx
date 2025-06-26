@@ -1,7 +1,7 @@
 import { ReactSVG } from 'react-svg'
 import { UIPointerAction, WidgetType } from '../../lib/widget/const'
 import styles from './widget.module.css'
-import { IPlayer, SVGSpace, Circle, Polygon } from 'pts'
+import { IPlayer, SVGSpace, Circle } from 'pts'
 import { Ref, RefObject, useEffect, useRef } from 'react'
 import { mouseEventToPointerAction, mouseEventToSvgPoint } from '@lib/widget/graphics'
 
