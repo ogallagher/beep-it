@@ -13,13 +13,15 @@ export default function TurnMode(
 ) {
   const [turnMode, setTurnMode] = useState(game.current.config.gameTurnMode)
   const [gameStarted, setGameStarted] = useState(game.current.getStarted())
+  const [gameEnded, setGameEnded] = useState(game.current.getEnded())
 
   useEffect(
     () => {
       // render turn mode
       game.current.addConfigListener(GameConfigListenerKey.GameTurnMode, setTurnMode)
-      // disable input on game start
+      // disable/enable input on game start/end
       game.current.addStateListener(GameStateListenerKey.Started, setGameStarted)
+      game.current.addStateListener(GameStateListenerKey.Ended, setGameEnded)
     },
     [ game ]
   )
@@ -53,13 +55,13 @@ export default function TurnMode(
         <button 
           className={
             (
-              gameStarted 
+              gameStarted && !gameEnded
               ? 'cursor-default' 
               : 'hover:scale-105 cursor-pointer'
             )
           }
           type='button' onClick={onClick}
-          disabled={gameStarted ? true : undefined}
+          disabled={gameStarted && !gameEnded ? true : undefined}
           title={
             game.current.config.gameTurnMode === GameTurnMode.Competitive 
             ? 'Compete - Players take turns and loser is eliminated.' 
