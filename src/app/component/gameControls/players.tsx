@@ -13,13 +13,15 @@ export default function GamePlayers(
 ) {
   const [playerCount, setPlayerCount] = useState(game.current.getPlayerCount())
   const [gameStarted, setGameStarted] = useState(game.current.getStarted())
+  const [gameEnded, setGameEnded] = useState(game.current.getEnded())
 
   useEffect(
     () => {
       // render device count updates
       game.current.addConfigListener(GameConfigListenerKey.PlayersCount, setPlayerCount)
-      // disable input on game start
+      // disable input on game start and end
       game.current.addStateListener(GameStateListenerKey.Started, setGameStarted)
+      game.current.addStateListener(GameStateListenerKey.Ended, setGameEnded)
     },
     [ game ]
   )
@@ -50,7 +52,7 @@ export default function GamePlayers(
           </div>
           <Input
             className='rounded-lg bg-white/5 text-white px-3 py-1.5 font-bold w-20'
-            disabled={gameStarted ? true : undefined}
+            disabled={gameStarted && !gameEnded ? true : undefined}
             type='number' min={0}
             value={playerCount}
             onChange={onChange} />
