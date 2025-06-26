@@ -2,7 +2,7 @@ import WidgetConfig from './config'
 import WidgetControl from './control'
 import WidgetLabel from './label'
 import StaticRef from '@lib/staticRef'
-import { WidgetExport } from '@lib/widget/const'
+import { widgetActionMinDelay, WidgetExport } from '@lib/widget/const'
 import WidgetDelete from './delete'
 import Game from '@lib/game/game'
 import { RefObject } from 'react'
@@ -36,6 +36,8 @@ export default function WidgetCmp(
   const configRef = new StaticRef({
     command: widget.command
   })
+  const preventDoubleAction: StaticRef<string | undefined> = new StaticRef(undefined)
+  const preventDoubleActionTimeout: StaticRef<number | undefined> = new StaticRef(undefined)
 
   /**
    * Action (button click, lever pull, knob twist) handler. Called when widget control detects a 
@@ -49,18 +51,32 @@ export default function WidgetCmp(
       deviceId: deviceId.current,
       widgetId: widget.id
     }
-    const requestParams = new URLSearchParams(Object.entries(event))
-    try {
-      const res = await fetch(
-        `http://${window.location.hostname}:${gameServerPort}${ApiRoute.DoWidget}?${requestParams}`
-      )
-      const resEvent: GameEvent = await res.json()
-      if (resEvent.gameEventType !== GameEventType.DoWidget) {
-        console.log(`error invalid response ${resEvent}`)
-      }
+
+    if (preventDoubleAction.current === widget.id) {
+      console.log(`ignore double action widget=${widget.id}`)
     }
-    catch (err) {
-      console.log(`error "${err}" on widget action ${event}`)
+    else {
+      console.log(`action widget=${widget.id}`)
+      preventDoubleAction.current = widget.id
+      clearTimeout(preventDoubleActionTimeout.current)
+      preventDoubleActionTimeout.current = window.setTimeout(
+        () => { preventDoubleAction.current = undefined }, 
+        widgetActionMinDelay
+      )
+
+      const requestParams = new URLSearchParams(Object.entries(event))
+      try {
+        const res = await fetch(
+          `http://${window.location.hostname}:${gameServerPort}${ApiRoute.DoWidget}?${requestParams}`
+        )
+        const resEvent: GameEvent = await res.json()
+        if (resEvent.gameEventType !== GameEventType.DoWidget) {
+          console.log(`error invalid response ${resEvent}`)
+        }
+      }
+      catch (err) {
+        console.log(`error "${err}" on widget action ${event}`)
+      }
     }
   }
 
