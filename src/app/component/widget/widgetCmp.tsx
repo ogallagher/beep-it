@@ -1,11 +1,11 @@
-import WidgetConfig from './config'
+import WidgetConfig, { Config } from './config'
 import WidgetControl from './control'
 import WidgetLabel from './label'
 import StaticRef from '@lib/staticRef'
 import { widgetActionMinDelay, WidgetExport } from '@lib/widget/const'
 import WidgetDelete from './delete'
 import Game from '@lib/game/game'
-import { RefObject } from 'react'
+import { RefObject, useState } from 'react'
 import { ApiRoute, gameServerPort, websiteBasePath } from '@api/const'
 import { DoWidgetEvent, GameEvent, GameEventType } from '@lib/game/gameEvent'
 
@@ -33,9 +33,17 @@ export default function WidgetCmp(
   // something about how widgets can be dynamically added to the board
   // means I can't call useRef here
   const labelRef = new StaticRef(widget.label)
-  const configRef = new StaticRef({
-    command: widget.command
+  /**
+   * References to sources of truth that update game model.
+   */
+  const configRef: RefObject<Config> = new StaticRef({
+    command: widget.command,
+    valueText: widget.valueText
   })
+  /**
+   * Reference to callback that updates valueText in control icon.
+   */
+  const showValueText = new StaticRef<CallableFunction>(() => {})
   const preventDoubleAction: StaticRef<string | undefined> = new StaticRef(undefined)
   const preventDoubleActionTimeout: StaticRef<number | undefined> = new StaticRef(undefined)
 
@@ -88,7 +96,7 @@ export default function WidgetCmp(
         + (className === undefined ? '' : className)
       } >
       <WidgetControl 
-        type={widget.type} 
+        type={widget.type}
         active={
           // currently we assume these states are always opposite
           !configurable
@@ -98,25 +106,29 @@ export default function WidgetCmp(
             // persist widget config updates to export copy for click handler input
             widget.label = labelRef.current
             widget.command = configRef.current.command
+            widget.valueText = configRef.current.valueText
 
             onClick(widget)
           }
         }
-        onAction={onAction} />
+        onAction={onAction}
+        valueText={configRef.current.valueText} showValueText={showValueText} />
 
-      <WidgetLabel 
-        widgetId={widget.id} game={game} deviceId={deviceId}
-        valueRef={labelRef} 
-        disabled={!labelEditable} />
+      <div className='flex flex-col gap-2'>
+        <WidgetLabel 
+          widgetId={widget.id} game={game} deviceId={deviceId}
+          valueRef={labelRef} 
+          disabled={!labelEditable} />
 
-      <WidgetConfig 
-        widgetId={widget.id} game={game} deviceId={deviceId}
-        configRef={configRef}
-        disabled={!configurable} />
+        <WidgetConfig 
+          widgetId={widget.id} widgetType={widget.type} game={game} deviceId={deviceId}
+          configRef={configRef} showValueText={showValueText}
+          disabled={!configurable} />
 
-      <WidgetDelete 
-        onDelete={onDelete} widgetLabel={labelRef.current} widgetId={widget.id}
-        disabled={!configurable} />
+        <WidgetDelete 
+          onDelete={onDelete} widgetLabel={labelRef.current} widgetId={widget.id}
+          disabled={!configurable} />
+      </div>
     </div>
   )
 }

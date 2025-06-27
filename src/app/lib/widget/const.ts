@@ -77,11 +77,25 @@ export function defaultWidgetLabel(type: WidgetType) {
   }
 }
 
+export function defaultWidgetValueText(type: WidgetType) {
+  switch (type) {
+    case WidgetType.Key:
+      return 'A'
+
+    case WidgetType.KeyPad:
+      return 'please'
+
+    default:
+      return undefined
+  }
+}
+
 export interface WidgetExport {
   id: string
   type: WidgetType
   label: string
   command: string
+  valueText: string | undefined
 }
 
 // converted from graphics lib pts.UIPointerActions

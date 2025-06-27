@@ -1,17 +1,19 @@
 import { ulid } from 'ulid'
-import { defaultWidgetCommands, WidgetExport, WidgetType } from './const'
+import { defaultWidgetCommands, defaultWidgetValueText, WidgetExport, WidgetType } from './const'
 
 export default class Widget {
   id: string
   type: WidgetType
   label: string
   command: string
+  valueText: string | undefined
 
   constructor(w: WidgetExport) {
     this.id = w.id
     this.type = w.type
     this.label = w.label
     this.command = w.command
+    this.valueText = w.valueText
   }
 
   save(): WidgetExport {
@@ -19,7 +21,8 @@ export default class Widget {
       id: this.id,
       type: this.type,
       label: this.label,
-      command: this.command
+      command: this.command,
+      valueText: this.valueText
     }
   }
 
@@ -38,7 +41,8 @@ export default class Widget {
       id,
       type,
       label: Widget.generateLabel(type, id),
-      command: defaultWidgetCommands(type)[0]
+      command: defaultWidgetCommands(type)[0],
+      valueText: defaultWidgetValueText(type)
     })
   }
 

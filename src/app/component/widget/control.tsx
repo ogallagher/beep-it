@@ -5,6 +5,7 @@ import { SVGSpace, Circle, Pt } from 'pts'
 import { Ref, RefObject, useEffect, useRef } from 'react'
 import { keyboardEventToKeyboardAction, mouseEventToPointerAction, mouseEventToSvgPoint } from '@lib/widget/graphics'
 import { websiteBasePath } from '@api/const'
+import StaticRef from '@lib/staticRef'
 
 function controlImage(widgetType: string) {
   return `${websiteBasePath}/widgetIcon/${widgetType}.svg`
@@ -190,14 +191,16 @@ function disableAction(listenerAbortController: AbortController) {
 }
 
 export default function WidgetControl(
-  {type, onClick, onAction, active}: {
+  {type, onClick, onAction, active, valueText, showValueText}: {
     type: WidgetType
     onClick?: () => void
     onAction?: () => void
     /**
      * Whether widget control is accepting actions from user input.
      */
-    active: boolean
+    active: boolean,
+    valueText: string | undefined,
+    showValueText: RefObject<CallableFunction> | StaticRef<CallableFunction>
   }
 ) {
   const iconSvg: Ref<SVGSVGElement> = useRef(null)
@@ -227,7 +230,19 @@ export default function WidgetControl(
         src={controlImage(type)}
         width={1} height={1}
         afterInjection={(svg) => {
+          // update reference to icon svg
           iconSvg.current = svg
+
+          showValueText.current = (valueText: string | undefined) => {
+            if (type === WidgetType.Key) {
+              // update character from valueText
+              svg.setAttribute('data-char', valueText || '')
+              for (let el of svg.getElementsByClassName('char')) {
+                el.textContent = valueText || ''
+              }
+            }
+          }
+          showValueText.current(valueText)
         }} />
 
       {/* TODO switch back to canvas? */}
