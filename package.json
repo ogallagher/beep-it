@@ -5,10 +5,12 @@
   "scripts": {
     "_dev": "next dev --turbopack --port $BEEPIT_PORT",
     "dev": "dotenv-run-script -- _dev",
+    "dev-forever": "forever start -c 'npm run dev' .",
     "prestart": "cp readme.md public/readme.md",
     "build": "next build --turbopack",
     "_start": "next start --port $BEEPIT_PORT",
     "start": "dotenv-run-script -- _start",
+    "start-forever": "forever start -c 'npm run start' .",
     "lint": "next lint"
   },
   "dependencies": {
@@ -40,5 +42,8 @@
     "eslint-config-next": "15.3.4",
     "tailwindcss": "^4",
     "typescript": "^5"
+  },
+  "optionalDependencies": {
+    "forever": "^4.0.3"
   }
 }
