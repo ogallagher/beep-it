@@ -5,12 +5,14 @@
   "scripts": {
     "_dev": "next dev --turbopack --port $BEEPIT_PORT",
     "dev": "dotenv-run-script -- _dev",
-    "dev-forever": "forever start -c 'npm run dev' .",
+    "_dev-forever": "forever start -c 'npx next dev --turbopack --port $BEEPIT_PORT' .",
+    "dev-forever": "dotenv-run-script -- _dev-forever",
     "prestart": "cp readme.md public/readme.md",
     "build": "next build --turbopack",
     "_start": "next start --port $BEEPIT_PORT",
     "start": "dotenv-run-script -- _start",
-    "start-forever": "forever start -c 'npm run start' .",
+    "_start-forever": "forever start -c 'npx next start --port $BEEPIT_PORT' .",
+    "start-forever": "dotenv-run-script -- _start-forever",
     "lint": "next lint"
   },
   "dependencies": {
