@@ -8,6 +8,7 @@ export default class Widget {
   command: string
   color: string
   valueText: string | undefined
+  width: number
 
   constructor(w: WidgetExport) {
     this.id = w.id
@@ -16,6 +17,7 @@ export default class Widget {
     this.command = w.command
     this.color = w.color
     this.valueText = w.valueText
+    this.width = w.width
   }
 
   save(): WidgetExport {
@@ -25,7 +27,8 @@ export default class Widget {
       label: this.label,
       command: this.command,
       color: this.color,
-      valueText: this.valueText
+      valueText: this.valueText,
+      width: this.width
     }
   }
 
@@ -46,7 +49,8 @@ export default class Widget {
       label: Widget.generateLabel(type, id),
       command: defaultWidgetCommands(type)[0],
       color: '#ffffff',
-      valueText: defaultWidgetValueText(type)
+      valueText: defaultWidgetValueText(type),
+      width: 100
     })
   }
 

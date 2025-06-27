@@ -11,15 +11,17 @@ export interface Config {
   command: string
   color: string
   valueText?: string
+  width: number
 }
 
 export default function WidgetConfig(
-  {widgetId, widgetType, configRef, showColor, showValueText, disabled, game, deviceId}: {
+  {widgetId, widgetType, configRef, showColor, showValueText, showWidth, disabled, game, deviceId}: {
     widgetId: string
     widgetType: WidgetType
     configRef: RefObject<Config> | StaticRef<Config>
     showColor: RefObject<CallableFunction> | StaticRef<CallableFunction>
     showValueText: RefObject<CallableFunction> | StaticRef<CallableFunction>
+    showWidth: RefObject<CallableFunction> | StaticRef<CallableFunction>
     disabled: boolean
     game: RefObject<Game> | StaticRef<Game>
     deviceId: StaticRef<string> | RefObject<string>
@@ -35,6 +37,7 @@ export default function WidgetConfig(
       widget.command = configRef.current.command
       widget.color = configRef.current.color
       widget.valueText = configRef.current.valueText
+      widget.width = configRef.current.width
 
       // send config event to server
       clientSendConfigEvent({
@@ -53,6 +56,7 @@ export default function WidgetConfig(
         'flex flex-col gap-2 '
         + (disabled ? 'hidden' : '')
       }>
+      {/* textValue */}
       <Field 
         title='The text value of this widget.'
         className={
@@ -88,6 +92,8 @@ export default function WidgetConfig(
           defaultValue={configRef.current.valueText}
           onBlur={change} />
       </Field>
+
+      {/* color */}
       <Field 
         title='Primary color of this widget icon.'
         className='w-full flex flex-row flex-wrap justify-start gap-x-2 gap-y-1' >
@@ -106,7 +112,31 @@ export default function WidgetConfig(
           defaultValue={configRef.current.color}
           onBlur={change} />
       </Field>
+
+      {/* width */}
+      <Field 
+        title='Size of this widget icon.'
+        className='w-full flex flex-row flex-wrap justify-start gap-x-2 gap-y-1' >
+        <Label className='flex flex-col justify-center'>
+          <div>size</div>
+        </Label>
+        <Input
+          onChange={e => {
+            const w = parseInt(e.target.value)
+            // model
+            configRef.current.width = w
+            // synced UI components (icon)
+            showWidth.current(w)
+          }}
+          type='range' min={5} max={100}
+          defaultValue={configRef.current.width}
+          onBlur={change} />
+      </Field>
+
+      {/* duration */}
       <div>TODO duration</div>
+
+      {/* command */}
       <div className='w-full'>
         <Field 
           title='The verb/action done to this widget.'

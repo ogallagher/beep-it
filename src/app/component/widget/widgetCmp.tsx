@@ -39,13 +39,15 @@ export default function WidgetCmp(
   const configRef: RefObject<Config> = new StaticRef({
     command: widget.command,
     color: widget.color,
-    valueText: widget.valueText
+    valueText: widget.valueText,
+    width: widget.width
   })
   /**
    * Reference to callback that updates valueText in control icon.
    */
   const showValueText = new StaticRef<CallableFunction>(() => {})
   const showColor = new StaticRef<CallableFunction>(() => {})
+  const showWidth = new StaticRef<CallableFunction>(() => {})
   const preventDoubleAction: StaticRef<string | undefined> = new StaticRef(undefined)
   const preventDoubleActionTimeout: StaticRef<number | undefined> = new StaticRef(undefined)
 
@@ -94,30 +96,9 @@ export default function WidgetCmp(
     <div 
       key={widget.id} 
       className={
-        'flex-1 relative bg-gray-500 m-1 px-4 pt-2 rounded-lg '
+        'flex-1 relative bg-gray-500 m-1 px-4 py-2 rounded-lg '
         + (className === undefined ? '' : className)
       } >
-      <WidgetControl 
-        type={widget.type}
-        active={
-          // currently we assume these states are always opposite
-          !configurable
-        }
-        onClick={
-          onClick === undefined ? undefined : () => {
-            // persist widget config updates to export copy for click handler input
-            widget.label = labelRef.current
-            widget.command = configRef.current.command
-            widget.color = configRef.current.color
-            widget.valueText = configRef.current.valueText
-
-            onClick(widget)
-          }
-        }
-        onAction={onAction}
-        color={configRef.current.color} showColor={showColor}
-        valueText={configRef.current.valueText} showValueText={showValueText} />
-
       <div className='flex flex-col gap-2'>
         <WidgetLabel 
           widgetId={widget.id} game={game} deviceId={deviceId}
@@ -126,14 +107,36 @@ export default function WidgetCmp(
 
         <WidgetConfig 
           widgetId={widget.id} widgetType={widget.type} game={game} deviceId={deviceId}
-          showColor={showColor}
-          configRef={configRef} showValueText={showValueText}
+          configRef={configRef} showColor={showColor} showValueText={showValueText} showWidth={showWidth}
           disabled={!configurable} />
 
-        <WidgetDelete 
+        <WidgetControl 
+          type={widget.type}
+          active={
+            // currently we assume these states are always opposite
+            !configurable
+          }
+          onClick={
+            onClick === undefined ? undefined : () => {
+              // persist widget config updates to export copy for click handler input
+              widget.label = labelRef.current
+              widget.command = configRef.current.command
+              widget.color = configRef.current.color
+              widget.valueText = configRef.current.valueText
+              widget.width = configRef.current.width
+
+              onClick(widget)
+            }
+          }
+          onAction={onAction}
+          color={configRef.current.color} showColor={showColor}
+          valueText={configRef.current.valueText} showValueText={showValueText}
+          width={configRef.current.width} showWidth={showWidth} />
+      </div>
+
+      <WidgetDelete 
           onDelete={onDelete} widgetLabel={labelRef.current} widgetId={widget.id}
           disabled={!configurable} />
-      </div>
     </div>
   )
 }

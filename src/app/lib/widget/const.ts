@@ -97,6 +97,7 @@ export interface WidgetExport {
   command: string
   color: string
   valueText: string | undefined
+  width: number
 }
 
 // converted from graphics lib pts.UIPointerActions
