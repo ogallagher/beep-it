@@ -31,7 +31,10 @@ export default function WidgetsDrawer(
 
   return (
     <div
-      className={(open ? '' : 'hidden') + ' w-full'}>
+      className={
+        (open ? '' : 'hidden') 
+        + ' w-full px-4'
+      }>
       <Grid>
         {widgetTypes.map(type => {
           const widget = Widget.new(type)

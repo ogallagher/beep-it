@@ -6,6 +6,7 @@ export default class Widget {
   type: WidgetType
   label: string
   command: string
+  color: string
   valueText: string | undefined
 
   constructor(w: WidgetExport) {
@@ -13,6 +14,7 @@ export default class Widget {
     this.type = w.type
     this.label = w.label
     this.command = w.command
+    this.color = w.color
     this.valueText = w.valueText
   }
 
@@ -22,6 +24,7 @@ export default class Widget {
       type: this.type,
       label: this.label,
       command: this.command,
+      color: this.color,
       valueText: this.valueText
     }
   }
@@ -42,6 +45,7 @@ export default class Widget {
       type,
       label: Widget.generateLabel(type, id),
       command: defaultWidgetCommands(type)[0],
+      color: '#ffffff',
       valueText: defaultWidgetValueText(type)
     })
   }

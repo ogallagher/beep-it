@@ -38,12 +38,14 @@ export default function WidgetCmp(
    */
   const configRef: RefObject<Config> = new StaticRef({
     command: widget.command,
+    color: widget.color,
     valueText: widget.valueText
   })
   /**
    * Reference to callback that updates valueText in control icon.
    */
   const showValueText = new StaticRef<CallableFunction>(() => {})
+  const showColor = new StaticRef<CallableFunction>(() => {})
   const preventDoubleAction: StaticRef<string | undefined> = new StaticRef(undefined)
   const preventDoubleActionTimeout: StaticRef<number | undefined> = new StaticRef(undefined)
 
@@ -92,7 +94,7 @@ export default function WidgetCmp(
     <div 
       key={widget.id} 
       className={
-        'flex-1 relative border border-white/10 border-solid '
+        'flex-1 relative bg-gray-500 m-1 px-4 pt-2 rounded-lg '
         + (className === undefined ? '' : className)
       } >
       <WidgetControl 
@@ -106,12 +108,14 @@ export default function WidgetCmp(
             // persist widget config updates to export copy for click handler input
             widget.label = labelRef.current
             widget.command = configRef.current.command
+            widget.color = configRef.current.color
             widget.valueText = configRef.current.valueText
 
             onClick(widget)
           }
         }
         onAction={onAction}
+        color={configRef.current.color} showColor={showColor}
         valueText={configRef.current.valueText} showValueText={showValueText} />
 
       <div className='flex flex-col gap-2'>
@@ -122,6 +126,7 @@ export default function WidgetCmp(
 
         <WidgetConfig 
           widgetId={widget.id} widgetType={widget.type} game={game} deviceId={deviceId}
+          showColor={showColor}
           configRef={configRef} showValueText={showValueText}
           disabled={!configurable} />
 

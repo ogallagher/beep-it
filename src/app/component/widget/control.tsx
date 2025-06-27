@@ -1,7 +1,7 @@
 import { ReactSVG } from 'react-svg'
 import { KeyboardAction, UIPointerAction, WidgetType } from '../../lib/widget/const'
 import styles from './widget.module.css'
-import { SVGSpace, Circle, Pt } from 'pts'
+import { SVGSpace, Circle, Pt, Color } from 'pts'
 import { Ref, RefObject, useEffect, useRef } from 'react'
 import { keyboardEventToKeyboardAction, mouseEventToPointerAction, mouseEventToSvgPoint } from '@lib/widget/graphics'
 import { websiteBasePath } from '@api/const'
@@ -151,7 +151,7 @@ function enableAction(
     }
   }
   space.add({ 
-    start,
+    // start,
     action: (t,x,y,e) => action(t as UIPointerAction, new DOMPoint(x, y), e)
   })
 
@@ -191,16 +191,18 @@ function disableAction(listenerAbortController: AbortController) {
 }
 
 export default function WidgetControl(
-  {type, onClick, onAction, active, valueText, showValueText}: {
+  {type, onClick, onAction, active, valueText, showValueText, color, showColor}: {
     type: WidgetType
     onClick?: () => void
     onAction?: () => void
     /**
      * Whether widget control is accepting actions from user input.
      */
-    active: boolean,
-    valueText: string | undefined,
+    active: boolean
+    valueText: string | undefined
     showValueText: RefObject<CallableFunction> | StaticRef<CallableFunction>
+    color: string
+    showColor: RefObject<CallableFunction> | StaticRef<CallableFunction>
   }
 ) {
   const iconSvg: Ref<SVGSVGElement> = useRef(null)
@@ -223,7 +225,8 @@ export default function WidgetControl(
     <div 
       onClick={onClick}
       className={
-        `${styles.WidgetControl} relative flex flex-row justify-center p-1 hover:bg-white/10 cursor-pointer`
+        `${styles.WidgetControl} relative flex flex-row justify-center p-1 rounded-lg cursor-pointer `
+        + `hover:bg-white/10 active:bg-white/30`
       } >
       <ReactSVG 
         className='w-full'
@@ -232,6 +235,21 @@ export default function WidgetControl(
         afterInjection={(svg) => {
           // update reference to icon svg
           iconSvg.current = svg
+          
+          showColor.current = (color: string) => {
+            // use primary color
+            for (let el of svg.getElementsByClassName('fillPrimary') as HTMLCollectionOf<SVGElement>) {
+              el.style.fill = color
+            }
+            // create secondary color as darker version of primary
+            const colorSecondary = Color.RGBtoHSL(Color.fromHex(color))
+            colorSecondary.l *= 0.5
+            colorSecondary.toMode('rgb', true)
+            for (let el of svg.getElementsByClassName('fillSecondary') as HTMLCollectionOf<SVGElement>) {
+              el.style.fill = colorSecondary.hex
+            }
+          }
+          showColor.current(color)
 
           showValueText.current = (valueText: string | undefined) => {
             if (type === WidgetType.Key) {
@@ -244,8 +262,6 @@ export default function WidgetControl(
           }
           showValueText.current(valueText)
         }} />
-
-      {/* TODO switch back to canvas? */}
       <svg className='absolute w-full h-full' ref={interactiveSvg} />
     </div>
   )

@@ -9,14 +9,16 @@ import { WidgetType } from '@lib/widget/const'
 
 export interface Config {
   command: string
+  color: string
   valueText?: string
 }
 
 export default function WidgetConfig(
-  {widgetId, widgetType, configRef, showValueText, disabled, game, deviceId}: {
+  {widgetId, widgetType, configRef, showColor, showValueText, disabled, game, deviceId}: {
     widgetId: string
     widgetType: WidgetType
     configRef: RefObject<Config> | StaticRef<Config>
+    showColor: RefObject<CallableFunction> | StaticRef<CallableFunction>
     showValueText: RefObject<CallableFunction> | StaticRef<CallableFunction>
     disabled: boolean
     game: RefObject<Game> | StaticRef<Game>
@@ -31,6 +33,7 @@ export default function WidgetConfig(
 
     if (widget !== undefined) {
       widget.command = configRef.current.command
+      widget.color = configRef.current.color
       widget.valueText = configRef.current.valueText
 
       // send config event to server
@@ -85,7 +88,24 @@ export default function WidgetConfig(
           defaultValue={configRef.current.valueText}
           onBlur={change} />
       </Field>
-      <div>TODO color</div>
+      <Field 
+        title='Primary color of this widget icon.'
+        className='w-full flex flex-row flex-wrap justify-start gap-x-2 gap-y-1' >
+        <Label className='flex flex-col justify-center'>
+          <div>color</div>
+        </Label>
+        <Input
+          className='rounded-lg'
+          onChange={e => {
+            // model
+            configRef.current.color = e.target.value
+            // synced UI components (icon)
+            showColor.current(e.target.value)
+          }}
+          type='color'
+          defaultValue={configRef.current.color}
+          onBlur={change} />
+      </Field>
       <div>TODO duration</div>
       <div className='w-full'>
         <Field 

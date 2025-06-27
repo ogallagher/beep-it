@@ -42,7 +42,7 @@ export default function CommandCaptions(
   return (
     <div 
       className={
-        'text-center w-full bg-orange-900 p-4 '
+        'text-center w-full p-4 '
         + ((command === undefined && !gameEnd.ended) ? 'hidden' : '')
       } >
       <div className='flex flex-row gap-2 justify-between'>

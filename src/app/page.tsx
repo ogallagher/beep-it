@@ -191,7 +191,7 @@ export default function Home() {
   )
 
   return (
-    <div className='p-4 font-[family-name:var(--font-geist-sans)] flex flex-col gap-4'>
+    <div className='py-4 font-[family-name:var(--font-geist-sans)] flex flex-col gap-4'>
       <main className="flex flex-col gap-[32px] items-center sm:items-start">
         <GameControls
           widgetsDrawerOpen={widgetsDrawerOpen} 
@@ -205,7 +205,7 @@ export default function Home() {
           game={game}
           deviceId={clientDeviceId} />
 
-        <div className='bg-fuchsia-900 w-full h-dvh' id={boardId} >
+        <div className='w-full h-dvh' id={boardId} >
           <CommandCaptions game={game} />
           <Board game={game} deviceId={clientDeviceId} />
         </div>  
