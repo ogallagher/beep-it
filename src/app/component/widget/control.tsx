@@ -64,7 +64,7 @@ function enableAction(
 
       case WidgetType.Lever:
         // capture dragstart + dragend beyond min length
-        const minLength = space.innerBound.width * 0.5
+        const minLength = Math.min(space.innerBound.width, space.innerBound.height) * 0.5
         let length
 
         if (eventType === UIPointerAction.down) {

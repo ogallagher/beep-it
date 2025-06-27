@@ -41,34 +41,37 @@ export default function CommandCaptions(
 
   return (
     <div 
-      className={
-        'text-center w-full p-4 '
-        + ((command === undefined && !gameEnd.ended) ? 'hidden' : '')
-      } >
+      className='w-full px-4 pb-2 pt-8 md:pt-2' >
       <div className='flex flex-row gap-2 justify-between'>
-        <div 
+        <div
           className={
-            'flex flex-row gap-2 justify-center '
+            'flex flex-row gap-2 justify-center text-left '
             + (command === undefined ? 'hidden' : '')
           } >
           <div className='flex flex-col justify-center'>
-            <div className='font-bold text-3xl'>{command?.action}</div>
+            <div className='font-bold text-2xl'>{command?.action}</div>
           </div>
           <div className='flex flex-col justify-center'>
-            <div className='text-2xl'>{command?.targetLabel}</div>
+            <div className='text-1xl'>{command?.targetLabel}</div>
+          </div>
+        </div>
+
+        <div className='flex flex-col justify-center text-center'>
+          <div className='text-2xl text-nowrap'>
+            <b>score: </b>[...]
           </div>
         </div>
         
         <div 
           className={
-            'flex flex-row gap-2 justify-center '
+            'flex flex-row gap-2 justify-center text-right '
             + (gameEnd.ended ? '' : 'hidden')
           } >
           <div className='flex flex-col justify-center'>
-            <div className='font-bold text-3xl'>Game Over</div>
+            <div className='font-bold text-2xl'>Game Over</div>
           </div>
           <div className='flex flex-col justify-center'>
-            <div className='text-2xl'>
+            <div className='text-1xl'>
               ({ ( () => {
                 switch (gameEnd.endReason) {
                   case GameEndReason.StartDelay:

@@ -205,7 +205,7 @@ export default function Home() {
           game={game}
           deviceId={clientDeviceId} />
 
-        <div className='w-full h-dvh' id={boardId} >
+        <div className='w-full h-svh' id={boardId} >
           <CommandCaptions game={game} />
           <Board game={game} deviceId={clientDeviceId} />
         </div>  
