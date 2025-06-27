@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width-ignore="90mm"
+   height-ignore="90mm"
+   viewBox="0 0 90 90"
+   version="1.1"
+   id="svg1"
+   inkscape:version="1.4 (e7c3feb1, 2024-10-09)"
+   sodipodi:docname="key.svg"
+   class="up"
+   data-char="A"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="true"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     showborder="true"
+     inkscape:zoom="7.1909654"
+     inkscape:cx="49.576097"
+     inkscape:cy="49.29797"
+     inkscape:window-width="1808"
+     inkscape:window-height="1186"
+     inkscape:window-x="131"
+     inkscape:window-y="43"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="up"
+     showgrid="false" />
+  <defs
+     id="defs1" />
+  <style
+     id="style1">
+    /* up */
+
+    svg.up g#down {
+      display: none;
+    }
+
+    svg.up g#up {
+      display: block;
+    }
+
+    /* down */
+
+    svg.down g#down {
+      display: block;
+    }
+
+    svg.down g#up {
+      display: none;
+    }
+
+    /* global */
+
+    tspan.char {
+      font-family: sans-serif;
+      font-weight: bold;
+    }
+
+    tspan {
+      font-size: 54.1241px;
+      text-align: center;
+      writing-mode: lr-tb;
+      direction: ltr;
+      text-anchor: middle;
+      display: inline;
+      fill: #000000;
+      stroke: none;
+    }
+  </style>
+  <g
+     inkscape:groupmode="layer"
+     id="background"
+     inkscape:label="background"
+     transform="translate(-5.5291653,-5)"
+     sodipodi:insensitive="true">
+    <rect
+       style="fill:#ffffff;fill-opacity:0;stroke:none;stroke-width:0.952497;stroke-dasharray:none;stroke-opacity:1"
+       id="rect1"
+       width="90"
+       height="90"
+       x="5.5291653"
+       y="5" />
+  </g>
+  <g
+     inkscape:label="down"
+     inkscape:groupmode="layer"
+     id="down"
+     transform="translate(-5.5291653,-5)">
+    <path
+       id="path1-3-3"
+       style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:1.13386;stroke-dasharray:none;stroke-opacity:1"
+       inkscape:label="top"
+       d="M 27.589901,15.443324 A 41.516607,41.516607 0 0 0 15.97249,27.060735 v 45.87853 A 41.516607,41.516607 0 0 0 27.589901,84.556676 H 73.46843 A 41.516607,41.516607 0 0 0 85.08584,72.939265 V 26.991832 A 41.516607,41.516607 0 0 0 73.53733,15.443324 Z" />
+    <text
+       xml:space="preserve"
+       x="50.529167"
+       y="69.675484"
+       id="text3"
+       inkscape:label="char"><tspan
+         sodipodi:role="line"
+         id="tspan3"
+         class="char"
+         x="50.529167"
+         y="69.675484">A</tspan></text>
+  </g>
+  <g
+     inkscape:label="up"
+     inkscape:groupmode="layer"
+     id="up"
+     transform="translate(-5.5291653,-5)">
+    <path
+       id="path2"
+       style="fill:#000000;stroke:#000000;stroke-width:1.18619;stroke-dasharray:none;stroke-opacity:1"
+       inkscape:label="base"
+       d="M 27.5899,15.443324 A 41.516607,41.516607 0 0 0 15.972489,27.060735 v 45.87853 A 41.516607,41.516607 0 0 0 27.5899,84.556676 H 73.468431 A 41.516607,41.516607 0 0 0 85.085842,72.939265 V 26.991832 A 41.516607,41.516607 0 0 0 73.537333,15.443324 Z" />
+    <path
+       id="path3"
+       style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:1.13386;stroke-dasharray:none;stroke-opacity:1"
+       inkscape:label="top"
+       d="M 23.589901,11.443324 A 41.516607,41.516607 0 0 0 11.97249,23.060735 v 45.87853 A 41.516607,41.516607 0 0 0 23.589901,80.556676 H 69.46843 A 41.516607,41.516607 0 0 0 81.08584,68.939265 V 22.991832 A 41.516607,41.516607 0 0 0 69.53733,11.443324 Z" />
+    <text
+       xml:space="preserve"
+       x="46.529163"
+       y="65.675484"
+       id="text3-2"
+       inkscape:label="char"><tspan
+         sodipodi:role="line"
+         id="tspan3-8"
+         class="char"
+         x="46.529163"
+         y="65.675484">A</tspan></text>
+  </g>
+</svg>

@@ -1,4 +1,4 @@
-import { UIPointerAction } from "./const"
+import { KeyboardAction, UIPointerAction } from "./const"
 
 /**
  * See https://stackoverflow.com/a/10298843/10200417.
@@ -43,5 +43,18 @@ export function mouseEventToPointerAction(e: MouseEvent | TouchEvent | DragEvent
 
     default:
       throw new Error(`unsupported mouse event type ${e.type}`)
+  }
+}
+
+export function keyboardEventToKeyboardAction(e: KeyboardEvent): KeyboardAction {
+  switch (e.type) {
+    case 'keydown':
+      return KeyboardAction.down
+
+    case 'keyup':
+      return KeyboardAction.up
+
+    default:
+      throw new Error(`unsupported keyboard event type ${e.type}`)
   }
 }

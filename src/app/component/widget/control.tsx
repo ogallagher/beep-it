@@ -1,9 +1,9 @@
 import { ReactSVG } from 'react-svg'
-import { UIPointerAction, WidgetType } from '../../lib/widget/const'
+import { KeyboardAction, UIPointerAction, WidgetType } from '../../lib/widget/const'
 import styles from './widget.module.css'
 import { SVGSpace, Circle, Pt } from 'pts'
 import { Ref, RefObject, useEffect, useRef } from 'react'
-import { mouseEventToPointerAction, mouseEventToSvgPoint } from '@lib/widget/graphics'
+import { keyboardEventToKeyboardAction, mouseEventToPointerAction, mouseEventToSvgPoint } from '@lib/widget/graphics'
 import { websiteBasePath } from '@api/const'
 
 function controlImage(widgetType: string) {
@@ -39,7 +39,11 @@ function enableAction(
    * @param loc Location.
    * @param event Event.
    */
-  function action(eventType: UIPointerAction, loc: DOMPoint, _event: Event) {
+  function action(
+    eventType: UIPointerAction | KeyboardAction, 
+    loc: DOMPoint | undefined, 
+    event: Event
+  ) {
     space.clear()
 
     start()
@@ -48,12 +52,12 @@ function enableAction(
       case WidgetType.Button:
         if (eventType === UIPointerAction.down) {
           onAction()
-          iconSvg.current?.classList.remove(UIPointerAction.up)
-          iconSvg.current?.classList.add(UIPointerAction.down)
+          iconSvg.current?.classList.remove('up')
+          iconSvg.current?.classList.add('down')
         }
         else if (eventType === UIPointerAction.up) {
-          iconSvg.current?.classList.remove(UIPointerAction.down)
-          iconSvg.current?.classList.add(UIPointerAction.up)
+          iconSvg.current?.classList.remove('down')
+          iconSvg.current?.classList.add('up')
         }
         break
 
@@ -63,11 +67,11 @@ function enableAction(
         let length
 
         if (eventType === UIPointerAction.down) {
-          pStart = new Pt(loc.x, loc.y)
+          pStart = new Pt(loc!.x, loc!.y)
           pEnd = undefined
         }
         else if (eventType === UIPointerAction.move && pStart) {
-          pEnd = new Pt(loc.x, loc.y)
+          pEnd = new Pt(loc!.x, loc!.y)
           length = pEnd.$subtract(pStart).magnitude()
         }
         else if (eventType === UIPointerAction.up && pStart && pEnd) {
@@ -120,7 +124,20 @@ function enableAction(
         // TODO capture dragstart + dragend in opposite quadrants around center
 
       case WidgetType.Key:
-        // TODO capture keydown from document
+        // capture keydown matching widget control character
+        let char = iconSvg.current?.getAttribute('data-char')
+        if (char === (event as KeyboardEvent).key) {
+          if (eventType === KeyboardAction.down) {
+            onAction()
+            iconSvg.current?.classList.remove(UIPointerAction.up)
+            iconSvg.current?.classList.add(UIPointerAction.down)
+          }
+          else if (eventType === KeyboardAction.up) {
+            iconSvg.current?.classList.remove(UIPointerAction.down)
+            iconSvg.current?.classList.add(UIPointerAction.up)
+          }
+        }
+        break
 
       case WidgetType.Path:
         // TODO fetch canvas overlay and capture max distance between sample points along control path and drag path
@@ -140,19 +157,26 @@ function enableAction(
   // enable event listeners
   const listenerAbortController = new AbortController()
 
-  function onMouseWrapper(e: MouseEvent | TouchEvent) {
-    // check action
-    action(mouseEventToPointerAction(e), mouseEventToSvgPoint(svg, e), e)
-
-    // propagate to icon
-    iconSvg.current!.dispatchEvent(new MouseEvent(e.type, e))
+  if (type === WidgetType.Button || type === WidgetType.Lever || type === WidgetType.Twist || type === WidgetType.Path) {
+    function onMouseWrapper(e: MouseEvent | TouchEvent) {
+      action(mouseEventToPointerAction(e), mouseEventToSvgPoint(svg, e), e)
+    }
+    svg.addEventListener('mousemove', onMouseWrapper, {signal: listenerAbortController.signal})
+    svg.addEventListener('touchmove', onMouseWrapper, {signal: listenerAbortController.signal})
+    svg.addEventListener('mousedown', onMouseWrapper, {signal: listenerAbortController.signal})
+    svg.addEventListener('touchstart', onMouseWrapper, {signal: listenerAbortController.signal})
+    svg.addEventListener('mouseup', onMouseWrapper, {signal: listenerAbortController.signal})
+    svg.addEventListener('touchend', onMouseWrapper, {signal: listenerAbortController.signal})
   }
-  svg.addEventListener('mousemove', onMouseWrapper, {signal: listenerAbortController.signal})
-  svg.addEventListener('touchmove', onMouseWrapper, {signal: listenerAbortController.signal})
-  svg.addEventListener('mousedown', onMouseWrapper, {signal: listenerAbortController.signal})
-  svg.addEventListener('touchstart', onMouseWrapper, {signal: listenerAbortController.signal})
-  svg.addEventListener('mouseup', onMouseWrapper, {signal: listenerAbortController.signal})
-  svg.addEventListener('touchend', onMouseWrapper, {signal: listenerAbortController.signal})
+  if (type === WidgetType.Key || type === WidgetType.KeyPad) {
+    function onKeyWrapper(e: KeyboardEvent) {
+      e.preventDefault()
+      e.stopPropagation()
+      action(keyboardEventToKeyboardAction(e), undefined, e)
+    }
+    document.body.addEventListener('keydown', onKeyWrapper, {signal: listenerAbortController.signal})
+    document.body.addEventListener('keyup', onKeyWrapper, {signal: listenerAbortController.signal})
+  }
   svg.addEventListener('contextmenu', (e) => {e.preventDefault()}, {signal: listenerAbortController.signal})
 
   space.play()

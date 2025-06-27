@@ -105,3 +105,8 @@ export enum UIPointerAction {
   contextmenu = 'contextmenu',
   all = 'all'
 }
+
+export enum KeyboardAction {
+  up = 'up',
+  down = 'down'
+}
