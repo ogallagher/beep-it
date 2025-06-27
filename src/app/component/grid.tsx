@@ -35,10 +35,7 @@ export default function Grid(
   }
 
   return (
-    <div className={
-      'bg-blue-900 '
-      + (className === undefined ? '' : className)
-      } >
+    <div className={className === undefined ? '' : className} >
       {rows}
     </div>
   )

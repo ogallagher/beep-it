@@ -6,7 +6,7 @@
    height-ignore="90mm"
    viewBox="0 0 90 90"
    version="1.1"
-   id="svg1"
+   class="up"
    inkscape:version="1.4 (e7c3feb1, 2024-10-09)"
    sodipodi:docname="button.svg"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
@@ -53,6 +53,16 @@
     svg.down g#up {
       display: none;
     }
+
+    /* global */
+
+    .fillPrimary {
+      fill: #ffffff;
+      fill-opacity: 1;
+      stroke: #000000;
+      stroke-width: 1.05833;
+      stroke-opacity: 1;
+    }
   </style>
   <g
      inkscape:groupmode="layer"
@@ -61,7 +71,7 @@
      transform="translate(-5.5291653,-5)"
      sodipodi:insensitive="true">
     <rect
-       style="fill:#ffffff;fill-opacity:0;stroke:none;stroke-width:0.952497;stroke-dasharray:none;stroke-opacity:1"
+       style="fill:#ffffff;fill-opacity:0;stroke:none;stroke-width:0.952497"
        id="rect1"
        width="90"
        height="90"
@@ -74,8 +84,8 @@
      inkscape:label="down"
      transform="translate(-5.5291653,-5)">
     <circle
-       style="fill:#fefefe;fill-opacity:1;stroke:#000000;stroke-width:1.05833;stroke-dasharray:none;stroke-opacity:1"
-       id="path1"
+       id="capDown"
+       class="fillPrimary"
        cx="50"
        cy="50"
        r="37.041668"
@@ -88,14 +98,14 @@
      transform="translate(-5.5291653,-5)">
     <circle
        style="fill:#000000;stroke:#000000;stroke-width:1.05833;stroke-dasharray:none;stroke-opacity:1"
-       id="path1-3"
+       id="baseUp"
        cx="50"
        cy="50"
        r="37.041668"
        inkscape:label="base" />
     <circle
-       style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:1.05833;stroke-dasharray:none;stroke-opacity:1"
-       id="path1-7"
+       id="capUp"
+       class="fillPrimary"
        cx="47.35416"
        cy="46.824997"
        r="37.041668"

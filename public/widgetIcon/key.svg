@@ -6,7 +6,6 @@
    height-ignore="90mm"
    viewBox="0 0 90 90"
    version="1.1"
-   id="svg1"
    inkscape:version="1.4 (e7c3feb1, 2024-10-09)"
    sodipodi:docname="key.svg"
    class="up"
@@ -38,8 +37,7 @@
      showgrid="false" />
   <defs
      id="defs1" />
-  <style
-     id="style1">
+  <style>
     /* up */
 
     svg.up g#down {
@@ -77,6 +75,11 @@
       fill: #000000;
       stroke: none;
     }
+
+    .fillPrimary {
+      fill:#ffffff;
+      fill-opacity:1;
+    }
   </style>
   <g
      inkscape:groupmode="layer"
@@ -99,7 +102,8 @@
      transform="translate(-5.5291653,-5)">
     <path
        id="path1-3-3"
-       style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:1.13386;stroke-dasharray:none;stroke-opacity:1"
+       class="fillPrimary"
+       style="stroke:#000000;stroke-width:1.13386;stroke-dasharray:none;stroke-opacity:1"
        inkscape:label="top"
        d="M 27.589901,15.443324 A 41.516607,41.516607 0 0 0 15.97249,27.060735 v 45.87853 A 41.516607,41.516607 0 0 0 27.589901,84.556676 H 73.46843 A 41.516607,41.516607 0 0 0 85.08584,72.939265 V 26.991832 A 41.516607,41.516607 0 0 0 73.53733,15.443324 Z" />
     <text
@@ -126,7 +130,8 @@
        d="M 27.5899,15.443324 A 41.516607,41.516607 0 0 0 15.972489,27.060735 v 45.87853 A 41.516607,41.516607 0 0 0 27.5899,84.556676 H 73.468431 A 41.516607,41.516607 0 0 0 85.085842,72.939265 V 26.991832 A 41.516607,41.516607 0 0 0 73.537333,15.443324 Z" />
     <path
        id="path3"
-       style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:1.13386;stroke-dasharray:none;stroke-opacity:1"
+       class="fillPrimary"
+       style="stroke:#000000;stroke-width:1.13386;stroke-dasharray:none;stroke-opacity:1"
        inkscape:label="top"
        d="M 23.589901,11.443324 A 41.516607,41.516607 0 0 0 11.97249,23.060735 v 45.87853 A 41.516607,41.516607 0 0 0 23.589901,80.556676 H 69.46843 A 41.516607,41.516607 0 0 0 81.08584,68.939265 V 22.991832 A 41.516607,41.516607 0 0 0 69.53733,11.443324 Z" />
     <text
