@@ -86,6 +86,10 @@ export interface GameState {
      * Set of participant/player device ids.
      */
     ids: Set<string>
+    /**
+     * Map device ids to aliases.
+     */
+    aliases: Map<string, string | undefined>
   }
 }
 

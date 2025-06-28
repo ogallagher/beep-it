@@ -8,8 +8,8 @@ import { Server } from 'http'
 import pino from 'pino'
 import { ApiRoute, gameServerPort, serverDeviceId, websiteBasePath } from '@api/const'
 import Game from '@lib/game/game'
-import { ConfigEvent, DoWidgetEvent, GameEventKey } from '@lib/game/gameEvent'
-import { addGameClient, configGame, getGame, getGameEventListener } from '@lib/game/gameOperator'
+import { ConfigEvent, DoWidgetEvent, GameEventKey, JoinEvent, LeaveEvent } from '@lib/game/gameEvent'
+import { addGameClient, configGame, getGame, getGameEventListener, removeGameClient } from '@lib/game/gameOperator'
 import bodyParser from 'body-parser'
 import cors from 'cors'
 
@@ -38,22 +38,20 @@ app.get(
    */
   (req, res) => {
     logger.debug('GET.joinGame start')
-    res.set({
-      'Access-Control-Allow-Origin': '*',
-      'Cache-Control': 'no-cache',
-      'Connection': 'keep-alive', // allowing TCP connection to remain open for multiple HTTP requests/responses
-      'Content-Type': 'text/event-stream', // media type for Server Sent Events (SSE)
-    })
-    res.flushHeaders()
 
     let game: Game
     let deviceId: string
+    let deviceAlias: string | undefined
+    let createEventStream: boolean
     try {
       const reqParams = new URLSearchParams(req.query as Record<string, string>)
       game = getGame(reqParams, serverDeviceId)
 
       deviceId = reqParams.get(GameEventKey.DeviceId)!
       assert.ok(deviceId, `device id missing in joinGame event`)
+      deviceAlias = reqParams.get('deviceAlias') || undefined
+
+      createEventStream = !(reqParams.get('skipCreateEventStream') === 'true')
     }
     catch (err) {
       res.write(JSON.stringify({
@@ -63,17 +61,48 @@ app.get(
       throw err
     }
 
+    if (createEventStream) {
+      res.set({
+        'Access-Control-Allow-Origin': '*',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive', // allowing TCP connection to remain open for multiple HTTP requests/responses
+        'Content-Type': 'text/event-stream', // media type for Server Sent Events (SSE)
+      })
+      res.flushHeaders()
+
+      // handle premature close
+      res.on('close', () => {
+        res.end()
+
+        // disconnect client from game
+      })
+    }
+
     // add client device server event stream to game if necessary
-    addGameClient(game.id, deviceId, res)
+    addGameClient(game.id, deviceId, deviceAlias, createEventStream ? res : undefined)
 
-    // handle premature close
-    res.on('close', () => {
-      res.end()
+    if (!createEventStream) {
+      res.json(req.query as unknown as JoinEvent)
+    }
 
-      // disconnect client from game
-    })
     logger.debug('GET.joinGame end')
   }
+)
+
+app.get(
+  `${websiteBasePath}/${ApiRoute.LeaveGame}`,
+  (req, res) => {
+    logger.debug(`GET.${ApiRoute.LeaveGame} start`)
+    
+    const game = getGame(new URLSearchParams(req.query as Record<string, string>), serverDeviceId)
+
+    // submit widget action to game to advance state
+    const event = req.query as unknown as LeaveEvent
+    removeGameClient(game.id, event.deviceId)
+
+    logger.debug(`GET.${ApiRoute.LeaveGame} end`)
+    res.json(event)
+  } 
 )
 
 app.post(

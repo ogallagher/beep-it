@@ -3,6 +3,7 @@ import { ulid } from 'ulid'
 export enum ApiRoute {
   StartGame = 'api/startGame',
   JoinGame = 'api/joinGame',
+  LeaveGame = 'api/leaveGame',
   ConfigGame = 'api/configGame',
   DoWidget = 'api/doWidget'
 }

@@ -1,6 +1,6 @@
 import pino from 'pino'
 import Game from './game'
-import { ConfigEvent, GameEndReason, GameEventListener, GameEventType, JoinEvent, serverSendGameEvent } from './gameEvent'
+import { ConfigEvent, GameEndReason, GameEventListener, GameEventType, JoinEvent, LeaveEvent, serverSendGameEvent } from './gameEvent'
 import { Response } from 'express'
 import { serverDeviceId } from '@api/const'
 
@@ -58,7 +58,7 @@ export function getGame(gameUrlParams: URLSearchParams, deviceId: string): Game 
  * @param deviceId Client device id.
  * @param client Response object to stream game events to the client device.
  */
-export function addGameClient(gameId: string, deviceId: string, client: Response) {
+export function addGameClient(gameId: string, deviceId: string, deviceAlias?: string, client?: Response) {
   if (!games.has(gameId)) {
     throw new Error(`cannot add client to missing game ${gameId}`)
   }
@@ -66,34 +66,67 @@ export function addGameClient(gameId: string, deviceId: string, client: Response
     logger.info(`replace client stream for device=${deviceId} already in game=${gameId}`)
   }
 
-  clients.set(deviceId, client)
+  if (client) { clients.set(deviceId, client) }
 
   // update game state with new device
   const game = games.get(gameId)!
-  game.addDevice(deviceId)
+  game.addDevice(deviceId, deviceAlias)
 
   // send join event to clients in this game
   const event: JoinEvent = {
     gameId,
     gameEventType: GameEventType.Join,
     deviceId,
+    deviceAlias: deviceAlias,
     deviceCount: game.getDeviceCount(),
     deviceIds: [...game.getDevices()]
   }
   getGameEventListener(gameId)(event)
 
-  // send config event for latest game model to new client
-  const configEvent: ConfigEvent = {
-    gameId,
-    gameEventType: GameEventType.Config,
-    // set source to different device so client knows they don't have latest config
-    deviceId: serverDeviceId,
-    boardDisplayMode: game.config.boardDisplayMode,
-    gameTurnMode: game.config.gameTurnMode,
-    playerCount: game.config.players.count,
-    widgets: [...game.config.widgets.values()]
+  if (client) {
+    // send config event for latest game model to new client
+    const configEvent: ConfigEvent = {
+      gameId,
+      gameEventType: GameEventType.Config,
+      // set source to different device so client knows they don't have latest config
+      deviceId: serverDeviceId,
+      boardDisplayMode: game.config.boardDisplayMode,
+      gameTurnMode: game.config.gameTurnMode,
+      playerCount: game.config.players.count,
+      widgets: [...game.config.widgets.values()],
+      deviceAliases: [...game.getDevices()].map((id) => {
+        return [id, game.getDeviceAlias(id)]
+      })
+    }
+    serverSendGameEvent(configEvent, client)
   }
-  serverSendGameEvent(configEvent, client)
+}
+
+/**
+ * Remove client from existing game.
+ * 
+ * @param gameId Game id.
+ * @param deviceId Client device id.
+ */
+export function removeGameClient(gameId: string, deviceId: string) {
+  if (!games.has(gameId)) {
+    logger.warn(`cannot add client to missing game ${gameId}`)
+  }
+
+  clients.get(deviceId)?.end()
+  clients.delete(deviceId)
+
+  const game = games.get(gameId)!
+  game.deleteDevice(deviceId)
+
+  // send leave event to clients in game
+  const event: LeaveEvent = {
+    gameId,
+    gameEventType: GameEventType.Leave,
+    deviceId,
+    deviceCount: game.getDeviceCount()
+  }
+  getGameEventListener(gameId)(event)
 }
 
 /**

@@ -15,6 +15,10 @@ export enum GameEventType {
    */
   Join = 'join',
   /**
+   * Client device left the game.
+   */
+  Leave = 'leave',
+  /**
    * Config updates (ex. player count, widgets, turn mode, board mode)
    */
   Config = 'config',
@@ -48,8 +52,14 @@ export interface GameEvent {
 }
 
 export interface JoinEvent extends GameEvent {
+  deviceAlias?: string
   deviceCount: number
   deviceIds: string[]
+  skipCreateEventStream?: boolean
+}
+
+export interface LeaveEvent extends GameEvent {
+  deviceCount: number
 }
 
 export interface ConfigEvent extends GameEvent {
@@ -57,6 +67,7 @@ export interface ConfigEvent extends GameEvent {
   gameTurnMode?: GameTurnMode
   playerCount?: number
   widgets?: WidgetExport[]
+  deviceAliases?: [string, string|undefined][]
 }
 
 export interface CommandEvent extends GameEvent {
@@ -83,12 +94,18 @@ export interface EndEvent extends GameEvent {
 
 export type GameEventListener = (event: GameEvent) => void
 
-export async function clientSendConfigEvent(event: ConfigEvent) {
+async function clientSendGameEvent(event: GameEvent, apiRoute: ApiRoute, method: 'GET'|'POST') {
   try {
+    let searchParamStr = ''
+    if (method === 'GET') {
+      const searchParams = new URLSearchParams(Object.entries(event))
+      searchParamStr = '?' + searchParams.toString()
+    }
+
     const res = await fetch(
-      `http://${window.location.hostname}:${gameServerPort}${websiteBasePath}/${ApiRoute.ConfigGame}`, 
-      {
-        method: 'POST',
+      `http://${window.location.hostname}:${gameServerPort}${websiteBasePath}/${apiRoute}${searchParamStr}`, 
+      method === 'GET' ? undefined : {
+        method,
         body: JSON.stringify(event),
         headers: {
           'Content-Type': 'application/json'
@@ -96,15 +113,23 @@ export async function clientSendConfigEvent(event: ConfigEvent) {
       }
     )
 
-    const resEvent = await res.json() as ConfigEvent
+    const resEvent = await res.json()
     assert.ok(
-      resEvent.gameEventType === GameEventType.Config, 
-      'POST config did not receive valid confirmation'
+      resEvent.gameEventType === event.gameEventType, 
+      `${method} ${event.gameEventType} did not receive valid confirmation`
     )
   }
   catch (err) {
     console.log(`ERROR ${err}`)
   }
+}
+
+export async function clientSendConfigEvent(event: ConfigEvent) {
+  await clientSendGameEvent(event, ApiRoute.ConfigGame, 'POST')
+}
+
+export async function clientSendLeaveEvent(event: LeaveEvent) {
+  await clientSendGameEvent(event, ApiRoute.LeaveGame, 'GET')
 }
 
 export function serverSendGameEvent(event: GameEvent, client: Response) {

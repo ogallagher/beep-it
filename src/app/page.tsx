@@ -13,6 +13,8 @@ import CommandCaptions from '@component/commandCaptions'
 import { boardId } from '@lib/widget/const'
 import { GameStateListenerKey } from '@lib/game/const'
 import Header from '@component/header'
+import assert from 'assert'
+import StaticRef from '@lib/staticRef'
 
 function scrollLock(): AbortController {
   const abortController = new AbortController();
@@ -34,6 +36,77 @@ function scrollUnlock(scrollLockAbortController: AbortController | null) {
   scrollLockAbortController?.abort()
 
   document.body.classList.remove('overflow-hidden')
+}
+
+/**
+ * Join the given game and open a corresponding game event stream.
+ * 
+ * @param force Whether to send the join event even if already joined.
+ * @returns New game event stream if created.
+ */
+export async function joinGame(
+  game: Game, 
+  clientDeviceId: string,
+  force: boolean,
+  gameEventSource?: EventSource | undefined,
+  onGameEvent?: ((e: MessageEvent, onJoin: () => void) => void) | undefined,
+  closeGameEventSource?: (() => void) | undefined,
+) {
+  const requestParams = new URLSearchParams()
+  // set game id
+  Game.saveGameId(game.id, requestParams)
+  // set client device
+  requestParams.set(GameEventKey.DeviceId, clientDeviceId)
+
+  // game game id to url 
+  window.history.replaceState(null, '', `?${requestParams}`)
+
+  // details not in window location
+  const clientDeviceAlias = game.getDeviceAlias(clientDeviceId)
+  if (clientDeviceAlias) {
+    requestParams.set('deviceAlias', clientDeviceAlias)
+  }
+
+  // subscribe to game events
+  return await new Promise((res: (eventStream?: EventSource | undefined) => void) => {
+    if (gameEventSource === undefined && onGameEvent !== undefined) {
+      gameEventSource = new EventSource(
+        `http://${window.location.hostname}:${gameServerPort}${websiteBasePath}/${ApiRoute.JoinGame}?${requestParams}`
+      )
+
+      gameEventSource.onmessage = (rawEvent) => {
+        onGameEvent!(rawEvent, () => res(gameEventSource))
+      }
+
+      gameEventSource.onerror = (rawEvent) => {
+        console.log(`game event error = ${rawEvent}; close connection`)
+        closeGameEventSource!()
+      }
+    }
+    else if (force) {
+      requestParams.set(GameEventKey.GameId, game.id)
+      requestParams.set('skipCreateEventStream', 'true')
+
+      fetch(`http://${window.location.hostname}:${gameServerPort}${websiteBasePath}/${ApiRoute.JoinGame}?${requestParams}`)
+      .then(async (res: Response) => {
+        try {
+          const resEvent = await res.json() as JoinEvent
+          assert.ok(
+            resEvent.gameEventType === GameEventType.Join, 
+            'GET join did not receive valid confirmation'
+          )
+        }
+        catch (err) {
+          console.log(`ERROR ${err}`)
+        }
+      })
+      .finally(res)
+    }
+    else {
+      // already joined
+      res()
+    }
+  })
 }
 
 export default function Home() {
@@ -80,7 +153,17 @@ export default function Home() {
         }
 
         // update devices
-        game.current.setDevices((gameEvent as JoinEvent).deviceIds)
+        game.current.setDevices(
+          (gameEvent as JoinEvent).deviceIds, 
+          [[gameEvent.deviceId, (gameEvent as JoinEvent).deviceAlias]]
+        )
+        break
+      
+      case GameEventType.Leave:
+        console.log(`left game, device id=${gameEvent.deviceId} alias=${game.current.getDeviceAlias(gameEvent.deviceId)}`)
+
+        // update devices
+        game.current.deleteDevice(gameEvent.deviceId)
         break
 
       case GameEventType.Config:
@@ -129,44 +212,12 @@ export default function Home() {
     }
   }
 
-  async function joinGame() {
-    const requestParams = new URLSearchParams()
-    // set game id
-    Game.saveGameId(game.current.id, requestParams)
-    // set client device
-    requestParams.set(GameEventKey.DeviceId, clientDeviceId.current)
-
-    // game game id to url 
-    window.history.replaceState(null, '', `?${requestParams}`)
-
-    // subscribe to game events
-    await new Promise((res: (v?: undefined) => void) => {
-      if (gameEventSource === undefined) {
-        gameEventSource = new EventSource(
-          `http://${window.location.hostname}:${gameServerPort}${websiteBasePath}/${ApiRoute.JoinGame}?${requestParams}`
-        )
-
-        gameEventSource.onmessage = (rawEvent) => {
-          onGameEvent(rawEvent, res)
-        }
-
-        gameEventSource.onerror = (rawEvent) => {
-          console.log(`game event error = ${rawEvent}; close connection`)
-          closeGameEventSource()
-        }
-      }
-      else {
-        // already joined
-        res()
-      }
-    })
-
-    return
-  }
-
   async function startGame() {
     // Rejoin on start in case game ended on expire.
-    await joinGame()
+    gameEventSource = (
+      await joinGame(game.current, clientDeviceId.current, false, gameEventSource, onGameEvent, closeGameEventSource) 
+      || gameEventSource
+    )
 
     const requestParams = game.current.save()
 
@@ -191,7 +242,7 @@ export default function Home() {
         }
       }
       else {
-        console.log(`start game error ${res.statusText}. ${res.text}`)
+        console.log(`start game error ${res.statusText}. ${await res.text()}`)
       }
     })
   }
@@ -199,7 +250,10 @@ export default function Home() {
   // Join game.
   useEffect(
     () => {
-      joinGame()
+      joinGame(game.current, clientDeviceId.current, false, gameEventSource, onGameEvent, closeGameEventSource)
+      .then((newEventSource) => {
+        gameEventSource = newEventSource || gameEventSource
+      })
     },
     []
   )

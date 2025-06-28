@@ -27,7 +27,8 @@ export default class Game {
     deviceId: null,
     devices: {
       count: 1,
-      ids: new Set()
+      ids: new Set(),
+      aliases: new Map()
     }
   }
   protected startTimeout: NodeJS.Timeout | null = null
@@ -91,22 +92,36 @@ export default class Game {
   }
 
   /**
-   * Append to devices list. Internally calls `setDeviceCount`.
-   * 
-   * @param deviceId 
+   * Add to devices if not already registered. Internally calls `setDeviceCount`.
    */
-  addDevice(deviceId: string) {
+  addDevice(deviceId: string, deviceAlias?: string) {
     this.state.devices.ids.add(deviceId)
+    if (deviceAlias) {
+      this.state.devices.aliases.set(deviceId, deviceAlias)
+    }
     this.setDeviceCount(this.state.devices.ids.size)
   }
 
   /**
-   * Replace devices list. Internally calls `setDeviceCount`.
-   * 
-   * @param deviceIds 
+   * Remove from devices. Internally calls `setDeviceCount`.
    */
-  setDevices(deviceIds: Iterable<string>) {
+  deleteDevice(deviceId: string) {
+    this.state.devices.ids.delete(deviceId)
+    this.setDeviceCount(this.state.devices.ids.size)
+  }
+
+  getDeviceAlias(deviceId: string) {
+    return this.state.devices.aliases.get(deviceId)
+  }
+
+  /**
+   * Replace devices list. Internally calls `setDeviceCount`.
+   */
+  setDevices(deviceIds: Iterable<string>, deviceAliases: Iterable<[string, string|undefined]>) {
     this.state.devices.ids = new Set(deviceIds)
+    for (let [id, alias] of deviceAliases) {
+      this.state.devices.aliases.set(id, alias)
+    }
     this.setDeviceCount(this.state.devices.ids.size)
   }
 
@@ -198,6 +213,9 @@ export default class Game {
     }
     if (configEvent.widgets !== undefined) {
       this.setWidgets(configEvent.widgets)
+    }
+    if (configEvent.deviceAliases !== undefined) {
+      configEvent.deviceAliases.forEach(([id, alias]) => this.addDevice(id, alias))
     }
   }
 
