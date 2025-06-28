@@ -249,6 +249,15 @@ export default class Game {
     this.stateListeners.get(GameStateListenerKey.CommandWidgetId)?.forEach(l => l(commandWidgetId))
   }
 
+  getCommandCount() {
+    return this.state.commandCount
+  }
+
+  setCommandCount(commandCount: number) {
+    this.state.commandCount = commandCount
+    this.stateListeners.get(GameStateListenerKey.CommandWidgetId)?.forEach(l => l(this.state.commandWidgetId))
+  }
+
   setStartTimeout(onTimeout: () => void): number {
     this.startTimeout = setTimeout(onTimeout, gameStartDelayMax)
     return gameStartDelayMax
@@ -354,12 +363,12 @@ export default class Game {
       gameEventType: this.state.lastEventType,
       widgetId: this.state.commandWidgetId,
       command: this.config.widgets.get(this.state.commandWidgetId)!.command,
-      commandDelay: this.state.commandDelay
+      commandDelay: this.state.commandDelay,
+      commandCount: ++this.state.commandCount
     }
     listener(command)
 
     // prepare for next command
-    this.state.commandCount++
 
     const commandDelayVelocity = 100 * this.config.difficulty
     this.state.commandDelay = Math.max(this.state.commandDelay - commandDelayVelocity, commandDelayMin)

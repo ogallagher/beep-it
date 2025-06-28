@@ -46,6 +46,9 @@ export enum GameStateListenerKey {
    * Used for both setEnded and setEndReason.
    */
   Ended = 'ended',
+  /**
+   * Used for both setCommandWidgetId and setCommandCount.
+   */
   CommandWidgetId = 'commandWidgetId'
 }
 

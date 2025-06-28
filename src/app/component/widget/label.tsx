@@ -4,7 +4,7 @@ import { Input } from '@headlessui/react'
 import Game from '@lib/game/game'
 import { clientSendConfigEvent, GameEventType } from '@lib/game/gameEvent'
 import StaticRef from '@lib/staticRef'
-import { RefObject } from 'react'
+import { RefObject, useEffect, useState } from 'react'
 
 export default function WidgetLabel(
   { widgetId, valueRef, disabled, game, deviceId }: {
@@ -15,10 +15,19 @@ export default function WidgetLabel(
     deviceId: StaticRef<string> | RefObject<string>
   }
 ) {
+  const [labelValue, setLabelValue] = useState(valueRef.current)
+  useEffect(
+    () => {
+      setLabelValue(valueRef.current)
+    },
+    [ valueRef ]
+  )
+
   /**
    * Persist widget label update to game model.
    */
   function changeLabel() {
+    valueRef.current = labelValue
     const widget = game.current.config.widgets.get(widgetId)
 
     if (widget !== undefined) {
@@ -38,7 +47,7 @@ export default function WidgetLabel(
     <div className='w-full flex flex-row justify-center'>
       <Input
         className='block rounded-lg px-3 py-1.5 mt-1 bg-white/5 text-white text-center w-full'
-        defaultValue={valueRef.current} onChange={e => valueRef.current = e.target.value}
+        value={labelValue} onChange={e => setLabelValue(e.target.value)}
         onBlur={changeLabel}
         disabled={disabled} />
     </div>

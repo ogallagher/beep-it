@@ -174,12 +174,15 @@ export default function Home() {
         break
 
       case GameEventType.Command:
+        const widgetId = (gameEvent as CommandEvent).widgetId
         console.log(
           `command=${(gameEvent as CommandEvent).command} `
-          + `widget=${(gameEvent as CommandEvent).widgetId} `
+          + `widget=${widgetId} `
           + `delay=${(gameEvent as CommandEvent).commandDelay}`
         )
-        game.current.setCommandWidgetId((gameEvent as CommandEvent).widgetId)
+        game.current.setCommandWidgetId(widgetId)
+        game.current.setCommandCount((gameEvent as CommandEvent).commandCount)
+
         break
 
       case GameEventType.DoWidget:

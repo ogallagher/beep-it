@@ -74,6 +74,7 @@ export interface CommandEvent extends GameEvent {
   widgetId: string
   command: string
   commandDelay: number
+  commandCount: number
 }
 
 export interface DoWidgetEvent extends GameEvent {

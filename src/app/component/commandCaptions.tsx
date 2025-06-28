@@ -26,13 +26,20 @@ export default function CommandCaptions(
     }
   }
 
-  const [command, setCommand] = useState(getCommand())
-  const [gameEnd, setGameEnd] = useState(getGameEnd())
+  const [command, setCommand] = useState(getCommand)
+  function getScore() {
+    return Math.max(0, game.current.getCommandCount()-1)
+  }
+  const [score, setScore] = useState(getScore)
+  const [gameEnd, setGameEnd] = useState(getGameEnd)
 
   useEffect(
     () => {
       // state listener for command
-      game.current.addStateListener(GameStateListenerKey.CommandWidgetId, () => setCommand(getCommand()))
+      game.current.addStateListener(GameStateListenerKey.CommandWidgetId, () => {
+        setCommand(getCommand())
+        setScore(getScore())
+      })
       // listener for game end
       game.current.addStateListener(GameStateListenerKey.Ended, () => setGameEnd(getGameEnd()))
     },
@@ -58,7 +65,8 @@ export default function CommandCaptions(
 
         <div className='flex flex-col justify-center text-center'>
           <div className='text-2xl text-nowrap'>
-            <b>score: </b>[...]
+            <b>score: </b>
+            <span className='font-mono'>{score}</span>
           </div>
         </div>
         
