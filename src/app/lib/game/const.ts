@@ -40,6 +40,7 @@ export enum GameStateListenerKey {
    * Used for any change to config.devices.
    */
   DevicesCount = 'devices.count',
+  Joined = 'joined',
   Started = 'started',
   /**
    * Used for both setEnded and setEndReason.
@@ -77,6 +78,10 @@ export interface GameState {
    * Game host device.
    */
   deviceId: string | null
+  /**
+   * Whether the current/self client device joined the game.
+   */
+  joined: boolean
   /**
    * Game client devices.
    */

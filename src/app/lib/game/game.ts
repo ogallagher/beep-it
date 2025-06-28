@@ -25,8 +25,9 @@ export default class Game {
      * The client device that is hosting the game (first to join).
      */
     deviceId: null,
+    joined: false,
     devices: {
-      count: 1,
+      count: 0,
       ids: new Set(),
       aliases: new Map()
     }
@@ -49,6 +50,7 @@ export default class Game {
    */
   protected stateListeners: Map<string, StateListener[]> = new Map([
     [GameStateListenerKey.DevicesCount, []],
+    [GameStateListenerKey.Joined, []],
     [GameStateListenerKey.Started, []],
     [GameStateListenerKey.Ended, []],
     [GameStateListenerKey.CommandWidgetId, []]
@@ -123,6 +125,15 @@ export default class Game {
       this.state.devices.aliases.set(id, alias)
     }
     this.setDeviceCount(this.state.devices.ids.size)
+  }
+
+  getJoined() {
+    return this.state.joined
+  }
+
+  setJoined(joined: boolean) {
+    this.state.joined = joined
+    this.stateListeners.get(GameStateListenerKey.Joined)?.forEach(l => l(joined))
   }
 
   getStarted() {

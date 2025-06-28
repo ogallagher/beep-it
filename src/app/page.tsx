@@ -7,14 +7,12 @@ import WidgetsDrawer from '@component/widgetsDrawer'
 import Game from '@lib/game/game'
 import { useSearchParams } from 'next/navigation'
 import { ApiRoute, gameServerPort, websiteBasePath } from '@api/const'
-import { CommandEvent, ConfigEvent, DoWidgetEvent, EndEvent, GameEvent, GameEventKey, GameEventType, JoinEvent } from '@lib/game/gameEvent'
+import { CommandEvent, ConfigEvent, DoWidgetEvent, EndEvent, GameEndReason, GameEvent, GameEventKey, GameEventType, JoinEvent } from '@lib/game/gameEvent'
 import { ulid } from 'ulid'
 import CommandCaptions from '@component/commandCaptions'
 import { boardId } from '@lib/widget/const'
-import { GameStateListenerKey } from '@lib/game/const'
 import Header from '@component/header'
 import assert from 'assert'
-import StaticRef from '@lib/staticRef'
 
 function scrollLock(): AbortController {
   const abortController = new AbortController();
@@ -48,7 +46,7 @@ export async function joinGame(
   game: Game, 
   clientDeviceId: string,
   force: boolean,
-  gameEventSource?: EventSource | undefined,
+  gameEventSource?: RefObject<EventSource | undefined> | undefined,
   onGameEvent?: ((e: MessageEvent, onJoin: () => void) => void) | undefined,
   closeGameEventSource?: (() => void) | undefined,
 ) {
@@ -66,24 +64,25 @@ export async function joinGame(
   if (clientDeviceAlias) {
     requestParams.set('deviceAlias', clientDeviceAlias)
   }
-
-  // subscribe to game events
+  
   return await new Promise((res: (eventStream?: EventSource | undefined) => void) => {
-    if (gameEventSource === undefined && onGameEvent !== undefined) {
-      gameEventSource = new EventSource(
+    if (gameEventSource?.current === undefined && onGameEvent !== undefined) {
+      // subscribe to game events
+      gameEventSource!.current = new EventSource(
         `http://${window.location.hostname}:${gameServerPort}${websiteBasePath}/${ApiRoute.JoinGame}?${requestParams}`
       )
 
-      gameEventSource.onmessage = (rawEvent) => {
-        onGameEvent!(rawEvent, () => res(gameEventSource))
+      gameEventSource!.current.onmessage = (rawEvent) => {
+        onGameEvent!(rawEvent, res)
       }
 
-      gameEventSource.onerror = (rawEvent) => {
+      gameEventSource!.current.onerror = (rawEvent) => {
         console.log(`game event error = ${rawEvent}; close connection`)
         closeGameEventSource!()
       }
     }
     else if (force) {
+      // send single event
       requestParams.set(GameEventKey.GameId, game.id)
       requestParams.set('skipCreateEventStream', 'true')
 
@@ -92,7 +91,7 @@ export async function joinGame(
         try {
           const resEvent = await res.json() as JoinEvent
           assert.ok(
-            resEvent.gameEventType === GameEventType.Join, 
+            resEvent.deviceId === clientDeviceId, 
             'GET join did not receive valid confirmation'
           )
         }
@@ -115,31 +114,20 @@ export default function Home() {
   const clientDeviceId = useRef(urlParams.get(GameEventKey.DeviceId) || ulid())
   const game = useRef(Game.loadGame(urlParams) || new Game())
   console.log(`game=${game.current}`)
-  // Perhaps these should be referenced by other children as well, instead of them having their own synonymous states?
-  // I'm not sure which is better.
-  const [gameStarted, setGameStarted] = useState(game.current.getStarted())
-  const [gameEnded, setGameEnded] = useState(game.current.getEnded())
 
-  let gameEventSource: EventSource | undefined
+  const gameEventSource: RefObject<EventSource | undefined> = useRef(undefined)
 
   const [widgetsDrawerOpen, setWidgetsDrawerOpen] = useState(false)
   const scrollLockAbortController: RefObject<AbortController | null> = useRef(null)
 
-  useEffect(
-    () => {
-      // update visibility of outer components on game start and end
-      game.current.addStateListener(GameStateListenerKey.Started, setGameStarted)
-      game.current.addStateListener(GameStateListenerKey.Ended, setGameEnded)
-    },
-    [ game ]
-  )
+  const closeGameEventSource = useRef(() => {
+    gameEventSource.current?.close()
+    gameEventSource.current = undefined
+    game.current.deleteDevice(clientDeviceId.current)
+    game.current.setJoined(false)
+  })
 
-  function closeGameEventSource() {
-    gameEventSource!.close()
-    gameEventSource = undefined
-  }
-
-  function onGameEvent(rawEvent: MessageEvent, onJoin: () => void) {
+  const onGameEvent = useRef((rawEvent: MessageEvent, onJoin: () => void) => {
     const gameEvent: GameEvent = JSON.parse(rawEvent.data)
     console.log(`game event: game=${gameEvent.gameId} type=${gameEvent.gameEventType} device=${gameEvent.deviceId}`)
 
@@ -149,6 +137,7 @@ export default function Home() {
         if (gameEvent.deviceId === clientDeviceId.current) {
           // join confirmed
           console.log(`joined ${game.current}`)
+          game.current.setJoined(true)
           onJoin()
         }
 
@@ -161,6 +150,9 @@ export default function Home() {
       
       case GameEventType.Leave:
         console.log(`left game, device id=${gameEvent.deviceId} alias=${game.current.getDeviceAlias(gameEvent.deviceId)}`)
+        if (gameEvent.deviceId === clientDeviceId.current) {
+          game.current.setJoined(false)
+        }
 
         // update devices
         game.current.deleteDevice(gameEvent.deviceId)
@@ -198,26 +190,30 @@ export default function Home() {
         break
 
       case GameEventType.End:
-        console.log('game ended. do not close connection before game is deleted')
-        // closeGameEventSource()
+        console.log('game ended')
+        const endReason = (gameEvent as EndEvent).endReason
+        // end game
         game.current.setEnded(true)
-        game.current.setEndReason((gameEvent as EndEvent).endReason)
+        game.current.setEndReason(endReason)
         // release scroll lock
         scrollUnlock(scrollLockAbortController.current)
+        // clear devices and disconnect
+        if (endReason === GameEndReason.StartDelay) {
+          game.current.setJoined(false)
+          game.current.setDevices([], [])
+          closeGameEventSource.current()
+        }
         break
 
       default:
         console.log(`ERROR ignore invalid event type=$${gameEvent.gameEventType}`)
         break
     }
-  }
+  })
 
   async function startGame() {
     // Rejoin on start in case game ended on expire.
-    gameEventSource = (
-      await joinGame(game.current, clientDeviceId.current, false, gameEventSource, onGameEvent, closeGameEventSource) 
-      || gameEventSource
-    )
+    await joinGame(game.current, clientDeviceId.current, false, gameEventSource, onGameEvent.current, closeGameEventSource.current)
 
     const requestParams = game.current.save()
 
@@ -250,9 +246,9 @@ export default function Home() {
   // Join game.
   useEffect(
     () => {
-      joinGame(game.current, clientDeviceId.current, false, gameEventSource, onGameEvent, closeGameEventSource)
+      joinGame(game.current, clientDeviceId.current, false, gameEventSource, onGameEvent.current, closeGameEventSource.current)
       .then((newEventSource) => {
-        gameEventSource = newEventSource || gameEventSource
+        gameEventSource.current = newEventSource || gameEventSource.current
       })
     },
     []
@@ -260,7 +256,7 @@ export default function Home() {
 
   return (
     <>
-      <Header showHeader={!gameStarted || gameEnded} githubUrl='https://github.com/ogallagher/beep-it'/>
+      <Header game={game} githubUrl='https://github.com/ogallagher/beep-it'/>
 
       <div className='py-4 font-[family-name:var(--font-geist-sans)] flex flex-col gap-4'>
         <main className="flex flex-col gap-[32px] items-center sm:items-start">
@@ -268,8 +264,10 @@ export default function Home() {
             widgetsDrawerOpen={widgetsDrawerOpen} 
             setWidgetsDrawerOpen={setWidgetsDrawerOpen}
             startGame={startGame}
-            game={game} gameStarted={gameStarted} gameEnded={gameEnded}
-            deviceId={clientDeviceId} />
+            game={game}
+            deviceId={clientDeviceId}
+            // needed in order to rejoin game and handle new game event stream
+            gameEventSource={gameEventSource} onGameEvent={onGameEvent} closeGameEventSource={closeGameEventSource} />
           
           <WidgetsDrawer 
             open={widgetsDrawerOpen}

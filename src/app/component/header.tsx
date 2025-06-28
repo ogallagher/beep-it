@@ -2,15 +2,32 @@
 
 import { Github, QuestionCircle } from 'react-bootstrap-icons'
 import { About } from '@component/about/about'
-import { useState } from 'react'
+import { RefObject, useEffect, useState } from 'react'
+import StaticRef from '@lib/staticRef'
+import Game from '@lib/game/game'
+import { GameStateListenerKey } from '@lib/game/const'
 
 export default function Header(
-  { githubUrl, showHeader }: {
-    githubUrl: string
-    showHeader: boolean
+  { githubUrl, game }: {
+    githubUrl: string,
+    game: StaticRef<Game> | RefObject<Game>
   }
 ) {
   const [aboutOpen, setAboutOpen] = useState(false)
+  const [showHeader, setShowHeader] = useState(true)
+
+  function getShowHeader() {
+    return !game.current.getStarted() || game.current.getEnded()
+  }
+
+  useEffect(
+    () => {
+      // update visibility
+      game.current.addStateListener(GameStateListenerKey.Started, () => setShowHeader(getShowHeader()))
+      game.current.addStateListener(GameStateListenerKey.Ended, () => setShowHeader(getShowHeader()))
+    },
+    [ game ]
+  )
 
   return (
     <>

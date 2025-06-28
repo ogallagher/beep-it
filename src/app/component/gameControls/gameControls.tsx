@@ -10,24 +10,41 @@ import TurnMode from './turnMode'
 import WidgetsDrawerControl from './widgets'
 import GamePlay from './play'
 import RejoinGame from './rejoin'
+import { GameStateListenerKey } from '@lib/game/const'
 
 export default function GameControls(
-  { widgetsDrawerOpen, setWidgetsDrawerOpen, startGame, game, deviceId, gameStarted, gameEnded } : {
+  { widgetsDrawerOpen, setWidgetsDrawerOpen, startGame, game, deviceId, gameEventSource, onGameEvent, closeGameEventSource } : {
     widgetsDrawerOpen: boolean
     setWidgetsDrawerOpen: Dispatch<SetStateAction<boolean>>
     startGame: () => void
     game: StaticRef<Game> | RefObject<Game>
-    gameStarted: boolean
-    gameEnded: boolean
     deviceId: StaticRef<string> | RefObject<string>
+    gameEventSource: RefObject<EventSource | undefined>
+    onGameEvent: RefObject<(e: MessageEvent, onJoin: () => void) => void>
+    closeGameEventSource: RefObject<() => void>
   }
 ) {
+  const [showControls, setShowControls] = useState(true)
+
+  function getShowControls() {
+    return !game.current.getStarted() || game.current.getEnded()
+  }
+
+  useEffect(
+    () => {
+      // update visibility
+      game.current.addStateListener(GameStateListenerKey.Started, () => setShowControls(getShowControls()))
+      game.current.addStateListener(GameStateListenerKey.Ended, () => setShowControls(getShowControls()))
+    },
+    [ game ]
+  )
+
   return (
     <div 
       className={
         'gameControls flex flex-row flex-wrap gap-4 justify-between w-full '
         + 'md:text-xl text-sm py-2 px-4 md:p-2 bg-gray-800 '
-        + (gameStarted && !gameEnded ? 'hidden' : '')
+        + (showControls ? '' : 'hidden')
       }>
       <div className='flex flex-row gap-2'>
          <SaveConfig game={game} />
@@ -54,7 +71,10 @@ export default function GameControls(
 
         <GamePlay game={game} startGame={startGame} />
 
-        <RejoinGame />
+        <RejoinGame 
+          game={game} 
+          clientDeviceId={deviceId} 
+          gameEventSource={gameEventSource} onGameEvent={onGameEvent} closeGameEventSource={closeGameEventSource} />
       </div>
     </div>
   )
