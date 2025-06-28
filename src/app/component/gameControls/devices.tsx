@@ -10,13 +10,25 @@ import { joinGame } from 'app/page'
 const deviceIdSummaryLength = 4
 
 function GameDevice(
-  { deviceId, isClientDevice, deviceAlias, game } : {
+  { deviceId, isClientDevice, game } : {
     deviceId: string
     isClientDevice: boolean
-    deviceAlias?: string
     game: StaticRef<Game> | RefObject<Game>
   }
 ) {
+  function getDeviceAlias() {
+    return game.current.getDeviceAlias(deviceId) || ''
+  }
+  const [deviceAlias, setDeviceAlias] = useState(getDeviceAlias)
+
+  useEffect(
+    () => {
+      // render device updates
+      game.current.addStateListener(GameStateListenerKey.DevicesCount, () => setDeviceAlias(getDeviceAlias()))
+    },
+    [ game ]
+  )
+
   return (
     <Field 
       title={'Manage device ' + deviceId + (isClientDevice ? ' (self)' : '')}
@@ -30,9 +42,9 @@ function GameDevice(
       <Input
         className='rounded-lg bg-white/5 text-white px-3 py-0.5'
         type='text' placeholder='device alias'
-        defaultValue={deviceAlias}
+        value={deviceAlias}
         onChange={e => {
-          deviceAlias = e.target.value
+          setDeviceAlias(e.target.value)
         }}
         onBlur={() => {
           // update device alias in local game model
@@ -79,7 +91,7 @@ export default function GameDevices(
 
   useEffect(
     () => {
-      // render device count updates
+      // render device collection updates
       game.current.addStateListener(GameStateListenerKey.DevicesCount, (deviceCount) => {
         setDeviceCount(deviceCount)
         setDevices(game.current.getDevices())
@@ -87,12 +99,6 @@ export default function GameDevices(
     },
     []
   )
-
-  /**
-   * // TODO Submit device changes to game model and server.
-   */
-  function change() {
-  }
 
   return (
     <div className="flex flex-col justify-center">
@@ -114,7 +120,6 @@ export default function GameDevices(
           <GameDevice key={deviceId}
             game={game}
             deviceId={deviceId} 
-            deviceAlias={game.current.getDeviceAlias(deviceId)} 
             isClientDevice={deviceId === clientDeviceId.current} />
         )
       })}
