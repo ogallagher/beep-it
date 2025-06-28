@@ -1,7 +1,6 @@
 import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import './globals.css'
-import Header from '@component/header'
 import { Suspense } from 'react';
 
 const geistSans = Geist({
@@ -31,9 +30,6 @@ export default function RootLayout({
           `${geistSans.variable} ${geistMono.variable} antialiased`
         }
       >
-        <Header
-          githubUrl='https://github.com/ogallagher/beep-it'/>
-
         <Suspense>
           {children}
         </Suspense>

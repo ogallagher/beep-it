@@ -5,15 +5,19 @@ import { About } from '@component/about/about'
 import { useState } from 'react'
 
 export default function Header(
-  { githubUrl }: {
+  { githubUrl, showHeader }: {
     githubUrl: string
+    showHeader: boolean
   }
 ) {
   const [aboutOpen, setAboutOpen] = useState(false)
 
   return (
     <>
-      <header className='border-b md:text-2xl text-sm'>
+      <header className={
+        'border-b md:text-2xl text-sm '
+        + (showHeader ? '' : 'hidden')
+      }>
         <nav className='mx-auto flex items-center justify-between md:p-4 p-1'>
           <div className='flex'>
             <a href={githubUrl}>

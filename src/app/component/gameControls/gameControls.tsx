@@ -1,4 +1,4 @@
-import { Dispatch, RefObject, SetStateAction } from 'react'
+import { Dispatch, RefObject, SetStateAction, useEffect, useState } from 'react'
 import ShareGame from './share'
 import SaveConfig from './save'
 import StaticRef from '@lib/staticRef'
@@ -11,11 +11,13 @@ import WidgetsDrawerControl from './widgets'
 import GamePlay from './play'
 
 export default function GameControls(
-  { widgetsDrawerOpen, setWidgetsDrawerOpen, startGame, game, deviceId } : {
+  { widgetsDrawerOpen, setWidgetsDrawerOpen, startGame, game, deviceId, gameStarted, gameEnded } : {
     widgetsDrawerOpen: boolean
     setWidgetsDrawerOpen: Dispatch<SetStateAction<boolean>>
     startGame: () => void
     game: StaticRef<Game> | RefObject<Game>
+    gameStarted: boolean
+    gameEnded: boolean
     deviceId: StaticRef<string> | RefObject<string>
   }
 ) {
@@ -23,7 +25,8 @@ export default function GameControls(
     <div 
       className={
         'gameControls flex flex-wrap gap-2 justify-between w-full '
-        + 'md:text-xl text-sm py-2 px-4 md:p-2 bg-gray-800'
+        + 'md:text-xl text-sm py-2 px-4 md:p-2 bg-gray-800 '
+        + (gameStarted && !gameEnded ? 'hidden' : '')
       }>
       <SaveConfig game={game} />
 

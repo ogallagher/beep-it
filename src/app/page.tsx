@@ -11,6 +11,8 @@ import { CommandEvent, ConfigEvent, DoWidgetEvent, EndEvent, GameEvent, GameEven
 import { ulid } from 'ulid'
 import CommandCaptions from '@component/commandCaptions'
 import { boardId } from '@lib/widget/const'
+import { GameStateListenerKey } from '@lib/game/const'
+import Header from '@component/header'
 
 function scrollLock(): AbortController {
   const abortController = new AbortController();
@@ -40,11 +42,24 @@ export default function Home() {
   const clientDeviceId = useRef(urlParams.get(GameEventKey.DeviceId) || ulid())
   const game = useRef(Game.loadGame(urlParams) || new Game())
   console.log(`game=${game.current}`)
+  // Perhaps these should be referenced by other children as well, instead of them having their own synonymous states?
+  // I'm not sure which is better.
+  const [gameStarted, setGameStarted] = useState(game.current.getStarted())
+  const [gameEnded, setGameEnded] = useState(game.current.getEnded())
 
   let gameEventSource: EventSource | undefined
 
   const [widgetsDrawerOpen, setWidgetsDrawerOpen] = useState(false)
   const scrollLockAbortController: RefObject<AbortController | null> = useRef(null)
+
+  useEffect(
+    () => {
+      // update visibility of outer components on game start and end
+      game.current.addStateListener(GameStateListenerKey.Started, setGameStarted)
+      game.current.addStateListener(GameStateListenerKey.Ended, setGameEnded)
+    },
+    [ game ]
+  )
 
   function closeGameEventSource() {
     gameEventSource!.close()
@@ -79,8 +94,7 @@ export default function Home() {
       case GameEventType.Start:
         console.log(`confirmed start of game=${gameEvent.gameId}`)
         game.current.setStarted(true)
-        // anchor scroll on game board
-        window.location.href = `#${boardId}`
+        // anchor scroll
         scrollLockAbortController.current = scrollLock()
         break
 
@@ -191,26 +205,30 @@ export default function Home() {
   )
 
   return (
-    <div className='py-4 font-[family-name:var(--font-geist-sans)] flex flex-col gap-4'>
-      <main className="flex flex-col gap-[32px] items-center sm:items-start">
-        <GameControls
-          widgetsDrawerOpen={widgetsDrawerOpen} 
-          setWidgetsDrawerOpen={setWidgetsDrawerOpen}
-          startGame={startGame}
-          game={game}
-          deviceId={clientDeviceId} />
-        
-        <WidgetsDrawer 
-          open={widgetsDrawerOpen}
-          game={game}
-          deviceId={clientDeviceId} />
+    <>
+      <Header showHeader={!gameStarted || gameEnded} githubUrl='https://github.com/ogallagher/beep-it'/>
 
-        <div className='w-full h-svh' id={boardId} >
-          <CommandCaptions game={game} />
-          <Board game={game} deviceId={clientDeviceId} />
-        </div>  
-      </main>
-    </div>
+      <div className='py-4 font-[family-name:var(--font-geist-sans)] flex flex-col gap-4'>
+        <main className="flex flex-col gap-[32px] items-center sm:items-start">
+          <GameControls
+            widgetsDrawerOpen={widgetsDrawerOpen} 
+            setWidgetsDrawerOpen={setWidgetsDrawerOpen}
+            startGame={startGame}
+            game={game} gameStarted={gameStarted} gameEnded={gameEnded}
+            deviceId={clientDeviceId} />
+          
+          <WidgetsDrawer 
+            open={widgetsDrawerOpen}
+            game={game}
+            deviceId={clientDeviceId} />
+
+          <div className='w-full h-svh' id={boardId} >
+            <CommandCaptions game={game} />
+            <Board game={game} deviceId={clientDeviceId} />
+          </div>  
+        </main>
+      </div>
+    </>
   )
 }
 
