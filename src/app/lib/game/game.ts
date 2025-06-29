@@ -268,11 +268,11 @@ export default class Game {
     return gameDeleteDelay
   }
 
-  addConfigListener(configKey: string, listener: StateListener) {
+  addConfigListener(configKey: GameConfigListenerKey, listener: StateListener) {
     this.configListeners.get(configKey)?.push(listener)
   }
 
-  addStateListener(stateKey: string, listener: StateListener) {
+  addStateListener(stateKey: GameStateListenerKey, listener: StateListener) {
     this.stateListeners.get(stateKey)?.push(listener)
   }
 

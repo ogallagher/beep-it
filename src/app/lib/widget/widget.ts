@@ -6,6 +6,10 @@ export default class Widget {
   type: WidgetType
   label: string
   command: string
+  /**
+   * Widget command audio url string.
+   */
+  commandAudio: string | undefined
   color: string
   valueText: string | undefined
   width: number
@@ -15,6 +19,7 @@ export default class Widget {
     this.type = w.type
     this.label = w.label
     this.command = w.command
+    this.commandAudio = w.commandAudio
     this.color = w.color
     this.valueText = w.valueText
     this.width = w.width
@@ -26,6 +31,7 @@ export default class Widget {
       type: this.type,
       label: this.label,
       command: this.command,
+      commandAudio: this.commandAudio,
       color: this.color,
       valueText: this.valueText,
       width: this.width
@@ -48,6 +54,7 @@ export default class Widget {
       type,
       label: Widget.generateLabel(type, id),
       command: defaultWidgetCommands(type)[0],
+      commandAudio: undefined,
       color: '#ffffff',
       valueText: defaultWidgetValueText(type),
       width: 100

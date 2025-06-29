@@ -10,6 +10,7 @@ import WidgetCommand from './command'
 
 export interface Config {
   command: string
+  commandAudio?: string
   color: string
   valueText?: string
   width: number
@@ -37,6 +38,7 @@ export default function WidgetConfig(
 
     if (widget !== undefined) {
       widget.command = configRef.current.command
+      widget.commandAudio = configRef.current.commandAudio
       widget.color = configRef.current.color
       widget.valueText = configRef.current.valueText
       widget.width = configRef.current.width
@@ -141,7 +143,7 @@ export default function WidgetConfig(
       {/* command */}
       <div className='w-full'>
         <WidgetCommand 
-          game={game}
+          game={game} widgetId={widgetId}
           config={configRef} setConfig={setConfig}
           audioEnabled={commandAudioEnabled} />
       </div>

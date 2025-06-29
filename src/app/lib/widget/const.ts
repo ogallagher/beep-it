@@ -95,6 +95,7 @@ export interface WidgetExport {
   type: WidgetType
   label: string
   command: string
+  commandAudio: string | undefined
   color: string
   valueText: string | undefined
   width: number

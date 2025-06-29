@@ -2,12 +2,13 @@ import { Field, Input, Label } from '@headlessui/react'
 import { Config } from './config'
 import { RefObject, useEffect, useRef, useState } from 'react'
 import StaticRef from '@lib/staticRef'
-import { Mic, StopCircle, Trash3 } from 'react-bootstrap-icons'
+import { Megaphone, Mic, StopCircle, Trash3 } from 'react-bootstrap-icons'
 import { audioToFile, generateAudioFileName, generateAudioFilePath, readAudio, trimAudio } from '@lib/widget/audio'
 import Game from '@lib/game/game'
 import { ApiRoute, gameServerPort, websiteBasePath } from '@api/const'
 import { GameAssetEvent, GameEventType } from '@lib/game/gameEvent'
 import assert from 'assert'
+import { GameConfigListenerKey, GameStateListenerKey } from '@lib/game/const'
 
 let canAudioRecord: boolean|undefined
 
@@ -74,19 +75,38 @@ async function recordAudio(
 }
 
 export default function WidgetCommand(
-  { game, config, setConfig, audioEnabled }: {
+  { game, widgetId, config, setConfig, audioEnabled }: {
     game: RefObject<Game> | StaticRef<Game>
+    widgetId: string
     config: RefObject<Config> | StaticRef<Config>
     setConfig: RefObject<() => void> | StaticRef<() => void>
     audioEnabled: boolean
   }
 ) {
+  const [commandText, setCommandText] = useState(config.current.command)
   /**
    * Widget command audio as a game asset file url.
    */
-  const [commandAudioUrl, setCommandAudioUrl] = useState(undefined as string|undefined)
+  const [commandAudioUrl, setCommandAudioUrl] = useState(config.current.commandAudio)
   const [isAudioRecording, setIsAudioRecording] = useState(false)
   const audioRecorder = useRef(null as MediaRecorder|null)
+
+  /**
+   * Update local state and game model. Game config event is sent separately, on blur.
+   */
+  function setCommand(commandText: string) {
+    setCommandText(commandText)
+    config.current.command = commandText
+  }
+
+  /**
+   * Update local state and game model, and send game config event.
+   */
+  function setCommandAudio(commandAudioUrl?: string) {
+    setCommandAudioUrl(commandAudioUrl)
+    config.current.commandAudio = commandAudioUrl
+    setConfig.current()
+  }
 
   useEffect(
     () => {
@@ -98,12 +118,17 @@ export default function WidgetCommand(
         }
       }
 
-      // TODO game config listener for widget command audio
-    }
+      // render widget command updates
+      game.current.addConfigListener(GameConfigListenerKey.Widgets, () => {
+        const widget = game.current.config.widgets.get(widgetId)
+        if (widget !== undefined) {
+          setCommand(widget.command)
+          setCommandAudioUrl(widget.commandAudio)
+        }
+      })
+    },
+    [ game ]
   )
-
-  // TODO update game model on setCommandAudio and send game config event.
-  // Create unique audio file id for clients to load remote audio files on demand
 
   return (
     <Field 
@@ -111,13 +136,25 @@ export default function WidgetCommand(
       <Label className='flex flex-col justify-center'>
         <div>command</div>
       </Label>
+      {/* command text input */}
       <Input
         className='block rounded-lg px-3 py-1.5 bg-white/5 text-white'
         title='The verb/action done to this widget.'
-        onChange={e => config.current.command = e.target.value}
-        defaultValue={config.current.command}
+        onChange={e => setCommand(e.target.value)}
+        value={commandText}
         onBlur={setConfig.current}
         />
+      {/* command audio indicator */}
+      <div 
+        className={
+          'flex flex-col justify-center '
+          + (commandAudioUrl === undefined ? 'hidden' : '')
+        }
+        title={
+          commandAudioUrl !== undefined ? 'Widget has command audio' : 'No command audio'
+        } >
+        <Megaphone />
+      </div>
       {/* command audio input */}
       <div className={audioEnabled ? '' : 'hidden'}>
         <button
@@ -134,7 +171,7 @@ export default function WidgetCommand(
               }
               else {
                 // start recording
-                recordAudio(audioRecorder, setCommandAudioUrl, game)
+                recordAudio(audioRecorder, setCommandAudio, game)
               }
             }
           } >
@@ -148,7 +185,7 @@ export default function WidgetCommand(
           title='Delete command audio'
           type='button' onClick={
             () => {
-              setCommandAudioUrl(undefined)
+              setCommandAudio(undefined)
             }
           } >
           <Trash3 />
@@ -163,7 +200,6 @@ export default function WidgetCommand(
           muted={undefined}
           preload='auto'
           src={commandAudioUrl} />
-        {/* TODO control to delete audio */}
       </div>
     </Field>
   )

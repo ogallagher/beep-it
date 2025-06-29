@@ -38,6 +38,7 @@ export default function WidgetCmp(
    */
   const configRef = new StaticRef({
     command: widget.command,
+    commandAudio: widget.commandAudio,
     color: widget.color,
     valueText: widget.valueText,
     width: widget.width

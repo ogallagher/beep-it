@@ -93,7 +93,7 @@ export function addGameClient(gameId: string, deviceId: string, deviceAlias?: st
       boardDisplayMode: game.config.boardDisplayMode,
       gameTurnMode: game.config.gameTurnMode,
       playerCount: game.config.players.count,
-      widgets: [...game.config.widgets.values()],
+      widgets: [...game.config.widgets.values().map((w) => w.save())],
       deviceAliases: [...game.getDevices()].map((id) => {
         return [id, game.getDeviceAlias(id)]
       })
