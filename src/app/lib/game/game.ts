@@ -134,6 +134,11 @@ export default class Game {
   setJoined(joined: boolean) {
     this.state.joined = joined
     this.stateListeners.get(GameStateListenerKey.Joined)?.forEach(l => l(joined))
+
+    if (this.state.endReason === GameEndReason.StartDelay) {
+      this.state.ended = false
+      this.setEndReason(GameEndReason.Unknown)
+    }
   }
 
   getStarted() {
@@ -151,8 +156,8 @@ export default class Game {
     this.stateListeners.get(GameStateListenerKey.Started)?.forEach(l => l(started))
 
     if (started && this.state.ended) {
-      this.state.ended = false
-      this.stateListeners.get(GameStateListenerKey.Ended)?.forEach(l => l(this.state.ended))
+      this.state.endReason = GameEndReason.Unknown
+      this.setEnded(false)
     }
   }
 

@@ -66,6 +66,7 @@ export default function Board({ game, deviceId }: BoardParams) {
       deviceId: deviceId,
       labelEditable: !gameStarted || gameEnded,
       configurable: !gameStarted || gameEnded,
+      commandAudioEnabled: true,
       // widget can delete itself from the board
       onDelete: deleteWidget
     })
@@ -76,7 +77,7 @@ export default function Board({ game, deviceId }: BoardParams) {
     () => {
       // disable widget config on game start
       game.current.addStateListener(GameStateListenerKey.Started, setGameStarted)
-      // TODO enable widget config and disable action on game end
+      // enable widget config and disable action on game end
       game.current.addStateListener(GameStateListenerKey.Ended, setGameEnded)
 
       // render widgets

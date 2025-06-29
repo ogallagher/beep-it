@@ -145,7 +145,7 @@ export default function WidgetConfig(
         <WidgetCommand 
           game={game} widgetId={widgetId}
           config={configRef} setConfig={setConfig}
-          audioEnabled={commandAudioEnabled} />
+          audioConfigurable={commandAudioEnabled} />
       </div>
     </div>
   )

@@ -75,21 +75,26 @@ async function recordAudio(
 }
 
 export default function WidgetCommand(
-  { game, widgetId, config, setConfig, audioEnabled }: {
+  { game, widgetId, config, setConfig, audioConfigurable }: {
     game: RefObject<Game> | StaticRef<Game>
     widgetId: string
     config: RefObject<Config> | StaticRef<Config>
     setConfig: RefObject<() => void> | StaticRef<() => void>
-    audioEnabled: boolean
+    audioConfigurable: boolean
   }
 ) {
   const [commandText, setCommandText] = useState(config.current.command)
   /**
    * Widget command audio as a game asset file url.
    */
-  const [commandAudioUrl, setCommandAudioUrl] = useState(config.current.commandAudio)
+  const [commandAudioUrl, setCommandAudioUrl] = useState(
+    config.current.commandAudio
+    // I'm actually not sure why I need this fallback
+    || game.current.config.widgets.get(widgetId)?.commandAudio
+  )
   const [isAudioRecording, setIsAudioRecording] = useState(false)
   const audioRecorder = useRef(null as MediaRecorder|null)
+  const audioElement = useRef(null as HTMLAudioElement|null)
 
   /**
    * Update local state and game model. Game config event is sent separately, on blur.
@@ -126,6 +131,15 @@ export default function WidgetCommand(
           setCommandAudioUrl(widget.commandAudio)
         }
       })
+
+      // play audio on game command
+      if (audioConfigurable) {
+        game.current.addStateListener(GameStateListenerKey.CommandWidgetId, (commandWidgetId: string) => {
+          if (commandWidgetId === widgetId && commandAudioUrl !== undefined) {
+            audioElement.current?.play()
+          }
+        })
+      }
     },
     [ game ]
   )
@@ -156,7 +170,7 @@ export default function WidgetCommand(
         <Megaphone />
       </div>
       {/* command audio input */}
-      <div className={audioEnabled ? '' : 'hidden'}>
+      <div className={audioConfigurable ? '' : 'hidden'}>
         <button
           className='cursor-pointer hover:scale-105 p-1 text-2xl'
           disabled={canAudioRecord ? undefined : true}
@@ -190,7 +204,7 @@ export default function WidgetCommand(
           } >
           <Trash3 />
         </button>
-        <audio 
+        <audio ref={audioElement}
           className={
             'h-7 ' 
             + (commandAudioUrl === undefined ? 'hidden' : '')

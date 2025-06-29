@@ -16,6 +16,7 @@ export interface WidgetParams {
   widget: WidgetExport
   labelEditable: boolean
   configurable: boolean
+  commandAudioEnabled: boolean
   onClick?: (params: WidgetExport) => void
   onDelete?: (id: string) => void
   className?: string
@@ -28,7 +29,7 @@ export interface WidgetParams {
  * @returns Widget UI component.
  */
 export default function WidgetCmp(
-  { widget, labelEditable, configurable, onClick, onDelete, className, game, deviceId }: WidgetParams
+  { widget, labelEditable, configurable, commandAudioEnabled, onClick, onDelete, className, game, deviceId }: WidgetParams
 ) {
   // something about how widgets can be dynamically added to the board
   // means I can't call useRef here
@@ -109,7 +110,7 @@ export default function WidgetCmp(
         <WidgetConfig 
           widgetId={widget.id} widgetType={widget.type} game={game} deviceId={deviceId}
           configRef={configRef} showColor={showColor} showValueText={showValueText} showWidth={showWidth}
-          disabled={!configurable} commandAudioEnabled={labelEditable} />
+          disabled={!configurable} commandAudioEnabled={commandAudioEnabled} />
 
         <WidgetControl 
           type={widget.type}
