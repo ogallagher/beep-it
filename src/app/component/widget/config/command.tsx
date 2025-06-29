@@ -3,7 +3,7 @@ import { Config } from './config'
 import { RefObject, useEffect, useRef, useState } from 'react'
 import StaticRef from '@lib/staticRef'
 import { Mic, StopCircle, Trash3 } from 'react-bootstrap-icons'
-import { audioSampleMs, generateAudioFileName, generateAudioFilePath } from '@lib/widget/audio'
+import { audioToFile, generateAudioFileName, generateAudioFilePath, readAudio, trimAudio } from '@lib/widget/audio'
 import Game from '@lib/game/game'
 import { ApiRoute, gameServerPort, websiteBasePath } from '@api/const'
 import { GameAssetEvent, GameEventType } from '@lib/game/gameEvent'
@@ -20,53 +20,53 @@ async function recordAudio(
     const audioStream = await navigator.mediaDevices.getUserMedia({
       audio: true
     })
+    const audioTrack = audioStream.getTracks()[0]
+    await audioTrack.applyConstraints({
+      // force mono
+      channelCount: 1
+    })
+    const audioSettings = audioTrack.getSettings()
 
     audioRecorder.current?.stop()
     audioRecorder.current = new MediaRecorder(audioStream)
-
-    let audioParts: BlobPart[] = []
-    audioRecorder.current.ondataavailable = (e) => {
-      audioParts.push(e.data)
-    }
-
-    audioRecorder.current.onstop = (e) => {
-      // convert to file for transfer to server
-      const audioFileName = generateAudioFileName('ogg')
-      const audioFile = new File(audioParts, audioFileName, {
-        // can I set or convert this to audio/mpeg?
-        type: 'audio/ogg; codecs=opus'
+    
+    const audioData = await (
+      readAudio(audioRecorder.current)
+      .then((rawAudioData) => {
+        return trimAudio(rawAudioData, audioSettings.sampleRate!, 0, 0.1)
       })
+    )
 
-      // send audio file to server
-      const queryParams = new URLSearchParams()
-      Game.saveGameId(game.current.id, queryParams)
+    // convert to file for transfer to server
+    const audioFileName = generateAudioFileName()
 
-      const reqBody = new FormData()
-      reqBody.append('files', audioFile)
-      fetch(
-        `http://${window.location.hostname}:${gameServerPort}${websiteBasePath}/${ApiRoute.GameAsset}?${queryParams.toString()}`,
-        {
-          method: 'POST',
-          body: reqBody
-        }
-      )
-      .then(async (res) => {
-        const resEvent = await res.json() as GameAssetEvent
+    // send audio file to server
+    const queryParams = new URLSearchParams()
+    Game.saveGameId(game.current.id, queryParams)
 
-        try {
-          assert.ok(
-            resEvent.gameEventType === GameEventType.GameAsset, 
-            `invalid game asset response ${JSON.stringify(resEvent)}`
-          )
-          onAudio(generateAudioFilePath(game.current.id, audioFileName))
-        }
-        catch (err) {
-          console.log(`ERROR ${err}`)
-        }
-      })
-    }
+    const reqBody = new FormData()
+    reqBody.append('files', audioToFile(audioData, audioFileName))
+    fetch(
+      `http://${window.location.hostname}:${gameServerPort}${websiteBasePath}/${ApiRoute.GameAsset}?${queryParams.toString()}`,
+      {
+        method: 'POST',
+        body: reqBody
+      }
+    )
+    .then(async (res) => {
+      const resEvent = await res.json() as GameAssetEvent
 
-    audioRecorder.current.start(audioSampleMs)
+      try {
+        assert.ok(
+          resEvent.gameEventType === GameEventType.GameAsset, 
+          `invalid game asset response ${JSON.stringify(resEvent)}`
+        )
+        onAudio(generateAudioFilePath(game.current.id, audioFileName))
+      }
+      catch (err) {
+        console.log(`ERROR ${err}`)
+      }
+    })
   }
   catch (err) {
     console.log(`ERROR failed to load audio stream. ${err}`)
@@ -155,7 +155,8 @@ export default function WidgetCommand(
         </button>
         <audio 
           className={
-            (commandAudioUrl === undefined ? 'hidden' : '')
+            'h-7 ' 
+            + (commandAudioUrl === undefined ? 'hidden' : '')
           }
           controls={true}
           controlsList='nofullscreen'
