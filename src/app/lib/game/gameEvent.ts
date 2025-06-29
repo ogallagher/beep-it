@@ -19,9 +19,13 @@ export enum GameEventType {
    */
   Leave = 'leave',
   /**
-   * Config updates (ex. player count, widgets, turn mode, board mode)
+   * Config updates (ex. player count, widgets, turn mode, board mode).
    */
   Config = 'config',
+  /**
+   * Creation of game assets (ex. comamnd audio files).
+   */
+  GameAsset = 'gameAsset',
   /**
    * Game emitted command and will wait for player to do corresponding widget.
    */
@@ -68,6 +72,10 @@ export interface ConfigEvent extends GameEvent {
   playerCount?: number
   widgets?: WidgetExport[]
   deviceAliases?: [string, string|undefined][]
+}
+
+export interface GameAssetEvent extends GameEvent {
+  filePath: string
 }
 
 export interface CommandEvent extends GameEvent {

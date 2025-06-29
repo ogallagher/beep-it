@@ -8,10 +8,16 @@ import { Server } from 'http'
 import pino from 'pino'
 import { ApiRoute, gameServerPort, serverDeviceId, websiteBasePath } from '@api/const'
 import Game from '@lib/game/game'
-import { ConfigEvent, DoWidgetEvent, GameEventKey, JoinEvent, LeaveEvent } from '@lib/game/gameEvent'
+import { ConfigEvent, DoWidgetEvent, GameAssetEvent, GameEventKey, GameEventType, JoinEvent, LeaveEvent } from '@lib/game/gameEvent'
 import { addGameClient, configGame, getGame, getGameEventListener, removeGameClient } from '@lib/game/gameOperator'
 import bodyParser from 'body-parser'
 import cors from 'cors'
+import multer from 'multer'
+import path from 'path'
+import { mkdir, rename } from 'fs/promises'
+import { GameAssetPathPart, generateAudioFilePath } from '@lib/widget/audio'
+import { existsSync } from 'fs'
+import expressAsyncHandler from 'express-async-handler'
 
 const logger = pino({
   name: 'gameServer'
@@ -25,6 +31,11 @@ app.use(bodyParser.urlencoded({extended: false}))
 app.use(bodyParser.json({
   limit: '5MB'
 }))
+
+const localGameAssetDir = path.join('./public', GameAssetPathPart['0_Root'])
+const fileReceiver = multer({ 
+  dest: path.join(localGameAssetDir, GameAssetPathPart['1_Temp'])
+}).any()
 
 let server: Server | undefined
 
@@ -116,6 +127,50 @@ app.post(
     logger.debug(`POST.${ApiRoute.ConfigGame} end`)
     res.json(event)
   }
+)
+
+app.post(
+  `${websiteBasePath}/${ApiRoute.GameAsset}`,
+  fileReceiver,
+  expressAsyncHandler(async (req, res) => {
+    logger.debug(`POST.${ApiRoute.GameAsset} start`)
+    if (req.files?.length === 1) {
+      const file = (req.files as Express.Multer.File[])[0]
+      const reqParams = new URLSearchParams(req.query as Record<string, string>)
+      const gameId = Game.loadGameId(reqParams)!
+
+      // move file from temp location to live location
+      const filePath = path.join(
+        localGameAssetDir, 
+        GameAssetPathPart['1_GameId'], 
+        gameId,
+        file.originalname
+      )
+      const fileDir = path.dirname(filePath)
+      if (!existsSync(fileDir)) {
+        await mkdir(fileDir, { recursive: true })
+      }
+      
+      await rename(file.path, filePath)
+
+      const resEvent: GameAssetEvent = {
+        gameEventType: GameEventType.GameAsset,
+        gameId,
+        deviceId: serverDeviceId,
+        // public path 
+        filePath: generateAudioFilePath(gameId, file.originalname)
+      }
+      res.json(resEvent)
+    }
+    else {
+      const error = 'did not receive a single game asset file in request'
+      logger.error(error)
+      res.json({
+        error: error
+      })
+    }
+    logger.debug(`POST.${ApiRoute.GameAsset} end`)
+  })
 )
 
 app.get(

@@ -32,7 +32,7 @@ export default function Header(
   return (
     <>
       <header className={
-        'border-b md:text-2xl text-sm '
+        'border-b md:text-2xl text-lg '
         + (showHeader ? '' : 'hidden')
       }>
         <nav className='mx-auto flex items-center justify-between md:p-4 p-1'>

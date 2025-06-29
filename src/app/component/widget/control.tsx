@@ -1,8 +1,7 @@
 import { ReactSVG } from 'react-svg'
 import { KeyboardAction, UIPointerAction, WidgetType } from '../../lib/widget/const'
-import styles from './widget.module.css'
 import { SVGSpace, Circle, Pt, Color } from 'pts'
-import { DO_NOT_USE_OR_YOU_WILL_BE_FIRED_EXPERIMENTAL_MEDIA_SRC_TYPES, Ref, RefObject, useEffect, useRef } from 'react'
+import { Ref, RefObject, useEffect, useRef } from 'react'
 import { keyboardEventToKeyboardAction, mouseEventToPointerAction, mouseEventToSvgPoint } from '@lib/widget/graphics'
 import { websiteBasePath } from '@api/const'
 import StaticRef from '@lib/staticRef'
@@ -239,7 +238,7 @@ export default function WidgetControl(
     <div 
       onClick={onClick}
       className={
-        `${styles.WidgetControl} relative flex flex-row justify-center p-1 rounded-lg cursor-pointer `
+        `relative flex flex-row justify-center p-1 rounded-lg cursor-pointer `
         + `hover:bg-white/10 active:bg-white/30`
       } >
       {/* icon layer */}

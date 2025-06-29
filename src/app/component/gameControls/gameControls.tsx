@@ -46,19 +46,19 @@ export default function GameControls(
         + 'md:text-xl text-sm py-2 px-4 md:p-2 bg-gray-800 '
         + (showControls ? '' : 'hidden')
       }>
-      <div className='flex flex-row gap-2'>
+      <div className='flex flex-row flex-wrap gap-2'>
          <SaveConfig game={game} />
 
         <ShareGame game={game} />
       </div>
      
-      <div className='flex flex-row gap-2'>
+      <div className='flex flex-row flex-wrap gap-2'>
         <GameDevices game={game} clientDeviceId={deviceId}  />
 
         <GamePlayers game={game} deviceId={deviceId} />
       </div>
 
-      <div className='flex flex-row gap-2'>
+      <div className='flex flex-row flex-wrap gap-2'>
         <BoardMode game={game} deviceId={deviceId} />
 
         <TurnMode game={game} deviceId={deviceId} />

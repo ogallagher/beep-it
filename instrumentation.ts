@@ -1,12 +1,12 @@
 import startGameServer from '@api/server'
 
-export function register() {
-    // pipe nextjs framework logger into pino
-    // if (process.env.NEXT_RUNTIME === 'nodejs') {
-    //     await require('pino')
-    //     await require('next-logger')
-    // }
+export async function register() {
+    if (process.env.NEXT_RUNTIME === 'nodejs') {
+        // pipe nextjs framework logger into pino
+        // await require('pino')
+        // await require('next-logger')
 
-    // launch game server
-    startGameServer()
+        // launch game server
+        (await import('@api/server')).default()
+    }
 }

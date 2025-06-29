@@ -5,7 +5,8 @@ export enum ApiRoute {
   JoinGame = 'api/joinGame',
   LeaveGame = 'api/leaveGame',
   ConfigGame = 'api/configGame',
-  DoWidget = 'api/doWidget'
+  DoWidget = 'api/doWidget',
+  GameAsset = 'api/gameAsset'
 }
 
 export const serverDeviceId = ulid()

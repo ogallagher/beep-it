@@ -1,11 +1,11 @@
-import WidgetConfig, { Config } from './config'
+import WidgetConfig, { Config } from './config/config'
 import WidgetControl from './control'
 import WidgetLabel from './label'
 import StaticRef from '@lib/staticRef'
 import { widgetActionMinDelay, WidgetExport } from '@lib/widget/const'
 import WidgetDelete from './delete'
 import Game from '@lib/game/game'
-import { RefObject, useState } from 'react'
+import { RefObject } from 'react'
 import { ApiRoute, gameServerPort, websiteBasePath } from '@api/const'
 import { DoWidgetEvent, GameEvent, GameEventType } from '@lib/game/gameEvent'
 
@@ -36,12 +36,12 @@ export default function WidgetCmp(
   /**
    * References to sources of truth that update game model.
    */
-  const configRef: RefObject<Config> = new StaticRef({
+  const configRef = new StaticRef({
     command: widget.command,
     color: widget.color,
     valueText: widget.valueText,
     width: widget.width
-  })
+  } as Config)
   /**
    * Reference to callback that updates valueText in control icon.
    */
@@ -108,7 +108,7 @@ export default function WidgetCmp(
         <WidgetConfig 
           widgetId={widget.id} widgetType={widget.type} game={game} deviceId={deviceId}
           configRef={configRef} showColor={showColor} showValueText={showValueText} showWidth={showWidth}
-          disabled={!configurable} />
+          disabled={!configurable} commandAudioEnabled={labelEditable} />
 
         <WidgetControl 
           type={widget.type}

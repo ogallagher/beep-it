@@ -3,6 +3,10 @@
 # copies
 public/readme.md
 
+# game data
+public/gameAsset/*
+!public/gameAsset/readme.md
+
 # dependencies
 /node_modules
 package-lock.json

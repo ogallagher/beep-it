@@ -48,7 +48,7 @@ export default function CommandCaptions(
 
   return (
     <div 
-      className='w-full px-4 pb-2 pt-8 md:pt-2' >
+      className='w-full px-4 pb-2 pt-2' >
       <div className='flex flex-row gap-2 justify-between'>
         <div
           className={

@@ -6,6 +6,7 @@ import StaticRef from '@lib/staticRef'
 import Game from '@lib/game/game'
 import { clientSendConfigEvent, GameEventType } from '@lib/game/gameEvent'
 import { WidgetType } from '@lib/widget/const'
+import WidgetCommand from './command'
 
 export interface Config {
   command: string
@@ -15,7 +16,7 @@ export interface Config {
 }
 
 export default function WidgetConfig(
-  {widgetId, widgetType, configRef, showColor, showValueText, showWidth, disabled, game, deviceId}: {
+  {widgetId, widgetType, configRef, showColor, showValueText, showWidth, disabled, game, deviceId, commandAudioEnabled}: {
     widgetId: string
     widgetType: WidgetType
     configRef: RefObject<Config> | StaticRef<Config>
@@ -25,12 +26,13 @@ export default function WidgetConfig(
     disabled: boolean
     game: RefObject<Game> | StaticRef<Game>
     deviceId: StaticRef<string> | RefObject<string>
+    commandAudioEnabled: boolean
   }
 ) {
   /**
    * Persist widget command update to game model.
    */
-  function change() {
+  const setConfig = new StaticRef(() => {
     const widget = game.current.config.widgets.get(widgetId)
 
     if (widget !== undefined) {
@@ -48,7 +50,7 @@ export default function WidgetConfig(
       })
     }
     // else not in game; assume within widgets drawer as template
-  }
+  })
 
   return (
     <div
@@ -90,7 +92,7 @@ export default function WidgetConfig(
           }}
           type='text' maxLength={1} minLength={1}
           defaultValue={configRef.current.valueText}
-          onBlur={change} />
+          onBlur={setConfig.current} />
       </Field>
 
       {/* color */}
@@ -110,7 +112,7 @@ export default function WidgetConfig(
           }}
           type='color'
           defaultValue={configRef.current.color}
-          onBlur={change} />
+          onBlur={setConfig.current} />
       </Field>
 
       {/* width */}
@@ -130,7 +132,7 @@ export default function WidgetConfig(
           }}
           type='range' min={5} max={100}
           defaultValue={configRef.current.width}
-          onBlur={change} />
+          onBlur={setConfig.current} />
       </Field>
 
       {/* duration */}
@@ -138,19 +140,10 @@ export default function WidgetConfig(
 
       {/* command */}
       <div className='w-full'>
-        <Field 
-          title='The verb/action done to this widget.'
-          className='w-full flex flex-row flex-wrap justify-start gap-x-2 gap-y-1' >
-          <Label className='flex flex-col justify-center'>
-            <div>command</div>
-          </Label>
-          <Input
-            className='block rounded-lg px-3 py-1.5 bg-white/5 text-white'
-            onChange={e => configRef.current.command = e.target.value}
-            defaultValue={configRef.current.command}
-            onBlur={change}
-            />
-        </Field>
+        <WidgetCommand 
+          game={game}
+          config={configRef} setConfig={setConfig}
+          audioEnabled={commandAudioEnabled} />
       </div>
     </div>
   )

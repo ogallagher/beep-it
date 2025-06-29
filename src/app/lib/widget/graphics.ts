@@ -1,4 +1,4 @@
-import { KeyboardAction, UIPointerAction } from "./const"
+import { KeyboardAction, UIPointerAction } from './const'
 
 /**
  * See https://stackoverflow.com/a/10298843/10200417.
