@@ -14,10 +14,12 @@ import bodyParser from 'body-parser'
 import cors from 'cors'
 import multer from 'multer'
 import path from 'path'
-import { mkdir, rename } from 'fs/promises'
-import { GameAssetPathPart, generateAudioFilePath } from '@lib/widget/audio'
+import { mkdir, readdir, rename, rm, stat } from 'fs/promises'
+import { gameAssetDeleteDelay, GameAssetPathPart, generateAudioFilePath } from '@lib/widget/audio'
 import { existsSync } from 'fs'
 import expressAsyncHandler from 'express-async-handler'
+
+const gameAssetCleanDelay = 1000 * 60
 
 const logger = pino({
   name: 'gameServer'
@@ -212,6 +214,23 @@ app.get(
   }
 )
 
+async function cleanGameAssets() {
+  const gamesDir = path.join(localGameAssetDir, GameAssetPathPart['1_GameId'])
+  const gameDirs = await readdir(gamesDir, {
+    recursive: false
+  })
+  
+  gameDirs.forEach(async (gameDirName) => {
+    const gameDir = path.join(gamesDir, gameDirName)
+    const stats = await stat(gameDir)
+    const ageMs = new Date().getTime() - stats.mtime.getTime()
+    if (ageMs > gameAssetDeleteDelay) {
+      logger.info(`delete expired game assets at ${gameDir}`)
+      rm(gameDir, { force: true, recursive: true })
+    }
+  })
+}
+
 export default function startGameServer() {
   if (server !== undefined) {
     logger.info('stop game server before restart')
@@ -221,4 +240,6 @@ export default function startGameServer() {
   server = app.listen(gameServerPort, () => {
     logger.info(`launched game server on device=${serverDeviceId} port=${gameServerPort}`)
   })
+
+  setInterval(cleanGameAssets, gameAssetCleanDelay)
 }

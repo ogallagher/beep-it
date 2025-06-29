@@ -6,6 +6,10 @@ export enum GameAssetPathPart {
   '1_Temp' = 'temp',
   '1_GameId' = 'gameId'
 }
+/**
+ * Delay between creation of a game asset file and deletion. 7 days in ms.
+ */
+export const gameAssetDeleteDelay = 1000 * 60 * 60 * 24 * 7
 
 /**
  * Length of each part/chunk in recorded audio, in milliseconds.
