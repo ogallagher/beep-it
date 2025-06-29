@@ -24,6 +24,7 @@ package-lock.json
 # next.js
 /.next/
 /out/
+certificates/
 
 # code scans
 .eslintrc.json
