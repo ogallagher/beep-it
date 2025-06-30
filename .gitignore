@@ -4,8 +4,8 @@
 public/readme.md
 
 # game data
-public/gameAsset/*
-!public/gameAsset/readme.md
+gameAsset/*
+!gameAsset/readme.md
 
 # dependencies
 /node_modules

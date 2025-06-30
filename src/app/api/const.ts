@@ -1,16 +1,17 @@
 import { ulid } from 'ulid'
 
 export enum ApiRoute {
-  StartGame = 'api/startGame',
-  JoinGame = 'api/joinGame',
-  LeaveGame = 'api/leaveGame',
-  ConfigGame = 'api/configGame',
-  DoWidget = 'api/doWidget',
-  GameAsset = 'api/gameAsset'
+  Root = 'api',
+  StartGame = `${ApiRoute.Root}/startGame`,
+  JoinGame = `${ApiRoute.Root}/joinGame`,
+  LeaveGame = `${ApiRoute.Root}/leaveGame`,
+  ConfigGame = `${ApiRoute.Root}/configGame`,
+  DoWidget = `${ApiRoute.Root}/doWidget`,
+  GameAsset = `${ApiRoute.Root}/gameAsset`
 }
 
 export const serverDeviceId = ulid()
 
 // TODO load from .env seems not to work for client components
-export const gameServerPort = process.env.BEEPIT_GAME_PORT || 54322
+export const gameServerPort = process.env.BEEPIT_GAME_PORT || '54322'
 export const websiteBasePath = process.env.BEEPIT_BASEPATH || ''
