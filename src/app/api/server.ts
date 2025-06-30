@@ -79,6 +79,7 @@ function joinGame(req: Request, res: Response) {
       'Cache-Control': 'no-cache',
       'Connection': 'keep-alive', // allowing TCP connection to remain open for multiple HTTP requests/responses
       'Content-Type': 'text/event-stream', // media type for Server Sent Events (SSE)
+      'Content-Encoding': 'none'
     })
     res.flushHeaders()
 
