@@ -29,8 +29,9 @@ export default function middleware(request: NextRequest) {
 
   if (urlOut.pathname.startsWith(`${websiteBasePath}/api`)) {
       urlOut.port = gameServerPort.toString()
-      logger.info(`${request.url} -[redirect]-> ${urlOut.toString()}`)
-      return NextResponse.redirect(urlOut)
+      urlOut.protocol = 'http:'
+      logger.info(`${request.url} -[rewrite]-> ${urlOut.toString()}`)
+      return NextResponse.rewrite(urlOut)
     }
     else {
       let basePath: string|undefined
