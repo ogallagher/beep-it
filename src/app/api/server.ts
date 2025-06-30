@@ -262,3 +262,7 @@ export default function startGameServer() {
 
   setInterval(cleanGameAssets, gameAssetCleanDelay)
 }
+
+if (require.main === module) {
+  startGameServer()
+}

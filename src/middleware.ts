@@ -78,7 +78,7 @@ export const config = {
     // game server api
     '/api/(.+)', 
     // game server assets
-    `/gameAsset/(.+)`,
+    '/gameAsset/(.+)',
     // wordsearch generator
     '/wordsearch(.*)', 
     // quizcard generator

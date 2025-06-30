@@ -3,6 +3,8 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "gameserver": "tsx src/app/api/server.ts",
+    "gameserver-forever": "forever start -c 'npm run gameserver' .",
     "_dev": "next dev --turbopack --port $BEEPIT_PORT",
     "dev": "dotenv-run-script -- _dev",
     "dev-forever": "forever start -c 'npm run dev' .",
@@ -48,6 +50,7 @@
     "typescript": "^5"
   },
   "optionalDependencies": {
-    "forever": "^4.0.3"
+    "forever": "^4.0.3",
+    "tsx": "^4.20.3"
   }
 }
