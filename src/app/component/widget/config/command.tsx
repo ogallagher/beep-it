@@ -5,7 +5,7 @@ import StaticRef from '@lib/staticRef'
 import { Megaphone, Mic, StopCircle, Trash3 } from 'react-bootstrap-icons'
 import { audioToFile, generateAudioFileName, generateAudioFilePath, readAudio, trimAudio } from '@lib/widget/audio'
 import Game from '@lib/game/game'
-import { ApiRoute, gameServerPort, websiteBasePath } from '@api/const'
+import { ApiRoute, websiteBasePath } from '@api/const'
 import { GameAssetEvent, GameEventType } from '@lib/game/gameEvent'
 import assert from 'assert'
 import { GameConfigListenerKey, GameStateListenerKey } from '@lib/game/const'
@@ -48,7 +48,7 @@ async function recordAudio(
     const reqBody = new FormData()
     reqBody.append('files', audioToFile(audioData, audioFileName))
     fetch(
-      `http://${window.location.hostname}:${gameServerPort}${websiteBasePath}/${ApiRoute.GameAsset}?${queryParams.toString()}`,
+      `${websiteBasePath}/${ApiRoute.GameAsset}?${queryParams.toString()}`,
       {
         method: 'POST',
         body: reqBody

@@ -3,7 +3,7 @@
  */
 
 import assert from 'assert'
-import express from 'express'
+import express, { Request, Response } from 'express'
 import { Server } from 'http'
 import pino from 'pino'
 import { ApiRoute, gameServerPort, serverDeviceId, websiteBasePath } from '@api/const'
@@ -41,66 +41,65 @@ const fileReceiver = multer({
 
 let server: Server | undefined
 
-app.get(
-  `${websiteBasePath}/${ApiRoute.JoinGame}`, 
-  /**
-   * Add a client device to a game. All player devices should request this endpoint to join before the game starts. 
-   * 
-   * @param req Request
-   * @param res Response with streamed game events.
-   */
-  (req, res) => {
-    logger.debug('GET.joinGame start')
+ 
+/**
+ * Add a client device to a game. All player devices should request this endpoint to join before the game starts. 
+ * 
+ * @param req Request
+ * @param res Response with streamed game events.
+ */
+function joinGame(req: Request, res: Response) {
+  logger.debug('GET.joinGame start')
 
-    let game: Game
-    let deviceId: string
-    let deviceAlias: string | undefined
-    let createEventStream: boolean
-    try {
-      const reqParams = new URLSearchParams(req.query as Record<string, string>)
-      game = getGame(reqParams, serverDeviceId)
+  let game: Game
+  let deviceId: string
+  let deviceAlias: string | undefined
+  let createEventStream: boolean
+  try {
+    const reqParams = new URLSearchParams(req.query as Record<string, string>)
+    game = getGame(reqParams, serverDeviceId)
 
-      deviceId = reqParams.get(GameEventKey.DeviceId)!
-      assert.ok(deviceId, `device id missing in joinGame event`)
-      deviceAlias = reqParams.get('deviceAlias') || undefined
+    deviceId = reqParams.get(GameEventKey.DeviceId)!
+    assert.ok(deviceId, `device id missing in joinGame event`)
+    deviceAlias = reqParams.get('deviceAlias') || undefined
 
-      createEventStream = !(reqParams.get('skipCreateEventStream') === 'true')
-    }
-    catch (err) {
-      res.write(JSON.stringify({
-        error: err
-      }))
-      res.end()
-      throw err
-    }
-
-    if (createEventStream) {
-      res.set({
-        'Access-Control-Allow-Origin': '*',
-        'Cache-Control': 'no-cache',
-        'Connection': 'keep-alive', // allowing TCP connection to remain open for multiple HTTP requests/responses
-        'Content-Type': 'text/event-stream', // media type for Server Sent Events (SSE)
-      })
-      res.flushHeaders()
-
-      // handle premature close
-      res.on('close', () => {
-        res.end()
-
-        // disconnect client from game
-      })
-    }
-
-    // add client device server event stream to game if necessary
-    addGameClient(game.id, deviceId, deviceAlias, createEventStream ? res : undefined)
-
-    if (!createEventStream) {
-      res.json(req.query as unknown as JoinEvent)
-    }
-
-    logger.debug('GET.joinGame end')
+    createEventStream = !(reqParams.get('skipCreateEventStream') === 'true')
   }
-)
+  catch (err) {
+    res.write(JSON.stringify({
+      error: err
+    }))
+    res.end()
+    throw err
+  }
+
+  if (createEventStream) {
+    res.set({
+      'Access-Control-Allow-Origin': '*',
+      'Cache-Control': 'no-cache',
+      'Connection': 'keep-alive', // allowing TCP connection to remain open for multiple HTTP requests/responses
+      'Content-Type': 'text/event-stream', // media type for Server Sent Events (SSE)
+    })
+    res.flushHeaders()
+
+    // handle premature close
+    res.on('close', () => {
+      res.end()
+
+      // disconnect client from game
+    })
+  }
+
+  // add client device server event stream to game if necessary
+  addGameClient(game.id, deviceId, deviceAlias, createEventStream ? res : undefined)
+
+  if (!createEventStream) {
+    res.json(req.query as unknown as JoinEvent)
+  }
+
+  logger.debug('GET.joinGame end')
+}
+app.get(`${websiteBasePath}/${ApiRoute.JoinGame}`, joinGame)
 
 app.get(
   `${websiteBasePath}/${ApiRoute.LeaveGame}`,

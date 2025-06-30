@@ -6,7 +6,7 @@ import GameControls from '@component/gameControls/gameControls'
 import WidgetsDrawer from '@component/widgetsDrawer'
 import Game from '@lib/game/game'
 import { useSearchParams } from 'next/navigation'
-import { ApiRoute, gameServerPort, websiteBasePath } from '@api/const'
+import { ApiRoute, websiteBasePath } from '@api/const'
 import { CommandEvent, ConfigEvent, DoWidgetEvent, EndEvent, GameEndReason, GameEvent, GameEventKey, GameEventType, JoinEvent } from '@lib/game/gameEvent'
 import { ulid } from 'ulid'
 import CommandCaptions from '@component/commandCaptions'
@@ -69,7 +69,7 @@ export async function joinGame(
     if (gameEventSource?.current === undefined && onGameEvent !== undefined) {
       // subscribe to game events
       gameEventSource!.current = new EventSource(
-        `http://${window.location.hostname}:${gameServerPort}${websiteBasePath}/${ApiRoute.JoinGame}?${requestParams}`
+        `${websiteBasePath}/${ApiRoute.JoinGame}?${requestParams}`
       )
 
       gameEventSource!.current.onmessage = (rawEvent) => {
@@ -86,7 +86,7 @@ export async function joinGame(
       requestParams.set(GameEventKey.GameId, game.id)
       requestParams.set('skipCreateEventStream', 'true')
 
-      fetch(`http://${window.location.hostname}:${gameServerPort}${websiteBasePath}/${ApiRoute.JoinGame}?${requestParams}`)
+      fetch(`${websiteBasePath}/${ApiRoute.JoinGame}?${requestParams}`)
       .then(async (res: Response) => {
         try {
           const resEvent = await res.json() as JoinEvent
@@ -229,7 +229,7 @@ export default function Home() {
       console.log(`start ${game.current} on local client device=${clientDeviceId.current}`)
     }
 
-    fetch(`http://${window.location.hostname}:${gameServerPort}${websiteBasePath}/${ApiRoute.StartGame}?${requestParams}`)
+    fetch(`${websiteBasePath}/${ApiRoute.StartGame}?${requestParams}`)
     .then(async (res: Response) => {
       if (res.ok) {
         const event: GameEvent = await res.json()

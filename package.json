@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "_dev": "next dev --turbopack --port $BEEPIT_PORT --experimental-https",
+    "_dev": "next dev --turbopack --port $BEEPIT_PORT",
     "dev": "dotenv-run-script -- _dev",
     "dev-forever": "forever start -c 'npm run dev' .",
     "prestart": "cp readme.md public/readme.md",

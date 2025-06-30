@@ -141,7 +141,15 @@ export function getGameEventListener(gameId: string): GameEventListener {
     listeners.set(gameId, (event) => {
       // send event to all client devices
       games.get(gameId)!.getDevices().forEach((clientDeviceId) => {
-        serverSendGameEvent(event, clients.get(clientDeviceId)!)
+        try {
+          serverSendGameEvent(event, clients.get(clientDeviceId)!)
+        }
+        catch (err) {
+          logger.error(
+            `unable to send message to game=${gameId} client=${clientDeviceId}; will remove client from game. ${err}`
+          )
+          removeGameClient(gameId, clientDeviceId)
+        }
       })
 
       // delete game

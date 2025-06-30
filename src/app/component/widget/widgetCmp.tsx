@@ -6,7 +6,7 @@ import { widgetActionMinDelay, WidgetExport } from '@lib/widget/const'
 import WidgetDelete from './delete'
 import Game from '@lib/game/game'
 import { RefObject } from 'react'
-import { ApiRoute, gameServerPort, websiteBasePath } from '@api/const'
+import { ApiRoute, websiteBasePath } from '@api/const'
 import { DoWidgetEvent, GameEvent, GameEventType } from '@lib/game/gameEvent'
 
 /**
@@ -81,7 +81,7 @@ export default function WidgetCmp(
       const requestParams = new URLSearchParams(Object.entries(event))
       try {
         const res = await fetch(
-          `http://${window.location.hostname}:${gameServerPort}${websiteBasePath}/${ApiRoute.DoWidget}?${requestParams}`
+          `${websiteBasePath}/${ApiRoute.DoWidget}?${requestParams}`
         )
         const resEvent: GameEvent = await res.json()
         if (resEvent.gameEventType !== GameEventType.DoWidget) {
