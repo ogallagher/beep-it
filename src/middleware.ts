@@ -44,7 +44,14 @@ export default function middleware(request: NextRequest) {
 
       if (config && basePath) {
         urlOut.port = process.env[config.envKeyPort]!
-        urlOut.pathname = process.env[config.envKeyPath]! + urlOut.pathname.substring(basePath.length)
+        urlOut.protocol = 'http:'
+        if (process.env.HOSTNAME !== undefined) {
+          urlOut.hostname = process.env.HOSTNAME
+        }
+        urlOut.pathname = (
+          process.env[config.envKeyPath]! 
+          + urlOut.pathname.substring(urlOut.pathname.indexOf(basePath) + basePath.length)
+        )
         logger.info(`${request.url} -[${config.method}]-> ${urlOut.toString()}`)
         return NextResponse[config.method](urlOut)
       }
