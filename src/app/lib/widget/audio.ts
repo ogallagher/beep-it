@@ -1,6 +1,9 @@
 import { websiteBasePath } from '@api/const'
 import { ulid } from 'ulid'
-import { AudioProcessor, AudioToMp3, audioToMp3ProcessorName } from './audioToMp3'
+declare class AudioProcessor {
+  processPart(b: Blob): Promise<BlobPart>
+  flush(): BlobPart
+}
 
 export enum GameAssetPathPart {
   '0_Root' = 'gameAsset',

@@ -12,6 +12,27 @@ import { GameConfigListenerKey, GameStateListenerKey } from '@lib/game/const'
 
 let canAudioRecord: boolean|undefined
 
+async function uploadAudio(audioFile: File, gameId: string) {
+  // send audio file to server
+  const queryParams = new URLSearchParams()
+  Game.saveGameId(gameId, queryParams)
+
+  const reqBody = new FormData()
+  reqBody.append('files', audioFile)
+  const res = await fetch(
+    `${websiteBasePath}/${ApiRoute.GameAsset}?${queryParams.toString()}`,
+    {
+      method: 'POST',
+      body: reqBody
+    }
+  )
+  const resEvent = await res.json() as GameAssetEvent
+  assert.ok(
+    resEvent.gameEventType === GameEventType.GameAsset, 
+    `invalid game asset response ${JSON.stringify(resEvent)}`
+  )
+}
+
 async function recordAudio(
   audioRecorder: RefObject<MediaRecorder|null>, 
   onAudio: (v: string|undefined) => void,
@@ -42,32 +63,10 @@ async function recordAudio(
     const audioFileName = generateAudioFileName(AudioMediaType.Ogg)
 
     // send audio file to server
-    const queryParams = new URLSearchParams()
-    Game.saveGameId(game.current.id, queryParams)
+    await uploadAudio(audioToFile(audioData, rawAudioBlobType, audioFileName), game.current.id)
 
-    const reqBody = new FormData()
-    reqBody.append('files', audioToFile(audioData, rawAudioBlobType, audioFileName))
-    fetch(
-      `${websiteBasePath}/${ApiRoute.GameAsset}?${queryParams.toString()}`,
-      {
-        method: 'POST',
-        body: reqBody
-      }
-    )
-    .then(async (res) => {
-      const resEvent = await res.json() as GameAssetEvent
-
-      try {
-        assert.ok(
-          resEvent.gameEventType === GameEventType.GameAsset, 
-          `invalid game asset response ${JSON.stringify(resEvent)}`
-        )
-        onAudio(generateAudioFilePath(game.current.id, audioFileName))
-      }
-      catch (err) {
-        console.log(`ERROR ${err}`)
-      }
-    })
+    // callback
+    onAudio(generateAudioFilePath(game.current.id, audioFileName))
   }
   catch (err) {
     console.log(`ERROR failed to load audio stream. ${err}`)
@@ -154,6 +153,7 @@ export default function WidgetCommand(
       <Input
         className='block rounded-lg px-3 py-1.5 bg-white/5 text-white'
         title='The verb/action done to this widget.'
+        type='text'
         onChange={e => setCommand(e.target.value)}
         value={commandText}
         onBlur={setConfig.current}
@@ -191,6 +191,17 @@ export default function WidgetCommand(
           } >
           {isAudioRecording ? <StopCircle /> : <Mic />}
         </button>
+        <input 
+          className='block rounded-lg px-3 py-1.5 bg-white/5 w-auto hover:bg-white/10 cursor-pointer'
+          title='Upload custom command audio'
+          type='file' accept="audio/*"
+          onChange={async (e) => {
+            const file = e.target.files?.item(0)
+            if (file) {
+              await uploadAudio(file, game.current.id)
+              setCommandAudio(generateAudioFilePath(game.current.id, file.name))
+            }
+          }} />
         <button
           className={
             'cursor-pointer hover:scale-105 p-1 text-2xl '
@@ -212,12 +223,8 @@ export default function WidgetCommand(
           controls={true}
           controlsList='nofullscreen'
           muted={undefined}
-          preload='auto' >
-          <source 
-            src={commandAudioUrl}
-            type={
-              commandAudioUrl?.endsWith(audioTypeToFileExt(AudioMediaType.Ogg)) ? rawAudioBlobType : mp3AudioBlobType
-            } />
+          preload='auto'
+          src={commandAudioUrl} >
         </audio>
       </div>
     </Field>
