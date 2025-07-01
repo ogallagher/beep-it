@@ -39,8 +39,9 @@ export default function SaveConfig(
             'rounded-lg bg-white/5 text-white min-w-auto px-3 py-1.5 text-xs '
             + (saveLinkOpen ? '' : 'hidden')
           }
-          disabled
-          value={saveUrl.current?.toString()} />
+          readOnly={true}
+          value={saveUrl.current?.toString()}
+          onFocus={e => e.target.setSelectionRange(0, e.target.value.length)} />
       </div>
     </div>
   )
