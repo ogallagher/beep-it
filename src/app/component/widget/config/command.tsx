@@ -2,7 +2,7 @@ import { Field, Input, Label } from '@headlessui/react'
 import { Config } from './config'
 import { RefObject, useEffect, useRef, useState } from 'react'
 import StaticRef from '@lib/staticRef'
-import { Megaphone, Mic, StopCircle, Trash3 } from 'react-bootstrap-icons'
+import { Megaphone, Mic, MicMute, StopCircle, Trash3 } from 'react-bootstrap-icons'
 import { AudioMediaType, audioToFile, audioTypeToFileExt, generateAudioFileName, generateAudioFilePath, mp3AudioBlobType, rawAudioBlobType, readAudio, trimEncodeAudio } from '@lib/widget/audio'
 import Game from '@lib/game/game'
 import { ApiRoute, websiteBasePath } from '@api/const'
@@ -172,7 +172,10 @@ export default function WidgetCommand(
       {/* command audio input */}
       <div className={audioConfigurable ? '' : 'hidden'}>
         <button
-          className='cursor-pointer hover:scale-105 p-1 text-2xl'
+          className={
+            'p-1 text-2xl '
+            + (canAudioRecord ? 'cursor-pointer hover:scale-105' : 'cursor-not-allowed')
+          }
           disabled={canAudioRecord ? undefined : true}
           title='Record custom command audio'
           type='button' onClick={
@@ -189,7 +192,7 @@ export default function WidgetCommand(
               }
             }
           } >
-          {isAudioRecording ? <StopCircle /> : <Mic />}
+          {isAudioRecording ? <StopCircle /> : (canAudioRecord ? <Mic /> : <MicMute />)}
         </button>
         <input 
           className='block rounded-lg px-3 py-1.5 bg-white/5 w-auto hover:bg-white/10 cursor-pointer'
