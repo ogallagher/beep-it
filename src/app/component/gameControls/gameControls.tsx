@@ -43,7 +43,7 @@ export default function GameControls(
     <div 
       className={
         'gameControls flex flex-row flex-wrap gap-4 justify-between w-full '
-        + 'md:text-xl text-sm py-2 px-4 md:p-2 bg-gray-800 '
+        + 'md:text-xl text-sm py-2 px-4 md:p-2 bg-gray-800 not-dark:bg-gray-100 '
         + (showControls ? '' : 'hidden')
       }>
       <div className='flex flex-row flex-wrap gap-2'>

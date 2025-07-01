@@ -261,7 +261,7 @@ export default function Home() {
   )
 
   return (
-    <>
+    <div className='bg-black not-dark:bg-gray-200' >
       <Header game={game} githubUrl='https://github.com/ogallagher/beep-it'/>
 
       <div className='py-4 font-[family-name:var(--font-geist-sans)] flex flex-col gap-4'>
@@ -286,7 +286,7 @@ export default function Home() {
           </div>  
         </main>
       </div>
-    </>
+    </div>
   )
 }
 

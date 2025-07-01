@@ -40,7 +40,7 @@ function GameDevice(
       </Label>
 
       <Input
-        className='rounded-lg bg-white/5 text-white px-3 py-0.5'
+        className='rounded-lg bg-white/5 text-white not-dark:bg-black/5 not-dark:text-black px-3 py-0.5'
         type='text' placeholder='device alias'
         value={deviceAlias}
         onChange={e => {

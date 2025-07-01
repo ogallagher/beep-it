@@ -51,7 +51,7 @@ export default function GamePlayers(
             <div>player count:</div>
           </div>
           <Input
-            className='rounded-lg bg-white/5 text-white px-3 py-1.5 font-bold w-20'
+            className='rounded-lg bg-white/5 text-white not-dark:bg-black/5 not-dark:text-black px-3 py-1.5 font-bold w-20'
             disabled={gameStarted && !gameEnded ? true : undefined}
             type='number' min={0}
             value={playerCount}

@@ -54,7 +54,7 @@ export default function ShareGame(
           title={shareUrl.current?.toString() || ''}
           size={shareUrl.current?.toString().length || 5}
           className={
-            'rounded-lg bg-white/5 text-white min-w-auto px-3 py-1.5 text-xs '
+            'rounded-lg bg-white/5 text-white not-dark:bg-black/5 not-dark:text-black min-w-auto px-3 py-1.5 text-xs '
             + (gameLinkOpen ? '' : 'hidden')
           }
           readOnly={true}

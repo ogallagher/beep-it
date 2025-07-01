@@ -36,7 +36,7 @@ export default function SaveConfig(
           title={saveUrl.current?.toString()}
           size={Math.min(saveUrl.current?.toString().length || 5, 50)}
           className={
-            'rounded-lg bg-white/5 text-white min-w-auto px-3 py-1.5 text-xs '
+            'rounded-lg bg-white/5 text-white not-dark:bg-black/5 not-dark:text-black min-w-auto px-3 py-1.5 text-xs '
             + (saveLinkOpen ? '' : 'hidden')
           }
           readOnly={true}
