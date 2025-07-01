@@ -32,6 +32,9 @@ export default function RejoinGame(
       <button
         className='cursor-pointer hover:scale-105'
         type='button' onClick={() => {
+          // assume the original game event source needs to be replaced
+          closeGameEventSource.current()
+
           // rejoin game
           joinGame(game.current, clientDeviceId.current, false, gameEventSource, onGameEvent.current, closeGameEventSource.current)
           .then(() => {

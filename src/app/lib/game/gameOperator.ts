@@ -167,6 +167,7 @@ export function configGame(configEvent: ConfigEvent) {
     throw new Error(`cannot config missing game ${configEvent.gameId}`)
   }
   if (!games.get(configEvent.gameId)!.getDevices().has(configEvent.deviceId)) {
+    removeGameClient(configEvent.gameId, configEvent.deviceId)
     throw new Error(`client cannot config without join game=${configEvent.gameId}`)
   }
 
@@ -180,7 +181,7 @@ export function configGame(configEvent: ConfigEvent) {
 function deleteGame(gameId: string) {
   logger.info(`delete game ${gameId}`)
   listeners.delete(gameId)
-  games.get(gameId)?.getDevices().forEach((deviceId) => clients.delete(deviceId))
+  games.get(gameId)?.getDevices().forEach((deviceId) => removeGameClient(gameId, deviceId))
   games.delete(gameId)
 }
 

@@ -86,14 +86,11 @@ export default function WidgetCommand(
   /**
    * Widget command audio as a game asset file url.
    */
-  const [commandAudioUrl, setCommandAudioUrl] = useState(
-    config.current.commandAudio
-    // I'm actually not sure why I need this fallback
-    || game.current.config.widgets.get(widgetId)?.commandAudio
-  )
+  const [commandAudioUrl, setCommandAudioUrl] = useState(config.current.commandAudio)
   const [isAudioRecording, setIsAudioRecording] = useState(false)
   const audioRecorder = useRef(null as MediaRecorder|null)
   const audioElement = useRef(null as HTMLAudioElement|null)
+  const audioFileElement = useRef(null as HTMLInputElement|null)
 
   /**
    * Update local state and game model. Game config event is sent separately, on blur.
@@ -108,6 +105,11 @@ export default function WidgetCommand(
    */
   function setCommandAudio(commandAudioUrl?: string) {
     setCommandAudioUrl(commandAudioUrl)
+    // render audio delete in file input
+    if (commandAudioUrl === undefined && audioFileElement.current) {
+      audioFileElement.current.files = null
+      audioFileElement.current.value = ''
+    }
     config.current.commandAudio = commandAudioUrl
     setConfig.current()
   }
@@ -134,7 +136,12 @@ export default function WidgetCommand(
       // play audio on game command
       if (audioConfigurable) {
         game.current.addStateListener(GameStateListenerKey.CommandWidgetId, (commandWidgetId: string) => {
-          if (commandWidgetId === widgetId && commandAudioUrl !== undefined) {
+          if (
+            commandWidgetId === widgetId 
+            // Since this state listener is only added once (commandAudioUrl state is not a dependency),
+            // get latest command audio from ref instead of component state.
+            && config.current.commandAudio !== undefined
+          ) {
             audioElement.current?.play()
           }
         })
@@ -191,13 +198,25 @@ export default function WidgetCommand(
               }
               else {
                 // start recording
-                recordAudio(audioRecorder, setCommandAudio, game)
+                recordAudio(
+                  audioRecorder, 
+                  (commandAudioUrl) => {
+                    setCommandAudio(commandAudioUrl)
+
+                    // replace any file input with browser recording
+                    if (audioFileElement.current) {
+                      audioFileElement.current.files = null
+                      audioFileElement.current.value = ''
+                    }
+                  },
+                  game
+                )
               }
             }
           } >
           {isAudioRecording ? <StopCircle /> : (canAudioRecord ? <Mic /> : <MicMute />)}
         </button>
-        <input 
+        <input ref={audioFileElement}
           className='block rounded-lg px-3 py-1.5 bg-white/5 max-w-40 hover:bg-white/10 cursor-pointer'
           title='Upload custom command audio'
           type='file' accept="audio/*"
@@ -225,11 +244,7 @@ export default function WidgetCommand(
             + (commandAudioUrl === undefined ? 'hidden' : '')
           }
           title='Delete command audio'
-          type='button' onClick={
-            () => {
-              setCommandAudio(undefined)
-            }
-          } >
+          type='button' onClick={() => setCommandAudio(undefined)} >
           <Trash3 />
         </button>
       </div>

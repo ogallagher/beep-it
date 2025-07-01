@@ -70,6 +70,7 @@ function GameDevice(
           // if self, remove from local game model
           if (isClientDevice) {
             game.current.deleteDevice(deviceId)
+            game.current.setJoined(false)
           }
           // else, wait to receive from server
         }}>

@@ -180,8 +180,10 @@ export default function Home() {
           + `widget=${widgetId} `
           + `delay=${(gameEvent as CommandEvent).commandDelay}`
         )
+
+        // since commandWidgetId and commandCount map to same listeners, only invoke them once
+        game.current.setCommandCount((gameEvent as CommandEvent).commandCount, false)
         game.current.setCommandWidgetId(widgetId)
-        game.current.setCommandCount((gameEvent as CommandEvent).commandCount)
 
         break
 
@@ -196,8 +198,9 @@ export default function Home() {
         console.log('game ended')
         const endReason = (gameEvent as EndEvent).endReason
         // end game
+        game.current.setEndReason(endReason, false)
         game.current.setEnded(true)
-        game.current.setEndReason(endReason)
+        
         // release scroll lock
         scrollUnlock(scrollLockAbortController.current)
         // clear devices and disconnect

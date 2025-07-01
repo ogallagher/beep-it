@@ -174,9 +174,11 @@ export default class Game {
     return this.state.endReason
   }
 
-  setEndReason(reason: GameEndReason) {
+  setEndReason(reason: GameEndReason, invokeListeners: boolean = true) {
     this.state.endReason = reason
-    this.stateListeners.get(GameStateListenerKey.Ended)?.forEach(l => l(this.state.ended))
+    if (invokeListeners) {
+      this.stateListeners.get(GameStateListenerKey.Ended)?.forEach(l => l(this.state.ended))
+    }
   }
 
   getPlayerCount() {
@@ -258,9 +260,15 @@ export default class Game {
     return this.state.commandCount
   }
 
-  setCommandCount(commandCount: number) {
+  /**
+   * @param commandCount 
+   * @param invokeListeners 
+   */
+  setCommandCount(commandCount: number, invokeListeners: boolean = true) {
     this.state.commandCount = commandCount
-    this.stateListeners.get(GameStateListenerKey.CommandWidgetId)?.forEach(l => l(this.state.commandWidgetId))
+    if (invokeListeners) {
+      this.stateListeners.get(GameStateListenerKey.CommandWidgetId)?.forEach(l => l(this.state.commandWidgetId))
+    }
   }
 
   setStartTimeout(onTimeout: () => void): number {

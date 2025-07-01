@@ -143,10 +143,18 @@ app.post(
     logger.debug(`POST.${ApiRoute.ConfigGame} start`)
 
     const event = req.body as ConfigEvent
-    configGame(event)
+    try {
+      configGame(event)
 
+      res.json(event)
+    }
+    catch (err) {
+      res.json({
+        error: err
+      })
+    }
+    
     logger.debug(`POST.${ApiRoute.ConfigGame} end`)
-    res.json(event)
   }
 )
 
