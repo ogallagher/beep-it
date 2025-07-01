@@ -170,7 +170,10 @@ export default function WidgetCommand(
         <Megaphone />
       </div>
       {/* command audio input */}
-      <div className={audioConfigurable ? '' : 'hidden'}>
+      <div className={
+        'flex flex-row flex-wrap justify-between gap-x-2 gap-y-1 '
+        + (audioConfigurable ? '' : 'hidden')
+      }>
         <button
           className={
             'p-1 text-2xl '
@@ -195,7 +198,7 @@ export default function WidgetCommand(
           {isAudioRecording ? <StopCircle /> : (canAudioRecord ? <Mic /> : <MicMute />)}
         </button>
         <input 
-          className='block rounded-lg px-3 py-1.5 bg-white/5 w-auto hover:bg-white/10 cursor-pointer'
+          className='block rounded-lg px-3 py-1.5 bg-white/5 max-w-40 hover:bg-white/10 cursor-pointer'
           title='Upload custom command audio'
           type='file' accept="audio/*"
           onChange={async (e) => {
@@ -205,6 +208,17 @@ export default function WidgetCommand(
               setCommandAudio(generateAudioFilePath(game.current.id, file.name))
             }
           }} />
+        <audio ref={audioElement}
+          className={
+            'h-7 ' 
+            + (commandAudioUrl === undefined ? 'hidden' : '')
+          }
+          controls={true}
+          controlsList='nofullscreen'
+          muted={undefined}
+          preload='auto'
+          src={commandAudioUrl} >
+        </audio>
         <button
           className={
             'cursor-pointer hover:scale-105 p-1 text-2xl '
@@ -218,17 +232,6 @@ export default function WidgetCommand(
           } >
           <Trash3 />
         </button>
-        <audio ref={audioElement}
-          className={
-            'h-7 ' 
-            + (commandAudioUrl === undefined ? 'hidden' : '')
-          }
-          controls={true}
-          controlsList='nofullscreen'
-          muted={undefined}
-          preload='auto'
-          src={commandAudioUrl} >
-        </audio>
       </div>
     </Field>
   )
