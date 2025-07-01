@@ -1,4 +1,6 @@
 import { websiteBasePath } from '@api/const'
+import StaticRef from '@lib/staticRef'
+import { RefObject } from 'react'
 import { ulid } from 'ulid'
 declare class AudioProcessor {
   processPart(b: Blob): Promise<BlobPart>
@@ -38,6 +40,22 @@ export enum AudioMediaType {
 export const rawAudioCodec = 'opus'
 export const rawAudioBlobType = `${AudioMediaType.Ogg}; codecs=${rawAudioCodec}`
 export const mp3AudioBlobType = AudioMediaType.Mp3
+
+const activeAudioElement: StaticRef<HTMLAudioElement|undefined> = new StaticRef(undefined)
+
+export function playAudio(audio: HTMLAudioElement|undefined|null) {
+  if (audio) {
+    // stop previous audio
+    if (activeAudioElement.current) {
+      activeAudioElement.current.pause()
+      activeAudioElement.current.currentTime = 0
+    }
+
+    // play current audio
+    activeAudioElement.current = audio
+    audio.play()
+  }
+}
 
 export function audioTypeToFileExt(type: AudioMediaType) {
   return type.split('/')[1]

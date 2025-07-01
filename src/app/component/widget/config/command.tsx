@@ -3,7 +3,7 @@ import { Config } from './config'
 import { RefObject, useEffect, useRef, useState } from 'react'
 import StaticRef from '@lib/staticRef'
 import { Megaphone, Mic, MicMute, StopCircle, Trash3 } from 'react-bootstrap-icons'
-import { AudioMediaType, audioToFile, audioTypeToFileExt, generateAudioFileName, generateAudioFilePath, mp3AudioBlobType, rawAudioBlobType, readAudio, trimEncodeAudio } from '@lib/widget/audio'
+import { AudioMediaType, audioToFile, audioTypeToFileExt, generateAudioFileName, generateAudioFilePath, mp3AudioBlobType, playAudio, rawAudioBlobType, readAudio, trimEncodeAudio } from '@lib/widget/audio'
 import Game from '@lib/game/game'
 import { ApiRoute, websiteBasePath } from '@api/const'
 import { GameAssetEvent, GameEventType } from '@lib/game/gameEvent'
@@ -142,7 +142,7 @@ export default function WidgetCommand(
             // get latest command audio from ref instead of component state.
             && config.current.commandAudio !== undefined
           ) {
-            audioElement.current?.play()
+            playAudio(audioElement.current)
           }
         })
       }
