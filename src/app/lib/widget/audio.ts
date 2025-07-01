@@ -126,5 +126,8 @@ export async function trimEncodeAudio(
   audioSourceOut.onended = () => audioRecorder.stop()
   audioSourceOut.start(0, start, duration)
 
-  return readAudio(audioRecorder)
+  return readAudio(
+    audioRecorder, 
+    mediaType === AudioMediaType.Mp3 ? new AudioToMp3(sampleRate) : undefined
+  )
 }
