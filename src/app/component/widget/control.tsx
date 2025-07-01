@@ -30,6 +30,10 @@ function enableAction(
   function start() {}
 
   let pStart: Pt | undefined
+  let p1: Pt | undefined
+  let p2: Pt | undefined
+  let p3: Pt | undefined
+  let p4: Pt | undefined
   let pEnd: Pt | undefined
 
   /**
@@ -48,6 +52,8 @@ function enableAction(
 
     start()
 
+    const spaceSize = Math.min(space.innerBound.width, space.innerBound.height)
+
     switch (type) {
       case WidgetType.Button:
         if (eventType === UIPointerAction.down) {
@@ -63,7 +69,7 @@ function enableAction(
 
       case WidgetType.Lever:
         // capture dragstart + dragend beyond min length
-        const minLength = Math.min(space.innerBound.width, space.innerBound.height) * 0.5
+        const minLength = spaceSize * 0.5
         let length
 
         if (eventType === UIPointerAction.down) {
@@ -102,13 +108,13 @@ function enableAction(
         if (pStart) {
           form.stroke(false)
           form.fill(isLong ? '#0092b8ff' : '#0082a8ff')
-          form.circle(Circle.fromCenter(pStart, space.innerBound.width * 0.05))
+          form.circle(Circle.fromCenter(pStart, spaceSize * 0.05))
 
           if (pEnd) {
-            form.circle(Circle.fromCenter(pEnd, space.innerBound.width * 0.08))
+            form.circle(Circle.fromCenter(pEnd, spaceSize * 0.08))
             
-            if ((length || 0) > minLength) {
-              form.stroke('#0092b8aa', space.innerBound.width * 0.05)
+            if (isLong) {
+              form.stroke('#0092b8aa', spaceSize * 0.05)
             }
             else {
               form.stroke(false)
@@ -121,7 +127,99 @@ function enableAction(
         break
 
       case WidgetType.Twist:
-        // TODO capture dragstart + dragend in opposite quadrants around center
+        // capture drag points in 3/4 quadrants around central origin
+        const origin = new Pt(space.innerBound.width/2, space.innerBound.height/2)
+        let isTwisted = false
+        let quadCount = 0
+        const quadMin = 3
+
+        if (eventType === UIPointerAction.down || eventType === UIPointerAction.move || eventType === UIPointerAction.up) {
+          quadCount = (
+            [p1, p2, p3, p4]
+            .map(p => (p !== undefined ? 1 : 0) as number)
+            .reduce((prev, curr) => prev + curr)
+          )
+
+          if (quadCount >= quadMin) {
+            isTwisted = true
+          }
+
+          if (eventType === UIPointerAction.up) {
+            if (isTwisted) {
+              // submit action
+              onAction()
+            }
+
+            // reset
+            pStart = undefined; p1 = undefined; p2 = undefined; p3 = undefined; p4 = undefined; pEnd = undefined;
+          }
+          else {
+            if (eventType === UIPointerAction.down) {
+              pStart = new Pt(loc!.x, loc!.y)
+            }
+            else {
+              pEnd = new Pt(loc!.x, loc!.y)
+            }
+
+            if (pStart) {
+              let qx = loc!.x - origin.x
+              let qy = loc!.y - origin.y
+
+              // assign point to 1 of 4 quadrants, corresponding to 4 stored points
+              if (qx > 0) {
+                if (qy > 0) {
+                  p1 = new Pt(1, 1)
+                }
+                else {
+                  p4 = new Pt(1, -1)
+                }
+              }
+              else {
+                if (qy > 0) {
+                  p2 = new Pt(-1, 1)
+                }
+                else {
+                  p3 = new Pt(-1, -1)
+                }
+              }
+            }
+          }
+        }
+        
+        // update rotate animation in icon
+        iconSvg.current?.classList.remove(...iconSvg.current?.classList)
+        iconSvg.current?.classList.add(`rotate${Math.min(quadCount, 3)}`)
+
+        // draw
+        if (pStart) {
+          form.stroke(false)
+          form.fill(isTwisted ? '#0092b8ff' : '#0082a8ff')
+          // start
+          form.circle(Circle.fromCenter(pStart, spaceSize * 0.05))
+
+          if (pEnd) {
+            // end
+            form.circle(Circle.fromCenter(pEnd, spaceSize * 0.08))
+
+            // arc
+            form.fill(false)
+            if (isTwisted) {
+              form.stroke('#0092b8aa', spaceSize * 0.01)
+            }
+            else {
+              form.stroke('#0082a8aa', spaceSize * 0.02)
+            }
+            
+            if (quadCount < quadMin) {
+              form.arc(pStart, spaceSize * 0.1, 0, quadCount/quadMin * 2*Math.PI)
+            }
+            else {
+              form.circle(Circle.fromCenter(pStart, spaceSize * 0.1))
+            }
+          }
+        }
+
+        break
 
       case WidgetType.Key:
         // capture keydown matching widget control character
