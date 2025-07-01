@@ -35,6 +35,7 @@ certificates/
 # misc
 .DS_Store
 *.pem
+local/
 
 # debug
 npm-debug.log*

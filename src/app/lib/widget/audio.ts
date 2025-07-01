@@ -1,5 +1,6 @@
 import { websiteBasePath } from '@api/const'
 import { ulid } from 'ulid'
+import { AudioProcessor, AudioToMp3, audioToMp3ProcessorName } from './audioToMp3'
 
 export enum GameAssetPathPart {
   '0_Root' = 'gameAsset',
@@ -14,12 +15,33 @@ export const gameAssetDeleteDelay = 1000 * 60 * 60 * 24 * 7
 /**
  * Length of each part/chunk in recorded audio, in milliseconds.
  */
-export const audioPartLength = 200
-export const rawAudioBlobType = 'audio/ogg; codecs=opus'
-export const rawAudioFileExt = 'ogg'
+export const audioPartLength = 500
+export enum AudioMediaType { 
+  /**
+   * Media (MIME, container) type for saving the raw audio to blobs or files. Most browsers should read and write
+   * of this type natively. However, some (ex. ios mobile) do not.
+   */
+  Ogg = 'audio/ogg',
+  /**
+   * MP3 media type that hopefully is compatible with more browsers than {@linkcode AudioMediaType.Ogg}.
+   */
+  Mp3 = 'audio/mp3'
+}
 
-export function generateAudioFileName() {
-  return `${ulid()}.${rawAudioFileExt}`
+/**
+ * Audio encoding. 
+ * Opus should be most widely supported according to https://developer.mozilla.org/en-US/docs/Web/Media/Guides/Formats/WebRTC_codecs.
+ */
+export const rawAudioCodec = 'opus'
+export const rawAudioBlobType = `${AudioMediaType.Ogg}; codecs=${rawAudioCodec}`
+export const mp3AudioBlobType = AudioMediaType.Mp3
+
+export function audioTypeToFileExt(type: AudioMediaType) {
+  return type.split('/')[1]
+}
+
+export function generateAudioFileName(mediaType: AudioMediaType) {
+  return `${ulid()}.${audioTypeToFileExt(mediaType)}`
 }
 
 export function generateAudioFilePath(gameId: string, fileName: string) {
@@ -30,50 +52,64 @@ export function audioFilePathToGameId(filePath: string) {
   return filePath.match(new RegExp(`/${GameAssetPathPart['1_GameId']}/([^/]+)/`))![1]
 }
 
-export async function readAudio(recorder: MediaRecorder) {
+export async function readAudio(recorder: MediaRecorder, processor?: AudioProcessor) {
   // read output stream to file data
   const audioParts: BlobPart[] = []
+  let readPromiseChain: Promise<void|number> = Promise.resolve()
   recorder.ondataavailable = (e) => {
-    audioParts.push(e.data)
+    if (processor) {
+      readPromiseChain = readPromiseChain.then(async () => audioParts.push(await processor.processPart(e.data)))
+    }
+    else {
+      audioParts.push(e.data)
+    }    
   }
 
   return new Promise((res: (audioData: BlobPart[]) => void) => {
     recorder.onstop = () => {
-      res(audioParts)
+      if (processor) {
+        readPromiseChain = readPromiseChain.then(() => audioParts.push(processor.flush()))
+      }
+      
+      readPromiseChain.then(() => res(audioParts))
     }
 
     recorder.start(audioPartLength)
   })
 }
 
-export function audioToBlob(audioParts: BlobPart[]) {
+export function audioToBlob(audioParts: BlobPart[], type: string) {
   return new Blob(audioParts, {
-    type: rawAudioBlobType
+    type
   })
 }
 
-export function audioToFile(audioParts: BlobPart[], fileName: string) {
+export function audioToFile(audioParts: BlobPart[], type: string, fileName: string) {
   return new File(audioParts, fileName, {
-    type: rawAudioBlobType
+    type
   })
 }
 
 /**
+ * Trim and encode audio for export.
+ * 
  * @param audioData 
  * @param sampleRate
  * @param start Amount to remove from start, in seconds.
  * @param end Amount to remove from end, in seconds.
+ * @param mediaType 
  */
-export async function trimAudio(
+export async function trimEncodeAudio(
   audioData: BlobPart[], 
   sampleRate: number,
-  start: number, end: number
+  start: number, end: number,
+  mediaType: AudioMediaType
 ) {
   const ctx = new AudioContext({
     sampleRate: sampleRate
   })
 
-  const audioBufferIn = await ctx.decodeAudioData(await audioToBlob(audioData).arrayBuffer())
+  const audioBufferIn = await ctx.decodeAudioData(await audioToBlob(audioData, rawAudioBlobType).arrayBuffer())
   const duration = audioBufferIn.duration - (start + end)
 
   // pass modified audio buffer to output stream

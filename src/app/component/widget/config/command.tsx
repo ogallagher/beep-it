@@ -3,7 +3,7 @@ import { Config } from './config'
 import { RefObject, useEffect, useRef, useState } from 'react'
 import StaticRef from '@lib/staticRef'
 import { Megaphone, Mic, StopCircle, Trash3 } from 'react-bootstrap-icons'
-import { audioToFile, generateAudioFileName, generateAudioFilePath, readAudio, trimAudio } from '@lib/widget/audio'
+import { AudioMediaType, audioToFile, audioTypeToFileExt, generateAudioFileName, generateAudioFilePath, mp3AudioBlobType, rawAudioBlobType, readAudio, trimEncodeAudio } from '@lib/widget/audio'
 import Game from '@lib/game/game'
 import { ApiRoute, websiteBasePath } from '@api/const'
 import { GameAssetEvent, GameEventType } from '@lib/game/gameEvent'
@@ -34,19 +34,19 @@ async function recordAudio(
     const audioData = await (
       readAudio(audioRecorder.current)
       .then((rawAudioData) => {
-        return trimAudio(rawAudioData, audioSettings.sampleRate!, 0, 0.1)
+        return trimEncodeAudio(rawAudioData, audioSettings.sampleRate!, 0, 0.1, AudioMediaType.Ogg)
       })
     )
 
     // convert to file for transfer to server
-    const audioFileName = generateAudioFileName()
+    const audioFileName = generateAudioFileName(AudioMediaType.Ogg)
 
     // send audio file to server
     const queryParams = new URLSearchParams()
     Game.saveGameId(game.current.id, queryParams)
 
     const reqBody = new FormData()
-    reqBody.append('files', audioToFile(audioData, audioFileName))
+    reqBody.append('files', audioToFile(audioData, rawAudioBlobType, audioFileName))
     fetch(
       `${websiteBasePath}/${ApiRoute.GameAsset}?${queryParams.toString()}`,
       {
@@ -212,8 +212,13 @@ export default function WidgetCommand(
           controls={true}
           controlsList='nofullscreen'
           muted={undefined}
-          preload='auto'
-          src={commandAudioUrl} />
+          preload='auto' >
+          <source 
+            src={commandAudioUrl}
+            type={
+              commandAudioUrl?.endsWith(audioTypeToFileExt(AudioMediaType.Ogg)) ? rawAudioBlobType : mp3AudioBlobType
+            } />
+        </audio>
       </div>
     </Field>
   )
