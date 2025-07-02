@@ -53,7 +53,7 @@ export function getGame(gameUrlParams: URLSearchParams, deviceId: string): Game 
 
 /**
  * Register client with existing game. 
- * Refreshes {@link Game.startTimeout} on the game instance.
+ * Refreshes {@link Game#startTimeout} on the game instance.
  * 
  * @param gameId Game id.
  * @param deviceId Client device id.
@@ -63,11 +63,17 @@ export function addGameClient(gameId: string, deviceId: string, deviceAlias?: st
   if (!games.has(gameId)) {
     throw new Error(`cannot add client to missing game ${gameId}`)
   }
-  if (clients.has(deviceId)) {
-    logger.info(`replace client stream for device=${deviceId} already in game=${gameId}`)
-  }
 
-  if (client) { clients.set(deviceId, client) }
+  if (client) { 
+    if (clients.has(deviceId)) {
+      logger.info(`replace client stream for device=${deviceId} already in game=${gameId}`)
+      // Close previous stream before replacing. In the event that a new device joined with the same device id,
+      // if we don't close the previous stream the server will continue to send it ping messages.
+      clients.get(deviceId)?.emit('close')
+    }
+    
+    clients.set(deviceId, client) 
+  }
 
   // update game state with new device
   const game = games.get(gameId)!
@@ -116,7 +122,7 @@ export function removeGameClient(gameId: string, deviceId: string) {
     logger.warn(`cannot add client to missing game ${gameId}`)
   }
 
-  clients.get(deviceId)?.end()
+  clients.get(deviceId)?.emit('close')
   clients.delete(deviceId)
 
   const game = games.get(gameId)!

@@ -119,9 +119,8 @@ function joinGame(req: Request, res: Response) {
     res.on('close', () => {
       logger.info(`closed server sent events for ${game} to client id=${deviceId} alias=${deviceAlias}`)
       res.end()
+      
       clearInterval(pingInterval)
-
-      // disconnect client from game // TODO confirm why do nothing after this comment? Because in all closures, caller already removes the client?
     })
 
     logger.info(`opened server sent events for ${game} to client id=${deviceId} alias=${deviceAlias}`)
