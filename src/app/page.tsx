@@ -13,8 +13,7 @@ import CommandCaptions from '@component/commandCaptions'
 import { boardId } from '@lib/widget/const'
 import Header from '@component/header'
 import assert from 'assert'
-
-declare type TimeoutReference = number
+import { TimeoutReference } from '@lib/game/const'
 
 function scrollLock(): AbortController {
   const abortController = new AbortController();
@@ -133,7 +132,7 @@ export default function Home() {
     game.current.setJoined(false)
   })
 
-  const gameEventPingTimeout: RefObject<TimeoutReference | undefined | NodeJS.Timeout> = useRef(undefined)
+  const gameEventPingTimeout: RefObject<TimeoutReference> = useRef(undefined)
   function setGameEventPingTimeout() {
     return setTimeout(
       () => {
@@ -197,6 +196,7 @@ export default function Home() {
 
       case GameEventType.Command:
         const widgetId = (gameEvent as CommandEvent).widgetId
+        
         console.log(
           `command=${(gameEvent as CommandEvent).command} `
           + `widget=${widgetId} `
@@ -205,6 +205,7 @@ export default function Home() {
 
         // since commandWidgetId and commandCount map to same listeners, only invoke them once
         game.current.setCommandCount((gameEvent as CommandEvent).commandCount, false)
+        game.current.setCommandDelay((gameEvent as CommandEvent).commandDelay, false)
         game.current.setCommandWidgetId(widgetId)
 
         break

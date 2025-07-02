@@ -20,8 +20,8 @@ export default function ShareGame(
   useEffect(
     () => {
       // render on game start and end
-      game.current.addStateListener(GameStateListenerKey.Started, setGameStarted)
-      game.current.addStateListener(GameStateListenerKey.Ended, setGameEnded)
+      game.current.addStateListener(GameStateListenerKey.Started, ShareGame.name, setGameStarted)
+      game.current.addStateListener(GameStateListenerKey.Ended, ShareGame.name, setGameEnded)
     },
     [ game ]
   )

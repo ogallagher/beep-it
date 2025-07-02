@@ -76,9 +76,9 @@ export default function Board({ game, deviceId }: BoardParams) {
   useEffect(
     () => {
       // disable widget config on game start
-      game.current.addStateListener(GameStateListenerKey.Started, setGameStarted)
+      game.current.addStateListener(GameStateListenerKey.Started, Board.name, setGameStarted)
       // enable widget config and disable action on game end
-      game.current.addStateListener(GameStateListenerKey.Ended, setGameEnded)
+      game.current.addStateListener(GameStateListenerKey.Ended, Board.name, setGameEnded)
 
       // render widgets
       game.current.addConfigListener(GameConfigListenerKey.Widgets, placeWidgets)

@@ -23,8 +23,8 @@ export default function Header(
   useEffect(
     () => {
       // update visibility
-      game.current.addStateListener(GameStateListenerKey.Started, () => setShowHeader(getShowHeader()))
-      game.current.addStateListener(GameStateListenerKey.Ended, () => setShowHeader(getShowHeader()))
+      game.current.addStateListener(GameStateListenerKey.Started, Header.name, () => setShowHeader(getShowHeader()))
+      game.current.addStateListener(GameStateListenerKey.Ended, Header.name, () => setShowHeader(getShowHeader()))
     },
     [ game ]
   )

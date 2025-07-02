@@ -36,12 +36,12 @@ export default function CommandCaptions(
   useEffect(
     () => {
       // state listener for command
-      game.current.addStateListener(GameStateListenerKey.CommandWidgetId, () => {
+      game.current.addStateListener(GameStateListenerKey.CommandWidgetId, CommandCaptions.name, () => {
         setCommand(getCommand())
         setScore(getScore())
       })
       // listener for game end
-      game.current.addStateListener(GameStateListenerKey.Ended, () => setGameEnd(getGameEnd()))
+      game.current.addStateListener(GameStateListenerKey.Ended, CommandCaptions.name, () => setGameEnd(getGameEnd()))
     },
     []
   )

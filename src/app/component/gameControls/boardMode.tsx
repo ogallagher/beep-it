@@ -20,8 +20,8 @@ export default function BoardMode(
       // render board mode
       game.current.addConfigListener(GameConfigListenerKey.BoardDisplayMode, setBoardMode)
       // disable/enable input on game start/end
-      game.current.addStateListener(GameStateListenerKey.Started, setGameStarted)
-      game.current.addStateListener(GameStateListenerKey.Ended, setGameEnded)
+      game.current.addStateListener(GameStateListenerKey.Started, BoardMode.name, setGameStarted)
+      game.current.addStateListener(GameStateListenerKey.Ended, BoardMode.name, setGameEnded)
     },
     [ game ]
   )

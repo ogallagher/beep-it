@@ -47,7 +47,7 @@ export enum GameStateListenerKey {
    */
   Ended = 'ended',
   /**
-   * Used for both setCommandWidgetId and setCommandCount.
+   * Used for setCommandWidgetId, setCommandCount. setCommandDelay.
    */
   CommandWidgetId = 'commandWidgetId'
 }
@@ -103,4 +103,9 @@ export interface GameState {
 
 export type ConfigListener = (configValue: any) => void
 export type StateListener = (stateValue: any) => void
+/**
+ * Reference to a timeout/interval either in client or server context.
+ * `undefined` is included for compatibility with {@linkcode clearTimeout}, {@linkcode clearInterval}.
+ */
+export type TimeoutReference = number | NodeJS.Timeout | undefined
 

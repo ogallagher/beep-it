@@ -2,7 +2,7 @@ import { ulid } from 'ulid'
 import Widget from '@lib/widget/widget'
 import { CommandEvent, ConfigEvent, DoWidgetEvent, EndEvent, GameEndReason, GameEvent, GameEventListener, GameEventType } from './gameEvent'
 import { BoardDisplayMode, GameTurnMode, GameConfigListenerKey, GameStateListenerKey, commandDelayMin, ConfigListener, GameConfig, gameStartDelayMax, GameState, StateListener, gameDeleteDelay, commandDelayDefault } from './const'
-import { WidgetExport } from '@lib/widget/const'
+import { WidgetExport, WidgetType } from '@lib/widget/const'
 
 export default class Game {
   public id: string
@@ -12,6 +12,9 @@ export default class Game {
    * Public in order to bypass configListeners when changes come from local client.
    */
   public config: GameConfig
+  /**
+   * Attributes of a game that are dynamic.
+   */
   protected state: GameState = {
     commandCount: 0,
     commandDelay: commandDelayDefault,
@@ -48,12 +51,12 @@ export default class Game {
    * Methods to call when the given state attr changes.
    * Very similar to `configListeners`.
    */
-  protected stateListeners: Map<string, StateListener[]> = new Map([
-    [GameStateListenerKey.DevicesCount, []],
-    [GameStateListenerKey.Joined, []],
-    [GameStateListenerKey.Started, []],
-    [GameStateListenerKey.Ended, []],
-    [GameStateListenerKey.CommandWidgetId, []]
+  protected stateListeners: Map<string, Map<string, StateListener>> = new Map([
+    [GameStateListenerKey.DevicesCount, new Map()],
+    [GameStateListenerKey.Joined, new Map()],
+    [GameStateListenerKey.Started, new Map()],
+    [GameStateListenerKey.Ended, new Map()],
+    [GameStateListenerKey.CommandWidgetId, new Map()]
   ])
 
   constructor(id?: string | null, config?: GameConfig) {
@@ -75,7 +78,7 @@ export default class Game {
     this.addConfigListener(GameConfigListenerKey.BoardDisplayMode, () => {
       this.configListeners.get(GameConfigListenerKey.Widgets)?.forEach(l => l(this.config.widgets))
     })
-    this.addStateListener(GameStateListenerKey.DevicesCount, () => {
+    this.addStateListener(GameStateListenerKey.DevicesCount, 'game.config.widgets', () => {
       this.configListeners.get(GameConfigListenerKey.Widgets)?.forEach(l => l(this.config.widgets))
     })
   }
@@ -272,6 +275,20 @@ export default class Game {
   }
 
   /**
+   * Returns {@linkcode GameState.commandDelay | Game.state.commandDelay}.
+   */
+  getCommandDelay() {
+    return this.state.commandDelay
+  }
+
+  setCommandDelay(commandDelay: number, invokeListeners: boolean = true) {
+    this.state.commandDelay = commandDelay
+    if (invokeListeners) {
+      this.stateListeners.get(GameStateListenerKey.CommandWidgetId)?.forEach(l => l(this.state.commandWidgetId))
+    }
+  }
+
+  /**
    * Schedule a method for when a game has been idle without starting for too long.
    * Replaces any earlier start timeout if exists.
    * 
@@ -309,8 +326,8 @@ export default class Game {
     this.configListeners.get(configKey)?.push(listener)
   }
 
-  addStateListener(stateKey: GameStateListenerKey, listener: StateListener) {
-    this.stateListeners.get(stateKey)?.push(listener)
+  addStateListener(stateKey: GameStateListenerKey, listenerKey: string, listener: StateListener) {
+    this.stateListeners.get(stateKey)?.set(listenerKey, listener)
   }
 
   /**
@@ -412,11 +429,21 @@ export default class Game {
     const commandDelayVelocity = 100 * this.config.difficulty
     this.state.commandDelay = Math.max(this.state.commandDelay - commandDelayVelocity, commandDelayMin)
 
-    // wait for doWidget
-    this.state.commandTimeout = setTimeout(
-      () => this.end(GameEndReason.ActionDelay, listener, this.state.deviceId!), 
-      this.state.commandDelay
-    )
+    const widgetType = this.config.widgets.get(this.state.commandWidgetId)!.type
+    if (widgetType === WidgetType.Wait) {
+      // wait for next command, otherwise will end game on doWidget
+      this.state.commandTimeout = setTimeout(
+        () => this.sendCommand(listener),
+        this.state.commandDelay
+      )
+    }
+    else {
+      // wait for doWidget, end game on timeout
+      this.state.commandTimeout = setTimeout(
+        () => this.end(GameEndReason.ActionDelay, listener, this.state.deviceId!), 
+        this.state.commandDelay
+      )
+    }
   }
 
   public doWidget(event: DoWidgetEvent, listener: GameEventListener) {
@@ -427,8 +454,13 @@ export default class Game {
       clearTimeout(this.state.commandTimeout)
     }
 
-    // confirm whether widget matches last command
-    if (event.widgetId === this.state.commandWidgetId) {
+    
+    if (
+      // confirm whether widget matches last command
+      event.widgetId === this.state.commandWidgetId
+      // and last command was not a wait
+      && this.config.widgets.get(this.state.commandWidgetId)!.type !== WidgetType.Wait
+    ) {
       // send next command
       this.sendCommand(listener)
     }

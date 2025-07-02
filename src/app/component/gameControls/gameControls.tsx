@@ -33,8 +33,8 @@ export default function GameControls(
   useEffect(
     () => {
       // update visibility
-      game.current.addStateListener(GameStateListenerKey.Started, () => setShowControls(getShowControls()))
-      game.current.addStateListener(GameStateListenerKey.Ended, () => setShowControls(getShowControls()))
+      game.current.addStateListener(GameStateListenerKey.Started, GameControls.name, () => setShowControls(getShowControls()))
+      game.current.addStateListener(GameStateListenerKey.Ended, GameControls.name, () => setShowControls(getShowControls()))
     },
     [ game ]
   )

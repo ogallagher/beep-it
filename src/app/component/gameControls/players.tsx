@@ -20,8 +20,8 @@ export default function GamePlayers(
       // render device count updates
       game.current.addConfigListener(GameConfigListenerKey.PlayersCount, setPlayerCount)
       // disable input on game start and end
-      game.current.addStateListener(GameStateListenerKey.Started, setGameStarted)
-      game.current.addStateListener(GameStateListenerKey.Ended, setGameEnded)
+      game.current.addStateListener(GameStateListenerKey.Started, GamePlayers.name, setGameStarted)
+      game.current.addStateListener(GameStateListenerKey.Ended, GamePlayers.name, setGameEnded)
     },
     [ game ]
   )

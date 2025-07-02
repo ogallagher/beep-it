@@ -18,7 +18,7 @@ export default function RejoinGame(
 
   useEffect(
     () => {
-      game.current.addStateListener(GameStateListenerKey.Joined, setJoinedGame)
+      game.current.addStateListener(GameStateListenerKey.Joined, RejoinGame.name, setJoinedGame)
     },
     [ game ]
   )

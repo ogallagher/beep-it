@@ -17,7 +17,7 @@ export default function WidgetsDrawerControl(
   useEffect(
     () => {
       // state event listener for start
-      game.current.addStateListener(GameStateListenerKey.Started, (started: boolean) => {
+      game.current.addStateListener(GameStateListenerKey.Started, WidgetsDrawerControl.name, (started: boolean) => {
         if (started) {
           setWidgetsDrawerOpen(false)
         }
@@ -26,7 +26,7 @@ export default function WidgetsDrawerControl(
       })
 
       // game event listener for end
-      game.current.addStateListener(GameStateListenerKey.Ended, setGameEnded)
+      game.current.addStateListener(GameStateListenerKey.Ended, WidgetsDrawerControl.name, setGameEnded)
     },
     []
   )

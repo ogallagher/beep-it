@@ -20,8 +20,8 @@ export default function TurnMode(
       // render turn mode
       game.current.addConfigListener(GameConfigListenerKey.GameTurnMode, setTurnMode)
       // disable/enable input on game start/end
-      game.current.addStateListener(GameStateListenerKey.Started, setGameStarted)
-      game.current.addStateListener(GameStateListenerKey.Ended, setGameEnded)
+      game.current.addStateListener(GameStateListenerKey.Started, TurnMode.name, setGameStarted)
+      game.current.addStateListener(GameStateListenerKey.Ended, TurnMode.name, setGameEnded)
     },
     [ game ]
   )

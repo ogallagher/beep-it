@@ -113,11 +113,12 @@ export default function WidgetCmp(
           disabled={!configurable} commandAudioEnabled={commandAudioEnabled} />
 
         <WidgetControl 
-          type={widget.type}
+          widgetId={widget.id} type={widget.type}
           active={
             // currently we assume these states are always opposite
             !configurable
           }
+          game={game}
           onClick={
             onClick === undefined ? undefined : () => {
               // persist widget config updates to export copy for click handler input

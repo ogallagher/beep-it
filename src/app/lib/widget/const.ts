@@ -4,6 +4,7 @@ export const boardId = 'gameBoard'
  * Min delay between consecutive actions, to prevent duplicates on mistaken input.
  */
 export const widgetActionMinDelay = 500
+export const widgetWaitProgressSteps = 8
 
 export enum WidgetType {
   Button = 'button',

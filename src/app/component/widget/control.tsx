@@ -1,10 +1,12 @@
 import { ReactSVG } from 'react-svg'
-import { CardinalDirection, KeyboardAction, UIPointerAction, WidgetType } from '../../lib/widget/const'
+import { CardinalDirection, KeyboardAction, UIPointerAction, WidgetType, widgetWaitProgressSteps } from '../../lib/widget/const'
 import { SVGSpace, Circle, Pt, Color } from 'pts'
 import { Ref, RefObject, useEffect, useRef } from 'react'
 import { cardinalDistance, keyboardEventToKeyboardAction, mouseEventToPointerAction, mouseEventToSvgPoint } from '@lib/widget/graphics'
 import { websiteBasePath } from '@api/const'
 import StaticRef from '@lib/staticRef'
+import Game from '@lib/game/game'
+import { GameStateListenerKey, TimeoutReference } from '@lib/game/const'
 
 function controlImage(widgetType: string) {
   return `${websiteBasePath}/widgetIcon/${widgetType}.svg`
@@ -25,7 +27,7 @@ function enableAction(
   const form = space.getForm()
 
   /**
-   * Static graphics.
+   * Static graphics. Generally not used, since {@linkcode iconSvg} is near static.
    */
   function start() {}
 
@@ -247,6 +249,13 @@ function enableAction(
 
       case WidgetType.KeyPad:
         // TODO capture keyup sequence from document
+
+      case WidgetType.Wait:
+        // any mistaken pointer input submits the action to end the game
+        if (eventType === UIPointerAction.down) {
+          onAction()
+        }
+        break
       
       default:
         console.log(`error widget action not supported for type=${type}`)
@@ -280,6 +289,13 @@ function enableAction(
     document.body.addEventListener('keydown', onKeyWrapper, {signal: listenerAbortController.signal})
     document.body.addEventListener('keyup', onKeyWrapper, {signal: listenerAbortController.signal})
   }
+  if (type === WidgetType.Wait) {
+    function onMouseWrapper(e: MouseEvent | TouchEvent) {
+      action(mouseEventToPointerAction(e), mouseEventToSvgPoint(svg, e), e)
+    }
+    svg.addEventListener('mousedown', onMouseWrapper, {signal: listenerAbortController.signal})
+    svg.addEventListener('touchstart', onMouseWrapper, {signal: listenerAbortController.signal})
+  }
   svg.addEventListener('contextmenu', (e) => {e.preventDefault()}, {signal: listenerAbortController.signal})
 
   space.play()
@@ -292,8 +308,35 @@ function disableAction(listenerAbortController: AbortController) {
   listenerAbortController.abort()
 }
 
+function animateProgress(
+  iconSvg: RefObject<SVGSVGElement|null>, 
+  commandDelayInterval: RefObject<TimeoutReference>, 
+  game: RefObject<Game> | StaticRef<Game>
+) {
+  const progressSteps: number[] = []
+
+  function onProgress() {
+    if (progressSteps.length < widgetWaitProgressSteps) {
+      progressSteps.push(progressSteps.length + 1)
+      iconSvg.current?.setAttribute('data-progress', progressSteps.join(' '))
+    }
+    else {
+      // stop incrementing progress
+      clearInterval(commandDelayInterval.current)
+    }
+  }
+
+  onProgress()
+
+  commandDelayInterval.current = setInterval(
+    onProgress,
+    game.current.getCommandDelay() / widgetWaitProgressSteps
+  )
+}
+
 export default function WidgetControl(
-  {type, onClick, onAction, active, valueText, showValueText, color, showColor, width, showWidth}: {
+  {widgetId, type, onClick, onAction, active, valueText, showValueText, color, showColor, width, showWidth, game}: {
+    widgetId: string
     type: WidgetType
     onClick?: () => void
     onAction?: () => void
@@ -313,12 +356,14 @@ export default function WidgetControl(
      */
     width: number
     showWidth: RefObject<CallableFunction> | StaticRef<CallableFunction>
+    game: RefObject<Game> | StaticRef<Game>
   }
 ) {
   const iconSvg: RefObject<SVGSVGElement|null> = useRef(null)
   const iconWrapper: RefObject<HTMLDivElement|null> = useRef(null)
   const interactiveSvg: RefObject<SVGSVGElement|null> = useRef(null)
   const interactAbortController: RefObject<AbortController|null> = useRef(null)
+  const commandDelayInterval: RefObject<TimeoutReference> = useRef(undefined)
 
   useEffect(
     () => {
@@ -331,6 +376,48 @@ export default function WidgetControl(
       }
     },
     [ active ]
+  )
+  
+  useEffect(
+    () => {
+      if (type === WidgetType.Wait) {
+        if (active) {
+          /**
+           * Game state listener for last command widget, if self, will set an interval to render progress on icon.
+           */
+          function onCommand(commandWidgetId: string|undefined) {
+            clearInterval(commandDelayInterval.current)
+
+            if (commandWidgetId === widgetId) {
+              // rotate the icon before animating progress
+              if (iconWrapper.current) {
+                try {
+                  iconWrapper.current.style.transform = (
+                    `rotate(${Math.random() * 360}deg)`
+                  )
+                }
+                catch (err) {
+                  console.log(`ERROR unable to rotate widget control icon before animating progress. ${err}`)
+                }
+              }
+
+              animateProgress(iconSvg, commandDelayInterval, game)
+            }
+          }
+          onCommand(game.current.getCommandWidgetId())
+
+          game.current.addStateListener(
+            GameStateListenerKey.CommandWidgetId, 
+            `${WidgetControl.name}.${widgetId}`,
+            onCommand
+          )
+        }
+        else {
+          clearInterval(commandDelayInterval.current)
+        }
+      }
+    },
+    [ game, active ]
   )
 
   // show width changes

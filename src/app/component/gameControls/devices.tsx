@@ -24,7 +24,7 @@ function GameDevice(
   useEffect(
     () => {
       // render device updates
-      game.current.addStateListener(GameStateListenerKey.DevicesCount, () => setDeviceAlias(getDeviceAlias()))
+      game.current.addStateListener(GameStateListenerKey.DevicesCount, deviceId, () => setDeviceAlias(getDeviceAlias()))
     },
     [ game ]
   )
@@ -93,7 +93,7 @@ export default function GameDevices(
   useEffect(
     () => {
       // render device collection updates
-      game.current.addStateListener(GameStateListenerKey.DevicesCount, (deviceCount) => {
+      game.current.addStateListener(GameStateListenerKey.DevicesCount, GameDevices.name, (deviceCount) => {
         setDeviceCount(deviceCount)
         setDevices(game.current.getDevices())
       })

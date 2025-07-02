@@ -28,9 +28,9 @@ export default function GamePlay(
       }
 
       // state event listener for start
-      game.current.addStateListener(GameStateListenerKey.Started, updateEnable)
+      game.current.addStateListener(GameStateListenerKey.Started, GamePlay.name, updateEnable)
       // for end
-      game.current.addStateListener(GameStateListenerKey.Ended, updateEnable)
+      game.current.addStateListener(GameStateListenerKey.Ended, GamePlay.name, updateEnable)
       // config event listener for widgets
       game.current.addConfigListener(GameConfigListenerKey.Widgets, updateEnable)
     },

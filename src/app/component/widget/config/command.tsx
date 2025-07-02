@@ -135,16 +135,20 @@ export default function WidgetCommand(
 
       // play audio on game command
       if (audioConfigurable) {
-        game.current.addStateListener(GameStateListenerKey.CommandWidgetId, (commandWidgetId: string) => {
-          if (
-            commandWidgetId === widgetId 
-            // Since this state listener is only added once (commandAudioUrl state is not a dependency),
-            // get latest command audio from ref instead of component state.
-            && config.current.commandAudio !== undefined
-          ) {
-            playAudio(audioElement.current)
+        game.current.addStateListener(
+          GameStateListenerKey.CommandWidgetId,
+          `${WidgetCommand.name}.${widgetId}`, 
+          (commandWidgetId: string) => {
+            if (
+              commandWidgetId === widgetId 
+              // Since this state listener is only added once (commandAudioUrl state is not a dependency),
+              // get latest command audio from ref instead of component state.
+              && config.current.commandAudio !== undefined
+            ) {
+              playAudio(audioElement.current)
+            }
           }
-        })
+        )
       }
     },
     [ game ]
