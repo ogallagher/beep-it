@@ -219,7 +219,11 @@ export default function WidgetCommand(
         <input ref={audioFileElement}
           className='block rounded-lg px-3 py-1.5 bg-white/5 max-w-40 hover:bg-white/10 cursor-pointer'
           title='Upload custom command audio'
-          type='file' accept="audio/*"
+          type='file' accept={[
+            'audio/*',
+            // mpeg-4 is not recognized under audio/
+            '.m4a', '.mp4'
+          ].join(',')}
           onChange={async (e) => {
             const file = e.target.files?.item(0)
             if (file) {
