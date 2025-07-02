@@ -38,7 +38,7 @@ function enableAction(
 
   if (type === WidgetType.Lever) {
     // store lever direction as code point in p1.x
-    p1 = new Pt((iconSvg.current?.getAttribute('data-direction') || CardinalDirection.Down).codePointAt(0), 0)
+    p1 = new Pt((iconSvg.current?.getAttribute('data-direction') || CardinalDirection.Down).codePointAt(0)!, 0)
   }
 
   /**

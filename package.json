@@ -13,7 +13,7 @@
     "_start": "next start --port $BEEPIT_PORT",
     "start": "dotenv-run-script -- _start",
     "start-forever": "forever start -c 'npm run start' .",
-    "stop": "forever stop . && ps -eo pid,pgid,tpgid,args | grep beep && killall -i node && echo 'try kill <pid> if necessary'",
+    "stop": "forever stop . && ps -eo pid,pgid,tpgid,args | grep beep && killall -i node && ps -eo pid,pgid,tpgid,args | grep beep && echo 'try kill <pid> if necessary'",
     "lint": "next lint"
   },
   "dependencies": {
