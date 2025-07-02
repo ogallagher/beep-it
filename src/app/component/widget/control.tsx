@@ -2,7 +2,7 @@ import { ReactSVG } from 'react-svg'
 import { CardinalDirection, KeyboardAction, UIPointerAction, WidgetType } from '../../lib/widget/const'
 import { SVGSpace, Circle, Pt, Color } from 'pts'
 import { Ref, RefObject, useEffect, useRef } from 'react'
-import { keyboardEventToKeyboardAction, mouseEventToPointerAction, mouseEventToSvgPoint } from '@lib/widget/graphics'
+import { cardinalDistance, keyboardEventToKeyboardAction, mouseEventToPointerAction, mouseEventToSvgPoint } from '@lib/widget/graphics'
 import { websiteBasePath } from '@api/const'
 import StaticRef from '@lib/staticRef'
 
@@ -35,6 +35,11 @@ function enableAction(
   let p3: Pt | undefined
   let p4: Pt | undefined
   let pEnd: Pt | undefined
+
+  if (type === WidgetType.Lever) {
+    // store lever direction as code point in p1.x
+    p1 = new Pt((iconSvg.current?.getAttribute('data-direction') || CardinalDirection.Down).codePointAt(0), 0)
+  }
 
   /**
    * Dynamic graphics.
@@ -78,10 +83,10 @@ function enableAction(
         }
         else if (eventType === UIPointerAction.move && pStart) {
           pEnd = new Pt(loc!.x, loc!.y)
-          length = pEnd.$subtract(pStart).magnitude()
+          length = cardinalDistance(pStart, pEnd, p1!)
         }
         else if (eventType === UIPointerAction.up && pStart && pEnd) {
-          length = pEnd.$subtract(pStart).magnitude()
+          length = cardinalDistance(pStart, pEnd, p1!)
           if (length > minLength) {
             onAction()
           }

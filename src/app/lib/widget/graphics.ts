@@ -1,4 +1,5 @@
-import { KeyboardAction, UIPointerAction } from './const'
+import { Pt } from 'pts'
+import { CardinalDirection, KeyboardAction, UIPointerAction } from './const'
 
 /**
  * See https://stackoverflow.com/a/10298843/10200417.
@@ -56,5 +57,26 @@ export function keyboardEventToKeyboardAction(e: KeyboardEvent): KeyboardAction 
 
     default:
       throw new Error(`unsupported keyboard event type ${e.type}`)
+  }
+}
+
+/**
+ * @param pStart 
+ * @param pEnd 
+ * @param pDir Cardinal direction encoded as a code point in the X component.
+ * @returns Signed distance along a cardinal direction between `pStart` and `pEnd`.
+ */
+export function cardinalDistance(pStart: Pt, pEnd: Pt, pDir: Pt): number {
+  const direction = String.fromCodePoint(pDir.x) as CardinalDirection
+
+  switch (direction) {
+    case CardinalDirection.Up:
+      return pStart.y - pEnd.y
+    case CardinalDirection.Down:
+      return pEnd.y - pStart.y
+    case CardinalDirection.Left:
+      return pStart.x - pEnd.x
+    case CardinalDirection.Right:
+      return pEnd.x - pStart.x
   }
 }
