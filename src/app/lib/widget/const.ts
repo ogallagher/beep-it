@@ -89,7 +89,7 @@ export function defaultWidgetLabel(type: WidgetType) {
       return 'lag'
 
     default:
-      throw new Error(`cannot get default command for invalid widget type ${type}`)
+      throw new Error(`cannot get default label for invalid widget type ${type}`)
   }
 }
 
@@ -109,15 +109,40 @@ export function defaultWidgetValueText(type: WidgetType) {
   }
 }
 
-export interface WidgetExport {
+export function defaultWidgetDuration(type: WidgetType, valueTextLength?: number) {
+  switch (type) {
+    case WidgetType.Twist:
+      return 300
+
+    case WidgetType.KeyPad:
+      return 250 * (valueTextLength !== undefined ? valueTextLength : 6)
+
+    case WidgetType.Path:
+      return 1000
+
+    default:
+      return 0
+  }
+}
+
+export interface WidgetConfig {
+  command: string
+  commandAudio?: string
+  color: string
+  valueText?: string
+  width: number
+  duration: number
+}
+
+export interface WidgetExport extends WidgetConfig {
   id: string
   type: WidgetType
+  /**
+   * Label was originally not included in parent type because of its special handling in the client UI 
+   * (ex. not editable in widgets drawer, displayed separately from other config properties). 
+   * However, I think a refactor could reasonably move it to {@linkcode WidgetConfig}.
+   */
   label: string
-  command: string
-  commandAudio: string | undefined
-  color: string
-  valueText: string | undefined
-  width: number
 }
 
 // converted from graphics lib pts.UIPointerActions
@@ -146,3 +171,4 @@ export enum KeyboardAction {
   up = 'up',
   down = 'down'
 }
+

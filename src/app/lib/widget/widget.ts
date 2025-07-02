@@ -1,5 +1,5 @@
 import { ulid } from 'ulid'
-import { defaultWidgetCommands, defaultWidgetValueText, WidgetExport, WidgetType } from './const'
+import { defaultWidgetCommands, defaultWidgetDuration, defaultWidgetLabel, defaultWidgetValueText, WidgetExport, WidgetType } from './const'
 
 export default class Widget {
   id: string
@@ -18,6 +18,10 @@ export default class Widget {
    */
   valueText: string | undefined
   width: number
+  /**
+   * Estimated **extra** time needed to complete this widget action, in addition to the game's command delay, in milliseconds.
+   */
+  duration: number
 
   constructor(w: WidgetExport) {
     this.id = w.id
@@ -28,6 +32,7 @@ export default class Widget {
     this.color = w.color
     this.valueText = w.valueText
     this.width = w.width
+    this.duration = w.duration
   }
 
   save(): WidgetExport {
@@ -39,7 +44,8 @@ export default class Widget {
       commandAudio: this.commandAudio,
       color: this.color,
       valueText: this.valueText,
-      width: this.width
+      width: this.width,
+      duration: this.duration
     }
   }
 
@@ -62,7 +68,8 @@ export default class Widget {
       commandAudio: undefined,
       color: '#ffffff',
       valueText: defaultWidgetValueText(type),
-      width: 100
+      width: 100,
+      duration: defaultWidgetDuration(type)
     })
   }
 
@@ -83,7 +90,7 @@ export default class Widget {
   }
 
   public static generateLabel(type: WidgetType, id: string) {
-    return `${type} ${id.substring(id.length-4)}`
+    return `${defaultWidgetLabel(type)} ${id.substring(id.length-4)}`
   }
 }
 

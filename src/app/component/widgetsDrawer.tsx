@@ -1,6 +1,6 @@
 import { RefObject } from 'react'
 import Grid from '@component/grid'
-import { WidgetExport, widgetTypes } from '@lib/widget/const'
+import { defaultWidgetLabel, WidgetExport, widgetTypes } from '@lib/widget/const'
 import WidgetCmp from './widget/widgetCmp'
 import Widget from '@lib/widget/widget'
 import StaticRef from '@lib/staticRef'
@@ -39,7 +39,7 @@ export default function WidgetsDrawer(
         {widgetTypes.map(type => {
           const widget = Widget.new(type)
           widget.id = type
-          widget.label = type
+          widget.label = defaultWidgetLabel(type)
 
           return <WidgetCmp 
               key={type} game={game} deviceId={deviceId}

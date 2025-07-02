@@ -1,5 +1,5 @@
 import { Field, Input, Label } from '@headlessui/react'
-import { Config } from './config'
+import { WidgetConfig } from '@lib/widget/const'
 import { RefObject, useEffect, useRef, useState } from 'react'
 import StaticRef from '@lib/staticRef'
 import { Megaphone, Mic, MicMute, StopCircle, Trash3 } from 'react-bootstrap-icons'
@@ -77,7 +77,7 @@ export default function WidgetCommand(
   { game, widgetId, config, setConfig, audioConfigurable }: {
     game: RefObject<Game> | StaticRef<Game>
     widgetId: string
-    config: RefObject<Config> | StaticRef<Config>
+    config: RefObject<WidgetConfig> | StaticRef<WidgetConfig>
     setConfig: RefObject<() => void> | StaticRef<() => void>
     audioConfigurable: boolean
   }

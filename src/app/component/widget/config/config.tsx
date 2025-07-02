@@ -5,23 +5,15 @@ import { Field, Input, Label } from '@headlessui/react'
 import StaticRef from '@lib/staticRef'
 import Game from '@lib/game/game'
 import { clientSendConfigEvent, GameEventType } from '@lib/game/gameEvent'
-import { WidgetType } from '@lib/widget/const'
+import { WidgetConfig, WidgetType } from '@lib/widget/const'
 import WidgetCommand from './command'
 import { GameConfigListenerKey } from '@lib/game/const'
 
-export interface Config {
-  command: string
-  commandAudio?: string
-  color: string
-  valueText?: string
-  width: number
-}
-
-export default function WidgetConfig(
+export default function WidgetConfigCmp(
   {widgetId, widgetType, configRef, showColor, showValueText, showWidth, disabled, game, deviceId, commandAudioEnabled}: {
     widgetId: string
     widgetType: WidgetType
-    configRef: RefObject<Config> | StaticRef<Config>
+    configRef: RefObject<WidgetConfig> | StaticRef<WidgetConfig>
     showColor: RefObject<CallableFunction> | StaticRef<CallableFunction>
     /**
      * Reference to callback that updates valueText in control icon.
@@ -37,6 +29,7 @@ export default function WidgetConfig(
   const [valueText, setValueText] = useState(configRef.current.valueText)
   const [color, setColor] = useState(configRef.current.color)
   const [width, setWidth] = useState(configRef.current.width)
+  const [duration, setDuration] = useState(configRef.current.duration)
 
   /**
    * Persist widget command update to game model.
@@ -50,6 +43,7 @@ export default function WidgetConfig(
       widget.color = configRef.current.color
       widget.valueText = configRef.current.valueText
       widget.width = configRef.current.width
+      widget.duration = configRef.current.duration
 
       // send config event to server
       clientSendConfigEvent({
@@ -76,6 +70,7 @@ export default function WidgetConfig(
             setValueText(widget.valueText)
             setColor(widget.color)
             setWidth(widget.width)
+            setDuration(widget.duration)
             // command child component is updated separately.
           }
         }
@@ -109,7 +104,7 @@ export default function WidgetConfig(
             {( () => {
               switch (widgetType) {
                 case WidgetType.Lever:
-                  return 'direction'
+                  return 'direction (U D R L)'
                 case WidgetType.Key:
                   return 'key value'
                 case WidgetType.KeyPad:
@@ -135,7 +130,6 @@ export default function WidgetConfig(
           }}
           type='text' maxLength={widgetType === WidgetType.KeyPad ? undefined : 1}
           value={valueText}
-          placeholder={widgetType === WidgetType.Lever ? 'D R L U' : undefined}
           onBlur={setConfig.current} />
       </Field>
 
@@ -184,7 +178,28 @@ export default function WidgetConfig(
       </Field>
 
       {/* duration */}
-      <div>TODO duration</div>
+      <Field 
+        title='Amount of extra time needed to do this widget, in seconds.'
+        className='w-full flex flex-row flex-wrap justify-start gap-x-2 gap-y-1' >
+        <Label className='flex flex-col justify-center'>
+          <div>duration</div>
+        </Label>
+        <Input 
+          className='rounded-lg px-3 py-1.5 bg-white/5 text-white text-left'
+          onChange={e => {
+            const d = parseFloat(e.target.value) * 1000
+            // component state
+            setDuration(d)
+            // model
+            configRef.current.duration = d
+          }}
+          type='number' min={0} max={3600} step={0.1}
+          value={duration / 1000}
+          onBlur={setConfig.current} />
+        <div className='flex flex-col justify-center'>
+          <div>sec</div>
+        </div>
+      </Field>
 
       {/* command */}
       <div className='w-full'>

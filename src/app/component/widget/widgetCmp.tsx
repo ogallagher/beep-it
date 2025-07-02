@@ -1,4 +1,5 @@
-import WidgetConfig, { Config } from './config/config'
+import WidgetConfigCmp from './config/config'
+import { WidgetConfig } from '@lib/widget/const'
 import WidgetControl from './control'
 import WidgetLabel from './label'
 import StaticRef from '@lib/staticRef'
@@ -37,13 +38,14 @@ export default function WidgetCmp(
   /**
    * References to sources of truth that update game model.
    */
-  const configRef = new StaticRef({
+  const configRef: StaticRef<WidgetConfig> = new StaticRef({
     command: widget.command,
     commandAudio: widget.commandAudio,
     color: widget.color,
     valueText: widget.valueText,
-    width: widget.width
-  } as Config)
+    width: widget.width,
+    duration: widget.duration
+  })
   /**
    * Reference to callback that updates valueText in control icon.
    */
@@ -107,7 +109,7 @@ export default function WidgetCmp(
           valueRef={labelRef} 
           disabled={!labelEditable} />
 
-        <WidgetConfig 
+        <WidgetConfigCmp 
           widgetId={widget.id} widgetType={widget.type} game={game} deviceId={deviceId}
           configRef={configRef} showColor={showColor} showValueText={showValueText} showWidth={showWidth}
           disabled={!configurable} commandAudioEnabled={commandAudioEnabled} />
@@ -127,6 +129,7 @@ export default function WidgetCmp(
               widget.color = configRef.current.color
               widget.valueText = configRef.current.valueText
               widget.width = configRef.current.width
+              widget.duration = configRef.current.duration
 
               onClick(widget)
             }
