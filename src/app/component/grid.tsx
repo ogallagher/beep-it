@@ -17,8 +17,8 @@ export default function Grid(
   }
 
   // a = aspectRatio; r = rowCount; n = widgets.length; a*r * r = n
-  const rowCount = Math.round(Math.sqrt(children.length / screenAspectRatio))
-  const rowLength = Math.round(children.length / rowCount)
+  const rowCount = Math.ceil(Math.sqrt(children.length / screenAspectRatio))
+  const rowLength = Math.ceil(children.length / rowCount)
 
   const rows = new Array(rowCount)
   let c = 0
