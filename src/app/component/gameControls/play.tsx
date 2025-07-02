@@ -13,6 +13,8 @@ export default function GamePlay(
   function getEnable() {
     return (
       game.current.config.widgets.size > 0
+      // client joined the game
+      && game.current.getJoined()
       // before start or after end, for restart
       && (!game.current.getStarted() || game.current.getEnded())
     )
@@ -32,7 +34,7 @@ export default function GamePlay(
       // config event listener for widgets
       game.current.addConfigListener(GameConfigListenerKey.Widgets, updateEnable)
     },
-    []
+    [ game ]
   )
 
   return (
