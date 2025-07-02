@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width-ignore="90mm"
+   height-ignore="90mm"
+   viewBox="0 0 90 90"
+   version="1.1"
+   data-choice="circlesRing"
+   data-progress="1 2 3 4 5 6 7 8"
+   inkscape:version="1.4 (e7c3feb1, 2024-10-09)"
+   sodipodi:docname="wait.svg"
+   id="svg1"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview1"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="true"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     showborder="true"
+     inkscape:zoom="7.1909654"
+     inkscape:cx="44.569815"
+     inkscape:cy="44.569815"
+     inkscape:window-width="1808"
+     inkscape:window-height="1186"
+     inkscape:window-x="331"
+     inkscape:window-y="90"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="up"
+     showgrid="false" />
+  <defs
+     id="defs1" />
+  <style
+     id="style1">   
+    /* circlesRing */
+    svg[data-choice="circlesRing"] #circlesRing {
+      display: inline;
+    }
+
+    #circlesRing circle {
+      display: none;
+    }
+
+    svg[data-progress~="1"] circle#load1 {
+      display: inline;
+    }
+    svg[data-progress~="2"] circle#load2 {
+      display: inline;
+    }
+    svg[data-progress~="3"] circle#load3 {
+      display: inline;
+    }
+    svg[data-progress~="4"] circle#load4 {
+      display: inline;
+    }
+    svg[data-progress~="5"] circle#load5 {
+      display: inline;
+    }
+    svg[data-progress~="6"] circle#load6 {
+      display: inline;
+    }
+    svg[data-progress~="7"] circle#load7 {
+      display: inline;
+    }
+    svg[data-progress~="8"] circle#load8 {
+      display: inline;
+    }
+
+    /* global */
+
+    .fillPrimary {
+      fill: #ffffff;
+      fill-opacity: 1;
+    }
+
+    #circlesRing circle.stroke {
+      stroke:#000000;
+      stroke-width:2.22681;
+      stroke-dasharray:none;
+      stroke-opacity:1
+    }
+  </style>
+  <g
+     inkscape:groupmode="layer"
+     id="layer4"
+     inkscape:label="background"
+     transform="translate(-5.5291653,-5)"
+     sodipodi:insensitive="true"
+     style="display:none">
+    <circle
+       style="fill:none;stroke:#f76363;stroke-width:0.770487;stroke-dasharray:none;stroke-opacity:0.602062"
+       id="path1"
+       cx="50.529167"
+       cy="50"
+       r="29.038111"
+       inkscape:label="ringGuide" />
+  </g>
+  <g
+     inkscape:label="circlesRing"
+     inkscape:groupmode="layer"
+     id="circlesRing"
+     transform="translate(-5.5291653,-5)">
+    <g
+       id="loadOdd"
+       inkscape:label="loadOdd"
+       transform="matrix(0.3779258,0,0,0.3779258,30.429468,1.3850891)">
+      <circle
+         id="load7"
+         class="fillPrimary stroke"
+         cx="53.309158"
+         cy="47.827423"
+         inkscape:label="load7"
+         transform="translate(-81.089614,80.777613)"
+         r="25.001783" />
+      <circle
+         id="load5"
+         class="fillPrimary stroke"
+         cx="56.765358"
+         cy="132.12341"
+         inkscape:label="load5"
+         transform="translate(-3.4561992,77.321416)"
+         r="25.001783" />
+      <circle
+         id="load3"
+         class="fillPrimary stroke"
+         cx="53.309158"
+         cy="47.827423"
+         inkscape:label="load3"
+         transform="translate(80.839784,80.777613)"
+         r="25.001783" />
+      <circle
+         id="load1"
+         class="fillPrimary stroke"
+         cx="53.309158"
+         cy="47.827423"
+         inkscape:label="load1"
+         r="25.001783" />
+    </g>
+    <g
+       id="loadEven"
+       inkscape:label="loadEven"
+       transform="matrix(0.2671472,0.26732056,-0.26732056,0.2671472,70.699916,1.4262818)">
+      <circle
+         id="load8"
+         class="fillPrimary stroke"
+         cx="-27.780457"
+         cy="128.60504"
+         inkscape:label="load8"
+         r="25.001783" />
+      <circle
+         id="load6"
+         class="fillPrimary stroke"
+         cx="53.309158"
+         cy="209.44482"
+         inkscape:label="load6"
+         r="25.001783" />
+      <circle
+         id="load4"
+         class="fillPrimary stroke"
+         cx="134.14894"
+         cy="128.60504"
+         inkscape:label="load4"
+         r="25.001783" />
+      <circle
+         id="load2"
+         class="fillPrimary stroke"
+         cx="53.309158"
+         cy="47.827423"
+         inkscape:label="load2"
+         r="25.001783" />
+    </g>
+  </g>
+</svg>

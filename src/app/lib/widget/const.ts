@@ -11,7 +11,8 @@ export enum WidgetType {
   Twist = 'twist',
   Key = 'key',
   Path = 'path',
-  KeyPad = 'keypad'
+  KeyPad = 'keypad',
+  Wait = 'wait'
 }
 
 export const widgetTypes = [
@@ -20,7 +21,8 @@ export const widgetTypes = [
   WidgetType.Twist,
   WidgetType.Key,
   WidgetType.Path,
-  WidgetType.KeyPad
+  WidgetType.KeyPad,
+  WidgetType.Wait
 ]
 
 export enum CardinalDirection {
@@ -54,6 +56,9 @@ export function defaultWidgetCommands(type: WidgetType) {
     case WidgetType.KeyPad:
       return ['write', 'spell', 'code']
 
+    case WidgetType.Wait:
+      return ['wait', 'freeze', 'leave']
+
     default:
       throw new Error(`cannot get default command for invalid widget type ${type}`)
   }
@@ -78,6 +83,9 @@ export function defaultWidgetLabel(type: WidgetType) {
     
     case WidgetType.KeyPad:
       return 'keypad'
+
+    case WidgetType.Wait:
+      return 'lag'
 
     default:
       throw new Error(`cannot get default command for invalid widget type ${type}`)
