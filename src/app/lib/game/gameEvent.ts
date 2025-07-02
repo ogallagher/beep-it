@@ -37,7 +37,11 @@ export enum GameEventType {
   /**
    * Game ended.
    */
-  End = 'end'
+  End = 'end',
+  /**
+   * Empty message, to keep the connection open.
+   */
+  Ping = 'ping'
 }
 
 export enum GameEventKey {
@@ -141,7 +145,16 @@ export async function clientSendLeaveEvent(event: LeaveEvent) {
   await clientSendGameEvent(event, ApiRoute.LeaveGame, 'GET')
 }
 
+/**
+ * Write message that conforms to text/event-stream spec 
+ * https://html.spec.whatwg.org/multipage/server-sent-events.html#the-eventsource-interface.
+ */
 export function serverSendGameEvent(event: GameEvent, client: Response) {
-  // write message that conforms to text/event-stream spec https://html.spec.whatwg.org/multipage/server-sent-events.html#the-eventsource-interface
-  client.write(`data: ${JSON.stringify(event)}\n\n`)
+  if (client.closed) {
+    client.end()
+    throw Error('game events connection to client closed')
+  }
+  else {
+    client.write(`data: ${JSON.stringify(event)}\n\n`)
+  }
 }

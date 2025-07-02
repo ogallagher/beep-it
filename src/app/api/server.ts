@@ -6,9 +6,9 @@ import assert from 'assert'
 import express, { Request, Response } from 'express'
 import { Server } from 'http'
 import pino from 'pino'
-import { ApiRoute, gameServerPort, serverDeviceId, websiteBasePath } from '@api/const'
+import { ApiRoute, gameServerPort, serverDeviceId, serverEventPingDelay, websiteBasePath } from '@api/const'
 import Game from '@lib/game/game'
-import { ConfigEvent, DoWidgetEvent, GameAssetEvent, GameEventKey, GameEventType, JoinEvent, LeaveEvent } from '@lib/game/gameEvent'
+import { ConfigEvent, DoWidgetEvent, GameAssetEvent, GameEventKey, GameEventType, JoinEvent, LeaveEvent, serverSendGameEvent } from '@lib/game/gameEvent'
 import { addGameClient, configGame as operatorConfigGame, getGame, getGameEventListener, removeGameClient } from '@lib/game/gameOperator'
 import bodyParser from 'body-parser'
 import cors from 'cors'
@@ -96,18 +96,35 @@ function joinGame(req: Request, res: Response) {
     res.set({
       'Access-Control-Allow-Origin': '*',
       'Cache-Control': 'no-cache',
-      'Connection': 'keep-alive', // allowing TCP connection to remain open for multiple HTTP requests/responses
+      'Connection': 'keep-alive', // prevent client from prematurely closing the connection
       'Content-Type': 'text/event-stream', // media type for Server Sent Events (SSE)
       'Content-Encoding': 'none'
     })
     res.flushHeaders()
+    // attempt to prevent server from prematurely closing the connection; doesn't seem to work in practice
+    res.socket?.setTimeout(0)
 
-    // handle premature close
+    // keep connection alive with ping events
+    const pingInterval = setInterval(
+      () => {
+        serverSendGameEvent(
+          { gameEventType: GameEventType.Ping, deviceId: serverDeviceId, gameId: game.id },
+          res
+        )
+      },
+      serverEventPingDelay
+    )
+
+    // handle close
     res.on('close', () => {
+      logger.info(`closed server sent events for ${game} to client id=${deviceId} alias=${deviceAlias}`)
       res.end()
+      clearInterval(pingInterval)
 
-      // disconnect client from game
+      // disconnect client from game // TODO confirm why do nothing after this comment? Because in all closures, caller already removes the client?
     })
+
+    logger.info(`opened server sent events for ${game} to client id=${deviceId} alias=${deviceAlias}`)
   }
 
   // add client device server event stream to game if necessary

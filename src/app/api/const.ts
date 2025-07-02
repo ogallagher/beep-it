@@ -11,6 +11,7 @@ export enum ApiRoute {
 }
 
 export const serverDeviceId = ulid()
+export const serverEventPingDelay = 1000 * 15
 
 // TODO load from .env seems not to work for client components
 export const gameServerPort = process.env.BEEPIT_GAME_PORT || '54322'

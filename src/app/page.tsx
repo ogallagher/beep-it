@@ -6,13 +6,15 @@ import GameControls from '@component/gameControls/gameControls'
 import WidgetsDrawer from '@component/widgetsDrawer'
 import Game from '@lib/game/game'
 import { useSearchParams } from 'next/navigation'
-import { ApiRoute, websiteBasePath } from '@api/const'
+import { ApiRoute, serverEventPingDelay, websiteBasePath } from '@api/const'
 import { CommandEvent, ConfigEvent, DoWidgetEvent, EndEvent, GameEndReason, GameEvent, GameEventKey, GameEventType, JoinEvent } from '@lib/game/gameEvent'
 import { ulid } from 'ulid'
 import CommandCaptions from '@component/commandCaptions'
 import { boardId } from '@lib/widget/const'
 import Header from '@component/header'
 import assert from 'assert'
+
+declare type TimeoutReference = number
 
 function scrollLock(): AbortController {
   const abortController = new AbortController();
@@ -120,12 +122,27 @@ export default function Home() {
   const [widgetsDrawerOpen, setWidgetsDrawerOpen] = useState(false)
   const scrollLockAbortController: RefObject<AbortController | null> = useRef(null)
 
+  /**
+   * Closes the game event source and updates local game model to remove this client accordingly.
+   */
   const closeGameEventSource = useRef(() => {
+    clearTimeout(gameEventPingTimeout.current)
     gameEventSource.current?.close()
     gameEventSource.current = undefined
     game.current.deleteDevice(clientDeviceId.current)
     game.current.setJoined(false)
   })
+
+  const gameEventPingTimeout: RefObject<TimeoutReference | undefined | NodeJS.Timeout> = useRef(undefined)
+  function setGameEventPingTimeout() {
+    return setTimeout(
+      () => {
+        console.log('game event source closed on server; close on client')
+        closeGameEventSource.current()
+      }, 
+      serverEventPingDelay * 1.5
+    )
+  }
 
   const onGameEvent = useRef((rawEvent: MessageEvent, onJoin: () => void) => {
     const gameEvent: GameEvent = JSON.parse(rawEvent.data)
@@ -138,6 +155,11 @@ export default function Home() {
           // join confirmed
           console.log(`joined ${game.current}`)
           game.current.setJoined(true)
+
+          // replace ping timeout
+          clearInterval(gameEventPingTimeout.current)
+          gameEventPingTimeout.current = setGameEventPingTimeout()
+
           onJoin()
         }
 
@@ -210,6 +232,12 @@ export default function Home() {
           closeGameEventSource.current()
         }
         break
+      
+      case GameEventType.Ping:
+        // refresh ping timeout
+        clearInterval(gameEventPingTimeout.current)
+        gameEventPingTimeout.current = setGameEventPingTimeout()
+        break
 
       default:
         console.log(`ERROR ignore invalid event type=$${gameEvent.gameEventType}`)
@@ -253,9 +281,6 @@ export default function Home() {
   useEffect(
     () => {
       joinGame(game.current, clientDeviceId.current, false, gameEventSource, onGameEvent.current, closeGameEventSource.current)
-      .then((newEventSource) => {
-        gameEventSource.current = newEventSource || gameEventSource.current
-      })
     },
     []
   )

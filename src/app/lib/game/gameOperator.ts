@@ -52,7 +52,8 @@ export function getGame(gameUrlParams: URLSearchParams, deviceId: string): Game 
 }
 
 /**
- * Register client with existing game.
+ * Register client with existing game. 
+ * Refreshes {@link Game.startTimeout} on the game instance.
  * 
  * @param gameId Game id.
  * @param deviceId Client device id.
@@ -100,6 +101,8 @@ export function addGameClient(gameId: string, deviceId: string, deviceAlias?: st
     }
     serverSendGameEvent(configEvent, client)
   }
+
+  game.refreshStartTimeout()
 }
 
 /**
@@ -162,20 +165,27 @@ export function getGameEventListener(gameId: string): GameEventListener {
   return listeners.get(gameId)!
 }
 
+/**
+ * Update {@linkcode Game.config}.
+ * Refreshes {@link Game.startTimeout} on the game instance.
+ */
 export function configGame(configEvent: ConfigEvent) {
   if (!games.has(configEvent.gameId)) {
     throw new Error(`cannot config missing game ${configEvent.gameId}`)
   }
-  if (!games.get(configEvent.gameId)!.getDevices().has(configEvent.deviceId)) {
+  const game = games.get(configEvent.gameId)!
+  if (!game.getDevices().has(configEvent.deviceId)) {
     removeGameClient(configEvent.gameId, configEvent.deviceId)
     throw new Error(`client cannot config without join game=${configEvent.gameId}`)
   }
 
   // update game config
-  games.get(configEvent.gameId)!.updateConfig(configEvent)
+  game.updateConfig(configEvent)
 
   // send config event to clients in game
   getGameEventListener(configEvent.gameId)(configEvent)
+
+  game.refreshStartTimeout()
 }
 
 function deleteGame(gameId: string) {

@@ -271,14 +271,38 @@ export default class Game {
     }
   }
 
+  /**
+   * Schedule a method for when a game has been idle without starting for too long.
+   * Replaces any earlier start timeout if exists.
+   * 
+   * @param onTimeout Callback for if game start delay exceeds max.
+   */
   setStartTimeout(onTimeout: () => void): number {
     this.startTimeout = setTimeout(onTimeout, gameStartDelayMax)
     return gameStartDelayMax
   }
 
+  /**
+   * Maintain the same start callback, but reset its delay timer.
+   */
+  refreshStartTimeout() {
+    this.startTimeout?.refresh()
+  }
+
+  /**
+   * Schedule a method for when a game delete was requested without any request to recover it. 
+   * @param onTimeout Callback for if delete delay exceeds max.
+   */
   setDeleteTimeout(onTimeout: () => void): number {
     this.deleteTimeout = setTimeout(onTimeout, gameDeleteDelay)
     return gameDeleteDelay
+  }
+
+  /**
+   * Maintain the same delete callback, but reset its delay timer.
+   */
+  refreshDeleteTimeout() {
+    this.deleteTimeout?.refresh()
   }
 
   addConfigListener(configKey: GameConfigListenerKey, listener: StateListener) {
@@ -344,9 +368,11 @@ export default class Game {
 
     if (this.startTimeout !== null) {
       clearTimeout(this.startTimeout)
+      this.startTimeout = null
     }
     if (this.deleteTimeout !== null) {
       clearTimeout(this.deleteTimeout)
+      this.deleteTimeout = null
     }
     
     const start: GameEvent = {
