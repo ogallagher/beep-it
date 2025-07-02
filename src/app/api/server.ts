@@ -9,7 +9,7 @@ import pino from 'pino'
 import { ApiRoute, gameServerPort, serverDeviceId, websiteBasePath } from '@api/const'
 import Game from '@lib/game/game'
 import { ConfigEvent, DoWidgetEvent, GameAssetEvent, GameEventKey, GameEventType, JoinEvent, LeaveEvent } from '@lib/game/gameEvent'
-import { addGameClient, configGame, getGame, getGameEventListener, removeGameClient } from '@lib/game/gameOperator'
+import { addGameClient, configGame as operatorConfigGame, getGame, getGameEventListener, removeGameClient } from '@lib/game/gameOperator'
 import bodyParser from 'body-parser'
 import cors from 'cors'
 import multer from 'multer'
@@ -121,126 +121,132 @@ function joinGame(req: Request, res: Response) {
 }
 app.get(`${websiteBasePath}/${ApiRoute.JoinGame}`, joinGame)
 
-app.get(
-  `${websiteBasePath}/${ApiRoute.LeaveGame}`,
-  (req, res) => {
-    logger.debug(`GET.${ApiRoute.LeaveGame} start`)
-    
-    const game = getGame(new URLSearchParams(req.query as Record<string, string>), serverDeviceId)
+/**
+ * Remove a client device from a game.
+ */
+function leaveGame(req: Request, res: Response) {
+  logger.debug(`GET.${ApiRoute.LeaveGame} start`)
+  
+  const game = getGame(new URLSearchParams(req.query as Record<string, string>), serverDeviceId)
 
-    // submit widget action to game to advance state
-    const event = req.query as unknown as LeaveEvent
-    removeGameClient(game.id, event.deviceId)
+  const event = req.query as unknown as LeaveEvent
+  removeGameClient(game.id, event.deviceId)
 
-    logger.debug(`GET.${ApiRoute.LeaveGame} end`)
+  logger.debug(`GET.${ApiRoute.LeaveGame} end`)
+  res.json(event)
+}
+app.get(`${websiteBasePath}/${ApiRoute.LeaveGame}`, leaveGame)
+
+/**
+ * Update game config.
+ */
+function configGame(req: Request, res: Response) {
+  logger.debug(`POST.${ApiRoute.ConfigGame} start`)
+
+  const event = req.body as ConfigEvent
+  try {
+    operatorConfigGame(event)
+
     res.json(event)
-  } 
-)
-
-app.post(
-  `${websiteBasePath}/${ApiRoute.ConfigGame}`,
-  (req, res) => {
-    logger.debug(`POST.${ApiRoute.ConfigGame} start`)
-
-    const event = req.body as ConfigEvent
-    try {
-      configGame(event)
-
-      res.json(event)
-    }
-    catch (err) {
-      res.json({
-        error: err
-      })
-    }
-    
-    logger.debug(`POST.${ApiRoute.ConfigGame} end`)
   }
-)
+  catch (err) {
+    res.json({
+      error: err
+    })
+  }
+  
+  logger.debug(`POST.${ApiRoute.ConfigGame} end`)
+}
+app.post(`${websiteBasePath}/${ApiRoute.ConfigGame}`, configGame)
 
-app.post(
-  `${websiteBasePath}/${ApiRoute.GameAsset}`,
-  fileReceiver,
-  expressAsyncHandler(async (req, res) => {
-    logger.debug(`POST.${ApiRoute.GameAsset} start`)
-    if (req.files?.length === 1) {
-      const file = (req.files as Express.Multer.File[])[0]
-      const reqParams = new URLSearchParams(req.query as Record<string, string>)
-      const gameId = Game.loadGameId(reqParams)!
-
-      // move file from temp location to live location
-      const filePath = path.join(
-        localGameAssetDir, 
-        GameAssetPathPart['1_GameId'], 
-        gameId,
-        file.originalname
-      )
-      const fileDir = path.dirname(filePath)
-      if (!existsSync(fileDir)) {
-        await mkdir(fileDir, { recursive: true })
-      }
-      
-      await rename(file.path, filePath)
-
-      const resEvent: GameAssetEvent = {
-        gameEventType: GameEventType.GameAsset,
-        gameId,
-        deviceId: serverDeviceId,
-        // public path 
-        filePath: generateAudioFilePath(gameId, file.originalname)
-      }
-      res.json(resEvent)
-    }
-    else {
-      const error = 'did not receive a single game asset file in request'
-      logger.error(error)
-      res.json({
-        error: error
-      })
-    }
-    logger.debug(`POST.${ApiRoute.GameAsset} end`)
-  })
-)
-
-app.get(
-  `${websiteBasePath}/${ApiRoute.StartGame}`,
-  (req, res) => {
-    logger.debug(`GET.${ApiRoute.StartGame} start`)
-
+/**
+ * Create a static game asset/file.
+ */
+async function gameAsset(req: Request, res: Response) {
+  logger.debug(`POST.${ApiRoute.GameAsset} start`)
+  if (req.files?.length === 1) {
+    const file = (req.files as Express.Multer.File[])[0]
     const reqParams = new URLSearchParams(req.query as Record<string, string>)
-    const game = getGame(reqParams, serverDeviceId)
-  
-    // start game
-    logger.info(`start ${game}`)
-    const event = game.start(getGameEventListener(game.id), serverDeviceId)
-  
-    logger.debug(`GET.${ApiRoute.StartGame} end`)
-    res.json(event)
-  }
-)
+    const gameId = Game.loadGameId(reqParams)!
 
-app.get(
-  `${websiteBasePath}/${ApiRoute.DoWidget}`,
-  (req, res) => {
-    logger.debug(`GET.${ApiRoute.DoWidget} start`)
+    // move file from temp location to live location
+    const filePath = path.join(
+      localGameAssetDir, 
+      GameAssetPathPart['1_GameId'], 
+      gameId,
+      file.originalname
+    )
+    const fileDir = path.dirname(filePath)
+    if (!existsSync(fileDir)) {
+      await mkdir(fileDir, { recursive: true })
+    }
     
-    const game = getGame(new URLSearchParams(req.query as Record<string, string>), serverDeviceId)
+    await rename(file.path, filePath)
 
-    // submit widget action to game to advance state
-    const event = req.query as unknown as DoWidgetEvent
-
-    if (game.getEnded()) {
-      logger.info(`ignore widget action ${JSON.stringify(event)} for game that ended`)
+    const resEvent: GameAssetEvent = {
+      gameEventType: GameEventType.GameAsset,
+      gameId,
+      deviceId: serverDeviceId,
+      // public path 
+      filePath: generateAudioFilePath(gameId, file.originalname)
     }
-    else {
-      game.doWidget(event, getGameEventListener(game.id))
-    }
-
-    logger.debug(`GET.${ApiRoute.DoWidget} end`)
-    res.json(event)
+    res.json(resEvent)
   }
-)
+  else {
+    const error = 'did not receive a single game asset file in request'
+    logger.error(error)
+    res.json({
+      error: error
+    })
+  }
+  logger.debug(`POST.${ApiRoute.GameAsset} end`)
+}
+app.post(`${websiteBasePath}/${ApiRoute.GameAsset}`, fileReceiver, expressAsyncHandler(gameAsset))
 
+/**
+ * Start the requested game.
+ */
+function startGame(req: Request, res: Response) {
+  logger.debug(`GET.${ApiRoute.StartGame} start`)
+
+  const reqParams = new URLSearchParams(req.query as Record<string, string>)
+  const game = getGame(reqParams, serverDeviceId)
+
+  // start game
+  logger.info(`start ${game}`)
+  const event = game.start(getGameEventListener(game.id), serverDeviceId)
+
+  logger.debug(`GET.${ApiRoute.StartGame} end`)
+  res.json(event)
+}
+app.get(`${websiteBasePath}/${ApiRoute.StartGame}`, startGame)
+
+/**
+ * Do a widget action, during gameplay, in response to a command.
+ */
+function doWidget(req: Request, res: Response) {
+  logger.debug(`GET.${ApiRoute.DoWidget} start`)
+  
+  const game = getGame(new URLSearchParams(req.query as Record<string, string>), serverDeviceId)
+
+  // submit widget action to game to advance state
+  const event = req.query as unknown as DoWidgetEvent
+
+  if (game.getEnded()) {
+    logger.info(`ignore widget action ${JSON.stringify(event)} for game that ended`)
+  }
+  else {
+    game.doWidget(event, getGameEventListener(game.id))
+  }
+
+  logger.debug(`GET.${ApiRoute.DoWidget} end`)
+  res.json(event)
+}
+app.get(`${websiteBasePath}/${ApiRoute.DoWidget}`, doWidget)
+
+/**
+ * Review last modified timestamps of game assets to delete files older than {@linkcode gameAssetDeleteDelay}.
+ */
 async function cleanGameAssets() {
   const gamesDir = path.join(localGameAssetDir, GameAssetPathPart['1_GameId'])
   const gameDirs = await readdir(gamesDir, {
@@ -272,5 +278,6 @@ export default function startGameServer() {
 }
 
 if (require.main === module) {
+  // is entrypoint; launch server
   startGameServer()
 }
