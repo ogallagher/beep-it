@@ -150,11 +150,5 @@ export async function clientSendLeaveEvent(event: LeaveEvent) {
  * https://html.spec.whatwg.org/multipage/server-sent-events.html#the-eventsource-interface.
  */
 export function serverSendGameEvent(event: GameEvent, client: Response) {
-  if (client.closed) {
-    client.end()
-    throw Error('game events connection to client closed')
-  }
-  else {
-    client.write(`data: ${JSON.stringify(event)}\n\n`)
-  }
+  client.write(`data: ${JSON.stringify(event)}\n\n`)
 }

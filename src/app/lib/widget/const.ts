@@ -23,6 +23,13 @@ export const widgetTypes = [
   WidgetType.KeyPad
 ]
 
+export enum CardinalDirection {
+  Up = 'U',
+  Right = 'R',
+  Down = 'D',
+  Left = 'L'
+}
+
 /**
  * @param type 
  * @returns Ranked list of default commands.
@@ -79,6 +86,9 @@ export function defaultWidgetLabel(type: WidgetType) {
 
 export function defaultWidgetValueText(type: WidgetType) {
   switch (type) {
+    case WidgetType.Lever:
+      return CardinalDirection.Down
+
     case WidgetType.Key:
       return 'A'
 

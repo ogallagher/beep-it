@@ -11,6 +11,11 @@ export default class Widget {
    */
   commandAudio: string | undefined
   color: string
+  /**
+   * For {@linkcode WidgetType.Lever}, this is the direction as a character (U,R,D,L).
+   * For {@linkcode WidgetType.Key}, this is a single visible character.
+   * For {@linkcode WidgetType.KeyPad}, this is a string of visible characters.
+   */
   valueText: string | undefined
   width: number
 

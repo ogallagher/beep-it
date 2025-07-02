@@ -1,5 +1,5 @@
 import { ReactSVG } from 'react-svg'
-import { KeyboardAction, UIPointerAction, WidgetType } from '../../lib/widget/const'
+import { CardinalDirection, KeyboardAction, UIPointerAction, WidgetType } from '../../lib/widget/const'
 import { SVGSpace, Circle, Pt, Color } from 'pts'
 import { Ref, RefObject, useEffect, useRef } from 'react'
 import { keyboardEventToKeyboardAction, mouseEventToPointerAction, mouseEventToSvgPoint } from '@lib/widget/graphics'
@@ -297,6 +297,9 @@ export default function WidgetControl(
      */
     active: boolean
     valueText: string | undefined
+    /**
+     * Reference to callback that updates valueText in control icon.
+     */
     showValueText: RefObject<CallableFunction> | StaticRef<CallableFunction>
     color: string
     showColor: RefObject<CallableFunction> | StaticRef<CallableFunction>
@@ -307,10 +310,10 @@ export default function WidgetControl(
     showWidth: RefObject<CallableFunction> | StaticRef<CallableFunction>
   }
 ) {
-  const iconSvg: Ref<SVGSVGElement> = useRef(null)
-  const iconWrapper: Ref<HTMLDivElement> = useRef(null)
-  const interactiveSvg: Ref<SVGSVGElement> = useRef(null)
-  const interactAbortController: Ref<AbortController> = useRef(null)
+  const iconSvg: RefObject<SVGSVGElement|null> = useRef(null)
+  const iconWrapper: RefObject<HTMLDivElement|null> = useRef(null)
+  const interactiveSvg: RefObject<SVGSVGElement|null> = useRef(null)
+  const interactAbortController: RefObject<AbortController|null> = useRef(null)
 
   useEffect(
     () => {
@@ -332,6 +335,42 @@ export default function WidgetControl(
     }
   }
 
+  function loadIconSvg(svg: SVGSVGElement) {
+    // update reference to icon svg
+    iconSvg.current = svg
+    
+    // show color changes
+    showColor.current = (color: string) => {
+      // use primary color
+      for (let el of svg.getElementsByClassName('fillPrimary') as HTMLCollectionOf<SVGElement>) {
+        el.style.fill = color
+      }
+      // create secondary color as darker version of primary
+      const colorSecondary = Color.RGBtoHSL(Color.fromHex(color))
+      colorSecondary.l *= 0.5
+      colorSecondary.toMode('rgb', true)
+      for (let el of svg.getElementsByClassName('fillSecondary') as HTMLCollectionOf<SVGElement>) {
+        el.style.fill = colorSecondary.hex
+      }
+    }
+    showColor.current(color)
+
+    // show valueText changes
+    showValueText.current = (valueText: string | undefined) => {
+      if (type === WidgetType.Key) {
+        // update character from valueText
+        svg.setAttribute('data-char', valueText || '')
+        for (let el of svg.getElementsByClassName('char')) {
+          el.textContent = valueText || ''
+        }
+      }
+      else if (type === WidgetType.Lever) {
+        svg.setAttribute('data-direction', valueText?.toUpperCase() || CardinalDirection.Down)
+      }
+    }
+    showValueText.current(valueText)
+  }
+
   return (
     <div 
       onClick={onClick}
@@ -347,38 +386,7 @@ export default function WidgetControl(
         <ReactSVG 
           src={controlImage(type)}
           width={1} height={1}
-          afterInjection={(svg) => {
-            // update reference to icon svg
-            iconSvg.current = svg
-            
-            // show color changes
-            showColor.current = (color: string) => {
-              // use primary color
-              for (let el of svg.getElementsByClassName('fillPrimary') as HTMLCollectionOf<SVGElement>) {
-                el.style.fill = color
-              }
-              // create secondary color as darker version of primary
-              const colorSecondary = Color.RGBtoHSL(Color.fromHex(color))
-              colorSecondary.l *= 0.5
-              colorSecondary.toMode('rgb', true)
-              for (let el of svg.getElementsByClassName('fillSecondary') as HTMLCollectionOf<SVGElement>) {
-                el.style.fill = colorSecondary.hex
-              }
-            }
-            showColor.current(color)
-
-            // show valueText changes
-            showValueText.current = (valueText: string | undefined) => {
-              if (type === WidgetType.Key) {
-                // update character from valueText
-                svg.setAttribute('data-char', valueText || '')
-                for (let el of svg.getElementsByClassName('char')) {
-                  el.textContent = valueText || ''
-                }
-              }
-            }
-            showValueText.current(valueText)
-          }} />
+          afterInjection={loadIconSvg} />
       </div>
       {/* interactive layer */}
       <svg className='absolute w-full h-full' ref={interactiveSvg} />
