@@ -108,12 +108,17 @@ Action is to drag in a circle. Technically, the drag must pass through 3/4 quadr
 
 Action is to drag in the corresponding direction.
 
+The configurable `direction` is one of four cardinal directions in which to pull it. 
+Specify with the first letter of `U`p, `D`own, `L`eft, or `R`ight.
+
 <br style="clear: right" />
 <img alt="key" src="public/widgetIcon/key.svg" style="float: right; padding-left: 1em; padding-bottom: 1em; width: 10em;" />
 
 **Key**
 
 Action is to press the corresponding keyboard key.
+
+The configurable `key` to press is case sensitive and should support any printable character, even if the physical source keyboard requires a conbination of keys to press it.
 
 <br style="clear: right" />
 <img alt="wait" src="public/widgetIcon/wait.svg" style="float: right; padding-left: 1em; padding-bottom: 1em; width: 10em;" />
