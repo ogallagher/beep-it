@@ -275,10 +275,18 @@ export default class Game {
   }
 
   /**
-   * Returns {@linkcode GameState.commandDelay | Game.state.commandDelay}.
+   * Returns {@linkcode GameState#commandDelay | Game.state.commandDelay}.
+   * 
+   * @param includeWidgetDuration Include widget duration as component of sum. Default `true`.
    */
-  getCommandDelay() {
-    return this.state.commandDelay
+  getCommandDelay(includeWidgetDuration = true) {
+    const extensions: number[] = []
+    if (includeWidgetDuration) {
+      const widget = this.config.widgets.get(this.state.commandWidgetId)!
+      extensions.push(widget.duration)
+    }
+
+    return this.state.commandDelay + extensions.reduce((sum, val) => sum + val)
   }
 
   setCommandDelay(commandDelay: number, invokeListeners: boolean = true) {
@@ -425,25 +433,26 @@ export default class Game {
     listener(command)
 
     // prepare for next command
-
-    const commandDelayVelocity = 100 * this.config.difficulty
-    this.state.commandDelay = Math.max(this.state.commandDelay - commandDelayVelocity, commandDelayMin)
+    const totalDelay = this.getCommandDelay(true)
 
     const widgetType = this.config.widgets.get(this.state.commandWidgetId)!.type
     if (widgetType === WidgetType.Wait) {
       // wait for next command, otherwise will end game on doWidget
       this.state.commandTimeout = setTimeout(
         () => this.sendCommand(listener),
-        this.state.commandDelay
+        totalDelay
       )
     }
     else {
       // wait for doWidget, end game on timeout
       this.state.commandTimeout = setTimeout(
         () => this.end(GameEndReason.ActionDelay, listener, this.state.deviceId!), 
-        this.state.commandDelay
+        totalDelay
       )
     }
+
+    const commandDelayVelocity = 100 * this.config.difficulty
+    this.state.commandDelay = Math.max(this.state.commandDelay - commandDelayVelocity, commandDelayMin)
   }
 
   public doWidget(event: DoWidgetEvent, listener: GameEventListener) {

@@ -82,7 +82,7 @@ export default function WidgetConfigCmp(
   return (
     <div
       className={
-        'flex flex-col gap-2 '
+        'flex flex-1 flex-col justify-evenly gap-2 '
         + (disabled ? 'hidden' : '')
       }>
       {/* valueText */}

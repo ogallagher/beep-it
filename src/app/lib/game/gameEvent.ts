@@ -85,6 +85,10 @@ export interface GameAssetEvent extends GameEvent {
 export interface CommandEvent extends GameEvent {
   widgetId: string
   command: string
+  /**
+   * Delay between the game emitting a command and a player doing a widget action, excluding extensions
+   * like widget duration.
+   */
   commandDelay: number
   commandCount: number
 }

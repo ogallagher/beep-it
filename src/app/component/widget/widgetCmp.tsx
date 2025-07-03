@@ -103,7 +103,7 @@ export default function WidgetCmp(
         'flex-1 relative bg-gray-500 m-1 px-4 py-2 rounded-lg '
         + (className === undefined ? '' : className)
       } >
-      <div className='flex flex-col gap-2'>
+      <div className='flex flex-col h-full justify-evenly gap-2'>
         <WidgetLabel 
           widgetId={widget.id} game={game} deviceId={deviceId}
           valueRef={labelRef} 

@@ -69,6 +69,7 @@ export interface GameState {
   commandCount: number
   /**
    * Delay between emitting a command and receiving a widget action from a player, in milliseconds.
+   * Does not include extensions like widget duration.
    */
   commandDelay: number
   commandTimeout: NodeJS.Timeout | null

@@ -330,7 +330,7 @@ function animateProgress(
 
   commandDelayInterval.current = setInterval(
     onProgress,
-    game.current.getCommandDelay() / widgetWaitProgressSteps
+    game.current.getCommandDelay(true) / widgetWaitProgressSteps
   )
 }
 
@@ -467,11 +467,12 @@ export default function WidgetControl(
     <div 
       onClick={onClick}
       className={
-        `relative flex flex-row justify-center p-1 rounded-lg cursor-pointer `
+        `relative flex flex-row flex-1 justify-center p-1 rounded-lg cursor-pointer `
         + `hover:bg-white/10 active:bg-white/30`
       } >
       {/* icon layer */}
       <div ref={iconWrapper}
+        className='flex flex-col justify-center'
         style={{
           width: `${width}%`
         }} >
