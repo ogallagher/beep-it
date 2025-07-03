@@ -116,9 +116,9 @@ Specify with the first letter of `U`p, `D`own, `L`eft, or `R`ight.
 
 **Key**
 
-Action is to press the corresponding keyboard key.
+Action is to press the corresponding keyboard key, This is only compatible with devices that have peripheral keyboards (generally not mobile).
 
-The configurable `key` to press is case sensitive and should support any printable character, even if the physical source keyboard requires a conbination of keys to press it.
+The configurable `key` to press is case sensitive and should support any printable character, even if the physical source keyboard requires a combination of keys to press it.
 
 <br style="clear: right" />
 <img alt="wait" src="public/widgetIcon/wait.svg" style="float: right; padding-left: 1em; padding-bottom: 1em; width: 10em;" />
