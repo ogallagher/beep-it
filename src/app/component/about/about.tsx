@@ -3,6 +3,7 @@ import { Dispatch, SetStateAction, Suspense, useEffect, useMemo, useRef } from '
 import Readme from '@component/about/readme'
 import { getMarkdown } from '@lib/markdown'
 import { websiteBasePath } from '@api/const'
+import { XCircle } from 'react-bootstrap-icons'
 
 export function About(
   { open, setOpen }: {
@@ -38,9 +39,9 @@ export function About(
       open={open} onClose={() => setOpen(false)} 
       className='relative z-10 cursor-default'>
       <div className='fixed inset-0 z-10 w-screen overflow-y-auto'>
-        <div className='flex min-h-full items-center justify-center p-4 text-center'>
+        <div className='flex min-h-full items-center justify-center py-4 text-center'>
           <DialogPanel 
-            className='relative transform overflow-hidden text-left bg-background border cursor-help'>
+            className='relative transform overflow-hidden text-left bg-background border-y'>
             <div className='px-4 pt-5 pb-4'>
               <Suspense
                 fallback={
@@ -53,6 +54,12 @@ export function About(
             </div>
           </DialogPanel>
         </div>
+        <button
+          className='text-4xl cursor-pointer hover:scale-105 fixed top-8 right-8 bg-background rounded-2xl'
+          type='button' title='Close help'
+          onClick={() => setOpen(false)} >
+          <XCircle />
+        </button>
       </div>
     </Dialog>
   )

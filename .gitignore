@@ -2,6 +2,8 @@
 
 # copies
 public/readme.md
+public/doc/
+public/public
 
 # game data
 gameAsset/*

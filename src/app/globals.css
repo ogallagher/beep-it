@@ -31,6 +31,7 @@ body {
 
 h1 {
   font-size: var(--text-4xl);
+  margin-top: 0.25em;
 }
 
 h2 {
@@ -38,9 +39,34 @@ h2 {
   margin-top: 0.25em;
 }
 
+h3 {
+  font-size: var(--text-2xl);
+}
+
+p {
+  margin-bottom: 1em;
+}
+
+table {
+  border-collapse: collapse;
+}
+
+th, td {
+  padding: 0.6em;
+  border: 1px solid var(--color-foreground);
+}
+
 ul {
   list-style: circle;
   list-style-position: inside;
+}
+
+#readme a {
+  color: var(--color-blue-600)
+}
+
+#readme a:hover {
+  text-decoration: underline;
 }
 
 header button {

@@ -8,6 +8,6 @@ export default function Readme(
   const { fileHtml } = use(fileHtmlPromise)
 
   return (
-    <div dangerouslySetInnerHTML={{ __html: fileHtml }}/>
+    <div id='readme' dangerouslySetInnerHTML={{ __html: fileHtml }}/>
   )
 }

@@ -62,19 +62,19 @@ Tap it again to close.
 
 <br style="clear: left" />
 
-This drawer is a view of all the types of widgets that are available to add to the board. See [widget types]() for an explanation of each. Each widget type in the drawer can be configured. Tap the widget control/icon to add it to the board (below drawer). 
+This drawer is a view of all the types of widgets that are available to add to the board. See [widget types](#readme-widget-types) for an explanation of each. Each widget type in the drawer can be configured. Tap the widget control/icon to add it to the board (below drawer). 
 Each widget instance can still be configured (with additional options) after addition to the board.
 
 ### Configure widgets
 
 | attribute | description |
 | --- | --- |
-| label | At the top of the widget card is a text input to name the widget. It can be left blank. When the game gives players a command, this `label` is the object. |
-| color | Widgets all default to a white foreground; use the color picker to change this. |
-| size | If widgets are overflowing the device screen viewport, use this slider to shrink the widget’s icon. |
-| duration | Amount of extra time given for a player to do this widget. |
-| command text | When the game gives players a command, `command` is the verb. |
-| command audio | Record audio in the browser with the microphone button (may not work on some devices), or upload an audio file. This audio will be played when the corresponding command is given. |
+| `label` | At the top of the widget card is a text input to name the widget. It can be left blank. When the game gives players a command, this `label` is the object. |
+| `color` | Widgets all default to a white foreground; use the color picker to change this. |
+| `size` | If widgets are overflowing the device screen viewport, use this slider to shrink the widget’s icon. |
+| `duration` | Amount of extra time given for a player to do this widget. |
+| `command text` | When the game gives players a command, `command` is the verb. |
+| `command audio` | Record audio in the browser with the microphone button (may not work on some devices), or upload an audio file. This audio will be played when the corresponding command is given. |
 
 # Play the game
 
@@ -86,7 +86,7 @@ The game will emit a command and wait for a player device to do the correspondin
 
 <br style="clear: left" />
 
-# Widget types
+<h1 id="readme-widget-types">Widget types</h1>
 
 <img alt="button" src="public/widgetIcon/button.svg" style="float: right; padding-left: 1em; padding-bottom: 1em; width: 10em;" />
 
