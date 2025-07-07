@@ -8,7 +8,6 @@
     "_dev": "next dev --turbopack --port $BEEPIT_PORT",
     "dev": "dotenv-run-script -- _dev",
     "dev-forever": "forever start -c 'npm run dev' .",
-    "prestart": "cp readme.md public/readme.md; cp -r doc public/.; cd public && ln -s . ./public",
     "build": "next build --turbopack",
     "_start": "next start --port $BEEPIT_PORT",
     "start": "dotenv-run-script -- _start",
