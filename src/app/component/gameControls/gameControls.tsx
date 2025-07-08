@@ -11,6 +11,7 @@ import WidgetsDrawerControl from './widgets'
 import GamePlay from './play'
 import RejoinGame from './rejoin'
 import { GameStateListenerKey } from '@lib/game/const'
+import Preview from './preview'
 
 export default function GameControls(
   { widgetsDrawerOpen, setWidgetsDrawerOpen, startGame, game, deviceId, gameEventSource, onGameEvent, closeGameEventSource } : {
@@ -47,7 +48,7 @@ export default function GameControls(
         + (showControls ? '' : 'hidden')
       }>
       <div className='flex flex-row flex-wrap gap-2'>
-         <SaveConfig game={game} />
+        <SaveConfig game={game} />
 
         <ShareGame game={game} />
       </div>
@@ -68,6 +69,8 @@ export default function GameControls(
         <WidgetsDrawerControl 
           game={game} 
           widgetsDrawerOpen={widgetsDrawerOpen} setWidgetsDrawerOpen={setWidgetsDrawerOpen} />
+
+        <Preview game={game} setWidgetsDrawerOpen={setWidgetsDrawerOpen} />
 
         <GamePlay game={game} startGame={startGame} />
 

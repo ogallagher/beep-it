@@ -15,6 +15,7 @@ export type BoardParams = {
 export default function Board({ game, deviceId }: BoardParams) {
   const [gameStarted, setGameStarted] = useState(game.current.getStarted())
   const [gameEnded, setGameEnded] = useState(game.current.getEnded())
+  const [gamePreview, setGamePreview] = useState(game.current.getPreview())
   const [renderedWidgets, setRenderedWidgets] = useState([] as Widget[])
 
   /**
@@ -64,8 +65,9 @@ export default function Board({ game, deviceId }: BoardParams) {
       widget: widget.save(),
       game: game,
       deviceId: deviceId,
-      labelEditable: !gameStarted || gameEnded,
-      configurable: !gameStarted || gameEnded,
+      labelEditable: (!gameStarted || gameEnded) && !gamePreview,
+      configurable: (!gameStarted || gameEnded) && !gamePreview,
+      active: gameStarted && !gameEnded,
       commandAudioEnabled: true,
       // widget can delete itself from the board
       onDelete: deleteWidget
@@ -79,6 +81,7 @@ export default function Board({ game, deviceId }: BoardParams) {
       game.current.addStateListener(GameStateListenerKey.Started, Board.name, setGameStarted)
       // enable widget config and disable action on game end
       game.current.addStateListener(GameStateListenerKey.Ended, Board.name, setGameEnded)
+      game.current.addStateListener(GameStateListenerKey.Preview, Board.name, setGamePreview)
 
       // render widgets
       game.current.addConfigListener(GameConfigListenerKey.Widgets, placeWidgets)

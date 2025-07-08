@@ -41,6 +41,7 @@ export enum GameStateListenerKey {
    */
   DevicesCount = 'devices.count',
   Joined = 'joined',
+  Preview = 'preview',
   Started = 'started',
   /**
    * Used for both setEnded and setEndReason.
@@ -75,6 +76,10 @@ export interface GameState {
   commandTimeout: NodeJS.Timeout | null
   commandWidgetId: string
   lastEventType: GameEventType
+  /**
+   * Whether to simulate the game having started, without the game emitting commands or receiving widget actions.
+   */
+  preview: boolean
   started: boolean
   ended: boolean
   endReason: GameEndReason

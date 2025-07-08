@@ -21,6 +21,7 @@ export default class Game {
     commandTimeout: null,
     commandWidgetId: '',
     lastEventType: GameEventType.Pending,
+    preview: false,
     started: false,
     ended: false,
     endReason: GameEndReason.Unknown,
@@ -54,6 +55,7 @@ export default class Game {
   protected stateListeners: Map<string, Map<string, StateListener>> = new Map([
     [GameStateListenerKey.DevicesCount, new Map()],
     [GameStateListenerKey.Joined, new Map()],
+    [GameStateListenerKey.Preview, new Map()],
     [GameStateListenerKey.Started, new Map()],
     [GameStateListenerKey.Ended, new Map()],
     [GameStateListenerKey.CommandWidgetId, new Map()]
@@ -142,6 +144,18 @@ export default class Game {
       this.state.ended = false
       this.setEndReason(GameEndReason.Unknown)
     }
+  }
+
+  getPreview() {
+    return this.state.preview
+  }
+
+  /**
+   * Set {@linkcode GameState.preview state.preview} and call corresponding state listeners.
+   */
+  setPreview(preview: boolean) {
+    this.state.preview = preview
+    this.stateListeners.get(GameStateListenerKey.Preview)?.forEach(l => l(preview))
   }
 
   getStarted() {

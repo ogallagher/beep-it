@@ -17,7 +17,7 @@ export default function Header(
   const [showHeader, setShowHeader] = useState(true)
 
   function getShowHeader() {
-    return !game.current.getStarted() || game.current.getEnded()
+    return (!game.current.getStarted() || game.current.getEnded()) && !game.current.getPreview()
   }
 
   useEffect(
@@ -25,6 +25,7 @@ export default function Header(
       // update visibility
       game.current.addStateListener(GameStateListenerKey.Started, Header.name, () => setShowHeader(getShowHeader()))
       game.current.addStateListener(GameStateListenerKey.Ended, Header.name, () => setShowHeader(getShowHeader()))
+      game.current.addStateListener(GameStateListenerKey.Preview, Header.name, () => setShowHeader(getShowHeader()))
     },
     [ game ]
   )

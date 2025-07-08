@@ -6,9 +6,9 @@ import { ChevronBarDown, PatchPlus } from 'react-bootstrap-icons'
 
 export default function WidgetsDrawerControl(
   { widgetsDrawerOpen, setWidgetsDrawerOpen, game }: {
-    widgetsDrawerOpen: boolean,
-    setWidgetsDrawerOpen: Dispatch<SetStateAction<boolean>>,
-    game: StaticRef<Game> | RefObject<Game>,
+    widgetsDrawerOpen: boolean
+    setWidgetsDrawerOpen: Dispatch<SetStateAction<boolean>>
+    game: StaticRef<Game> | RefObject<Game>
   }
 ) {
   const [ gameStarted, setGameStarted ] = useState(game.current.getStarted())
