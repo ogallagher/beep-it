@@ -1,5 +1,6 @@
 import pino from 'pino'
 import { readFile, writeFile, cp } from 'fs/promises'
+import { websiteBasePath } from '@api/const'
 
 const logger = pino({
   name: 'prebuild'
@@ -11,7 +12,11 @@ async function exposeReadme() {
   const readme = await readFile('readme.md', { encoding: 'utf-8' })
   writeFile(
     'public/readme.md',
-    readme.replaceAll('public/', '/'),
+    (
+      readme
+      .replaceAll('public/', `${websiteBasePath}/`)
+      .replaceAll('doc/', `${websiteBasePath}/doc/`)
+    ),
     { encoding: 'utf-8' }
   )
 
