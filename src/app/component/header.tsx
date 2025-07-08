@@ -36,14 +36,18 @@ export default function Header(
         'border-b md:text-2xl text-lg '
         + (showHeader ? '' : 'hidden')
       }>
-        <nav className='mx-auto flex items-center justify-between md:p-4 p-1'>
-          <div className='flex'>
-            <a href={githubUrl}>
+        <nav className='mx-auto flex flex-row items-center justify-between md:p-4 p-1'>
+          <a href={githubUrl}>
               <Github/>
-            </a>
-          </div>
+          </a>
+
+          <span className='font-mono font-bold'>beep-it</span>
           
-          <div className='flex'>
+          <div className='flex flex-row gap-4'>
+            <a href='/wordsearch' className='font-mono hover:font-bold'>wordsearch</a>
+
+            <a href='/quizcard-generator' className='font-mono hover:font-bold'>quizcard</a>
+
             <button 
               title='Help'
               type='button' onClick={() => {
