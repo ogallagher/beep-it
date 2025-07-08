@@ -8,6 +8,7 @@
     "_dev": "next dev --turbopack --port $BEEPIT_PORT",
     "dev": "dotenv-run-script -- _dev",
     "dev-forever": "forever start -c 'npm run dev' .",
+    "prebuild": "tsx src/prebuild.ts",
     "build": "next build --turbopack",
     "_start": "next start --port $BEEPIT_PORT",
     "start": "dotenv-run-script -- _start",
