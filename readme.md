@@ -82,6 +82,18 @@ Tap the quick/random widget button to a add a randomized widget to the board.
 | `command text` | When the game gives players a command, `command` is the verb. |
 | `command audio` | Record audio in the browser with the microphone button (may not work on some devices), or upload an audio file. This audio will be played when the corresponding command is given. |
 
+## Preview board
+
+<img alt="preview board widgets" src="doc/game-controls_preview-yes.jpeg" style="display: block; float: right; padding-left: 1em; padding-bottom: 1em;" />
+
+To hide most widget config controls in the board, tap the preview button near the end of the game controls bar.
+
+<img alt="configure board widgets" src="doc/game-controls_preview-no.jpeg" style="display: block; float: left; padding-right: 1em; padding-bottom: 1em;" />
+
+Tap it again to resume configuring widgets.
+
+<br style="clear: left" />
+
 # Play the game
 
 Tap the play button near the end of the game controls bar to begin.
