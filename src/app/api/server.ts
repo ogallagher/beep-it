@@ -75,7 +75,15 @@ function joinGame(req: Request, res: Response) {
   let deviceAlias: string | undefined
   let createEventStream: boolean
   try {
-    const reqParams = new URLSearchParams(req.query as Record<string, string>)
+    const reqParams = new URLSearchParams()
+    Object.entries(req.query).forEach((([key, val]) => {
+      if (Array.isArray(val)) {
+        val.forEach(v => reqParams.append(key, v as string))
+      }
+      else {
+        reqParams.append(key, val as string)
+      }
+    }))
     game = getGame(reqParams, serverDeviceId)
 
     deviceId = reqParams.get(GameEventKey.DeviceId)!

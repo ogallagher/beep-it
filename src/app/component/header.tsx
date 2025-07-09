@@ -3,29 +3,33 @@
 import { Github, QuestionCircle } from 'react-bootstrap-icons'
 import { About } from '@component/about/about'
 import { RefObject, useEffect, useState } from 'react'
-import StaticRef from '@lib/staticRef'
 import Game from '@lib/game/game'
 import { GameStateListenerKey } from '@lib/game/const'
 
 export default function Header(
   { githubUrl, game }: {
     githubUrl: string,
-    game: StaticRef<Game> | RefObject<Game>
+    game: RefObject<Game|null>
   }
 ) {
   const [aboutOpen, setAboutOpen] = useState(false)
   const [showHeader, setShowHeader] = useState(true)
 
   function getShowHeader() {
+    if (!game.current) {
+      return true
+    }
     return (!game.current.getStarted() || game.current.getEnded()) && !game.current.getPreview()
   }
 
   useEffect(
     () => {
-      // update visibility
-      game.current.addStateListener(GameStateListenerKey.Started, Header.name, () => setShowHeader(getShowHeader()))
-      game.current.addStateListener(GameStateListenerKey.Ended, Header.name, () => setShowHeader(getShowHeader()))
-      game.current.addStateListener(GameStateListenerKey.Preview, Header.name, () => setShowHeader(getShowHeader()))
+      if (game.current) {
+        // update visibility
+        game.current.addStateListener(GameStateListenerKey.Started, Header.name, () => setShowHeader(getShowHeader()))
+        game.current.addStateListener(GameStateListenerKey.Ended, Header.name, () => setShowHeader(getShowHeader()))
+        game.current.addStateListener(GameStateListenerKey.Preview, Header.name, () => setShowHeader(getShowHeader()))
+      }
     },
     [ game ]
   )

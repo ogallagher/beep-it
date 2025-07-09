@@ -36,7 +36,7 @@ export default function RejoinGame(
           closeGameEventSource.current()
 
           // rejoin game
-          joinGame(game.current, clientDeviceId.current, false, gameEventSource, onGameEvent.current, closeGameEventSource.current)
+          joinGame(game.current, false, clientDeviceId.current, false, gameEventSource, onGameEvent.current, closeGameEventSource.current)
           .then(() => {
             game.current.setJoined(true)
           })

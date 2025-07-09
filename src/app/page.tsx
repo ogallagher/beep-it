@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef, useEffect, RefObject } from 'react'
+import { useState, useRef, useEffect, RefObject, Ref } from 'react'
 import Board from '@component/board'
 import GameControls from '@component/gameControls/gameControls'
 import WidgetsDrawer from '@component/widgetsDrawer'
@@ -45,13 +45,14 @@ function scrollUnlock(scrollLockAbortController: AbortController | null) {
  */
 export async function joinGame(
   game: Game, 
+  includeGameConfig: boolean,
   clientDeviceId: string,
   force: boolean,
   gameEventSource?: RefObject<EventSource | undefined> | undefined,
   onGameEvent?: ((e: MessageEvent, onJoin: () => void) => void) | undefined,
   closeGameEventSource?: (() => void) | undefined,
 ) {
-  const requestParams = new URLSearchParams()
+  const requestParams = includeGameConfig ? game.save() : new URLSearchParams()
   // set game id
   Game.saveGameId(game.id, requestParams)
   // set client device
@@ -113,7 +114,8 @@ export default function Home() {
   const urlParams = useSearchParams()
 
   const clientDeviceId = useRef(urlParams.get(GameEventKey.DeviceId) || ulid())
-  const game = useRef(Game.loadGame(urlParams) || new Game())
+  // load game
+  const game = useRef(Game.loadGame(urlParams, Game.loadGameId(urlParams)) || new Game())
   console.log(`game=${game.current}`)
 
   const gameEventSource: RefObject<EventSource | undefined> = useRef(undefined)
@@ -248,9 +250,10 @@ export default function Home() {
 
   async function startGame() {
     // Rejoin on start in case game ended on expire.
-    await joinGame(game.current, clientDeviceId.current, false, gameEventSource, onGameEvent.current, closeGameEventSource.current)
+    await joinGame(game.current, false, clientDeviceId.current, false, gameEventSource, onGameEvent.current, closeGameEventSource.current)
 
     const requestParams = game.current.save()
+    Game.saveGameId(game.current.id, urlParams)
 
     if (game.current.getDeviceCount() > 1) {
       // game is hosted on server; request start
@@ -278,12 +281,19 @@ export default function Home() {
     })
   }
 
-  // Join game.
+  
   useEffect(
     () => {
-      joinGame(game.current, clientDeviceId.current, false, gameEventSource, onGameEvent.current, closeGameEventSource.current)
-    },
-    []
+      // join game
+      joinGame(
+        game.current,
+        // no id in url means load from save/config rather than to join an existing game
+        Game.loadGameId(urlParams) === undefined,
+        clientDeviceId.current, 
+        false, 
+        gameEventSource, onGameEvent.current, closeGameEventSource.current
+      )
+    }
   )
 
   return (

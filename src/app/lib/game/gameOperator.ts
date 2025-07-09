@@ -33,7 +33,7 @@ export function getGame(gameUrlParams: URLSearchParams, deviceId: string): Game 
   }
 
   if (!games.has(gameId)) {
-    const game = Game.loadGame(gameUrlParams)!
+    const game = Game.loadGame(gameUrlParams, gameId)!
     logger.info(`create ${game}`)
 
     games.set(gameId, game)

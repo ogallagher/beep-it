@@ -353,11 +353,10 @@ export default class Game {
   }
 
   /**
-   * @returns Serialized game as URL search params.
+   * @returns Serialized game config as URL search params. Excludes game id.
    */
   public save() {
     const urlParams = new URLSearchParams()
-    Game.saveGameId(this.id, urlParams)
     urlParams.set('boardDisplayMode', this.config.boardDisplayMode)
     urlParams.set('gameTurnMode', this.config.gameTurnMode)
     urlParams.set('players.count', this.config.players.count.toString())
@@ -526,29 +525,22 @@ export default class Game {
     return urlParams.get('id') || urlParams.get('gameId') || undefined
   }
 
-  static loadGame(urlParams: URLSearchParams) {
-    const id = Game.loadGameId(urlParams)
-
-    if (id !== undefined) {
-      return new Game(id, {
-        boardDisplayMode: urlParams.get('boardDisplayMode') as BoardDisplayMode || BoardDisplayMode.Default,
-        gameTurnMode: urlParams.get('gameTurnMode') as GameTurnMode || BoardDisplayMode.Default,
-        players: {
-          count: parseInt(urlParams.get('players.count') || '1')
-        },
-        difficulty: parseFloat(urlParams.get('difficulty') || '0.5'),
-        widgets: new Map(
-          urlParams.getAll('widget')
-          // deserialize
-          .map(Widget.load)
-          // list to map
-          .map((w) => [w.id, w])
-        )
-      })
-    }
-    else {
-      return undefined
-    }
+  static loadGame(urlParams: URLSearchParams, id?: string) {
+    return new Game(id, {
+      boardDisplayMode: urlParams.get('boardDisplayMode') as BoardDisplayMode || BoardDisplayMode.Default,
+      gameTurnMode: urlParams.get('gameTurnMode') as GameTurnMode || BoardDisplayMode.Default,
+      players: {
+        count: parseInt(urlParams.get('players.count') || '1')
+      },
+      difficulty: parseFloat(urlParams.get('difficulty') || '0.5'),
+      widgets: new Map(
+        urlParams.getAll('widget')
+        // deserialize
+        .map(Widget.load)
+        // list to map
+        .map((w) => [w.id, w])
+      )
+    })
   }
 
   private static generateId() {

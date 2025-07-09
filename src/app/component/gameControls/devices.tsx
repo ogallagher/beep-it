@@ -51,7 +51,7 @@ function GameDevice(
           game.current.addDevice(deviceId, deviceAlias)
 
           // send join with new alias
-          joinGame(game.current, deviceId, true)
+          joinGame(game.current, false, deviceId, true)
         }} >
       </Input>
 
