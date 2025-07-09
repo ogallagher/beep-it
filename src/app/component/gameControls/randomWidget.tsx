@@ -1,6 +1,6 @@
 import Game from '@lib/game/game'
 import { clientSendConfigEvent, GameEventType } from '@lib/game/gameEvent'
-import { crossPlatformWidgetTypes, defaultWidgetCommands, defaultWidgetLabel } from '@lib/widget/const'
+import { CardinalDirection, crossPlatformWidgetTypes, defaultWidgetCommands, defaultWidgetLabel, WidgetType } from '@lib/widget/const'
 import Widget from '@lib/widget/widget'
 import { RefObject } from 'react'
 import { LightningFill } from 'react-bootstrap-icons'
@@ -28,6 +28,13 @@ const colorNames: {[name: string]: string} = {
   'salmon': '#fa8072'
 }
 
+const cardinalDirections = [
+  CardinalDirection.Up,
+  CardinalDirection.Right,
+  CardinalDirection.Down,
+  CardinalDirection.Left
+]
+
 function generateRandomWidget(game: RefObject<Game>, deviceId: RefObject<string>) {
   const type = crossPlatformWidgetTypes[Math.trunc(Math.random() * crossPlatformWidgetTypes.length)]
   const widget = Widget.new(type)
@@ -43,6 +50,11 @@ function generateRandomWidget(game: RefObject<Game>, deviceId: RefObject<string>
   // command
   const commands = defaultWidgetCommands(type)
   widget.command = commands[Math.trunc(Math.random() * commands.length)]
+
+  if (type === WidgetType.Lever) {
+    // lever direction
+    widget.valueText = cardinalDirections[Math.trunc(Math.random() * cardinalDirections.length)]
+  }
 
   // update local game model and render
   game.current.addWidget(widget)

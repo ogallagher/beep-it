@@ -144,7 +144,7 @@ export default function WidgetCmp(
 
       <WidgetDelete 
           onDelete={onDelete} widgetLabel={labelRef.current} widgetId={widget.id}
-          disabled={!configurable} />
+          disabled={active} />
     </div>
   )
 }
