@@ -65,6 +65,12 @@ Tap it again to close.
 This drawer is a view of all the types of widgets that are available to add to the board. See [widget types](#readme-widget-types) for an explanation of each. Each widget type in the drawer can be configured. Tap the widget control/icon to add it to the board (below drawer). 
 Each widget instance can still be configured (with additional options) after addition to the board.
 
+<img alt="quick random widget" src="doc/game-controls_random-widget.jpeg" style="display: block; float: right; padding-left: 1em; padding-bottom: 1em;" />
+
+Tap the quick/random widget button to a add a randomized widget to the board.
+
+<br style="clear: right" />
+
 ### Configure widgets
 
 | attribute | description |
