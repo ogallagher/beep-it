@@ -27,6 +27,7 @@ export default function GameControls(
   }
 ) {
   const [showControls, setShowControls] = useState(true)
+  const [gamePreview, setGamePreview] = useState(game.current.getPreview())
 
   function getShowControls() {
     return !game.current.getStarted() || game.current.getEnded()
@@ -37,6 +38,7 @@ export default function GameControls(
       // update visibility
       game.current.addStateListener(GameStateListenerKey.Started, GameControls.name, () => setShowControls(getShowControls()))
       game.current.addStateListener(GameStateListenerKey.Ended, GameControls.name, () => setShowControls(getShowControls()))
+      game.current.addStateListener(GameStateListenerKey.Preview, GameControls.name, setGamePreview)
     },
     [ game ]
   )
@@ -48,19 +50,19 @@ export default function GameControls(
         + 'md:text-xl text-sm py-2 px-4 md:p-2 bg-gray-800 not-dark:bg-gray-100 '
         + (showControls ? '' : 'hidden')
       }>
-      <div className='flex flex-row flex-wrap gap-2'>
+      <div className={'flex flex-row flex-wrap gap-2 ' + (gamePreview ? 'hidden' : '')}>
         <SaveConfig game={game} />
 
         <ShareGame game={game} />
       </div>
      
-      <div className='flex flex-row flex-wrap gap-2'>
+      <div className={'flex flex-row flex-wrap gap-2 ' + (gamePreview ? 'hidden' : '')}>
         <GameDevices game={game} clientDeviceId={deviceId}  />
 
         <GamePlayers game={game} deviceId={deviceId} />
       </div>
 
-      <div className='flex flex-row flex-wrap gap-2'>
+      <div className={'flex flex-row flex-wrap gap-2 ' + (gamePreview ? 'hidden' : '')}>
         <BoardMode game={game} deviceId={deviceId} />
 
         <TurnMode game={game} deviceId={deviceId} />

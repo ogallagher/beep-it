@@ -13,6 +13,7 @@ export default function Preview(
 
   useEffect(
     () => {
+      // TODO this seems redundant if game.state.preview is not synchronized across clients
       game.current.addStateListener(GameStateListenerKey.Preview, Preview.name, setPreviewPlay)
     },
     [ game ]
