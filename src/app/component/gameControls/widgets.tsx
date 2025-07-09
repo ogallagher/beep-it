@@ -13,6 +13,7 @@ export default function WidgetsDrawerControl(
 ) {
   const [ gameStarted, setGameStarted ] = useState(game.current.getStarted())
   const [ gameEnded, setGameEnded ] = useState(game.current.getEnded())
+  const [ gamePreview, setGamePreview ] = useState(game.current.getPreview())
   
   useEffect(
     () => {
@@ -27,6 +28,9 @@ export default function WidgetsDrawerControl(
 
       // game event listener for end
       game.current.addStateListener(GameStateListenerKey.Ended, WidgetsDrawerControl.name, setGameEnded)
+
+      // hide on preview
+      game.current.addStateListener(GameStateListenerKey.Preview, WidgetsDrawerControl.name, setGamePreview)
     },
     []
   )
@@ -35,7 +39,7 @@ export default function WidgetsDrawerControl(
     <div 
       className={
         'flex flex-col justify-center '
-        + (gameStarted && !gameEnded ? 'hidden' : '')
+        + ((gameStarted && !gameEnded) || gamePreview ? 'hidden' : '')
       } >
       <button
         className='cursor-pointer hover:scale-105'

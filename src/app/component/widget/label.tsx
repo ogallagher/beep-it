@@ -46,7 +46,10 @@ export default function WidgetLabel(
   return (
     <div className='w-full flex flex-row justify-center'>
       <Input
-        className='block rounded-lg px-3 py-1.5 mt-1 bg-white/5 text-white text-center w-full'
+        className={
+          'block rounded-lg px-3 py-1.5 bg-white/5 text-white not-dark:text-black text-center w-full '
+          + (disabled ? '' : 'mt-1')
+        }
         value={labelValue} onChange={e => setLabelValue(e.target.value)}
         onBlur={changeLabel}
         disabled={disabled} />

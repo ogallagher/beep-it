@@ -335,7 +335,7 @@ function animateProgress(
 }
 
 export default function WidgetControl(
-  {widgetId, type, onClick, onAction, active, valueText, showValueText, color, showColor, width, showWidth, game}: {
+  {widgetId, type, onClick, onAction, active, valueText, showValueText, color, showColor, width, showWidth, game, className}: {
     widgetId: string
     type: WidgetType
     onClick?: () => void
@@ -348,8 +348,8 @@ export default function WidgetControl(
     /**
      * Reference to callback that updates valueText in control icon.
      */
-    showValueText: RefObject<CallableFunction> | StaticRef<CallableFunction>
     color: string
+    showValueText: RefObject<CallableFunction> | StaticRef<CallableFunction>
     showColor: RefObject<CallableFunction> | StaticRef<CallableFunction>
     /**
      * Width of icon as percentage of available in row.
@@ -357,6 +357,7 @@ export default function WidgetControl(
     width: number
     showWidth: RefObject<CallableFunction> | StaticRef<CallableFunction>
     game: RefObject<Game> | StaticRef<Game>
+    className?: string
   }
 ) {
   const iconSvg: RefObject<SVGSVGElement|null> = useRef(null)
@@ -464,25 +465,26 @@ export default function WidgetControl(
   }
 
   return (
-    <div 
-      onClick={onClick}
-      className={
-        `relative flex flex-row flex-1 justify-center p-1 rounded-lg cursor-pointer `
-        + `hover:bg-white/10 active:bg-white/30`
-      } >
-      {/* icon layer */}
-      <div ref={iconWrapper}
-        className='flex flex-col justify-center'
-        style={{
-          width: `${width}%`
-        }} >
-        <ReactSVG 
-          src={controlImage(type)}
-          width={1} height={1}
-          afterInjection={loadIconSvg} />
+    <div className={className}>
+      <div 
+        onClick={onClick}
+        className={
+          `relative flex flex-row flex-1 justify-center cursor-pointer`
+        } >
+        {/* icon layer */}
+        <div ref={iconWrapper}
+          className='flex flex-col justify-center'
+          style={{
+            width: `${width}%`
+          }} >
+          <ReactSVG 
+            src={controlImage(type)}
+            width={1} height={1}
+            afterInjection={loadIconSvg} />
+        </div>
+        {/* interactive layer */}
+        <svg className='absolute w-full h-full' ref={interactiveSvg} />
       </div>
-      {/* interactive layer */}
-      <svg className='absolute w-full h-full' ref={interactiveSvg} />
     </div>
   )
 }

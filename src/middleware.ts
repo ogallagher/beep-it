@@ -35,7 +35,7 @@ export default function middleware(request: NextRequest) {
     urlOut.port = gameServerPort.toString()
     urlOut.protocol = 'http:'
 
-    logger.info(`${request.url} -[rewrite]-> ${urlOut.toString()}`)
+    logger.debug(`${request.url} -[rewrite]-> ${urlOut.toString()}`)
     return NextResponse.rewrite(urlOut)
   }
   else {
@@ -58,7 +58,7 @@ export default function middleware(request: NextRequest) {
         process.env[config.envKeyPath]! 
         + urlOut.pathname.substring(urlOut.pathname.indexOf(basePath) + basePath.length)
       )
-      logger.info(`${request.url} -[${config.method}]-> ${urlOut.toString()}`)
+      logger.debug(`${request.url} -[${config.method}]-> ${urlOut.toString()}`)
       return NextResponse[config.method](urlOut)
     }
     else {

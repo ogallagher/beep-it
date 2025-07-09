@@ -101,7 +101,8 @@ export default function WidgetCmp(
     <div 
       key={widget.id} 
       className={
-        'flex-1 relative bg-gray-500 m-1 px-4 py-2 rounded-lg '
+        'flex-1 relative rounded-lg '
+        + (configurable ? 'p-2 mb-1 bg-gray-500 ' : '')
         + (className === undefined ? '' : className)
       } >
       <div className='flex flex-col h-full justify-evenly gap-2'>
@@ -113,9 +114,12 @@ export default function WidgetCmp(
         <WidgetConfigCmp 
           widgetId={widget.id} widgetType={widget.type} game={game} deviceId={deviceId}
           configRef={configRef} showColor={showColor} showValueText={showValueText} showWidth={showWidth}
-          disabled={!configurable} commandAudioEnabled={commandAudioEnabled} />
+          disabled={active} reduced={!configurable && !active} commandAudioEnabled={commandAudioEnabled} />
 
         <WidgetControl 
+          className={
+            configurable ? 'hover:bg-white/10 active:bg-white/30' : 'bg-gray-500'
+          }
           widgetId={widget.id} type={widget.type}
           active={active}
           game={game}

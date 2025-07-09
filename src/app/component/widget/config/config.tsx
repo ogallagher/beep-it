@@ -10,7 +10,7 @@ import WidgetCommand from './command'
 import { GameConfigListenerKey } from '@lib/game/const'
 
 export default function WidgetConfigCmp(
-  {widgetId, widgetType, configRef, showColor, showValueText, showWidth, disabled, game, deviceId, commandAudioEnabled}: {
+  {widgetId, widgetType, configRef, showColor, showValueText, showWidth, disabled, reduced, game, deviceId, commandAudioEnabled}: {
     widgetId: string
     widgetType: WidgetType
     configRef: RefObject<WidgetConfig> | StaticRef<WidgetConfig>
@@ -21,6 +21,7 @@ export default function WidgetConfigCmp(
     showValueText: RefObject<CallableFunction> | StaticRef<CallableFunction>
     showWidth: RefObject<CallableFunction> | StaticRef<CallableFunction>
     disabled: boolean
+    reduced: boolean
     game: RefObject<Game> | StaticRef<Game>
     deviceId: StaticRef<string> | RefObject<string>
     commandAudioEnabled: boolean
@@ -80,89 +81,146 @@ export default function WidgetConfigCmp(
   )
 
   return (
-    <div
-      className={
-        'flex flex-1 flex-col justify-evenly gap-2 '
-        + (disabled ? 'hidden' : '')
-      }>
-      {/* valueText */}
-      <Field 
-        title={( () => {
-          switch (widgetType) {
-            case WidgetType.Lever:
-              return 'The direction to pull.'
-            default:
-              return 'The text value of this widget.'
-          }
-        } )()}
+    <>
+      {/* full config */}
+      <div
         className={
-          'w-full flex flex-row flex-wrap justify-start gap-x-2 gap-y-1 '
-          + (configRef.current.valueText === undefined ? 'hidden' : '')
-        } >
-        <Label className='flex flex-col justify-center'>
-          <div >
-            {( () => {
-              switch (widgetType) {
-                case WidgetType.Lever:
-                  return 'direction (U D R L)'
-                case WidgetType.Key:
-                  return 'key value'
-                case WidgetType.KeyPad:
-                  return 'text' 
-                default:
-                  return ''
-              }
-            } )()}
-          </div>
-        </Label>
-        <Input 
+          'flex flex-1 flex-col justify-evenly gap-2 '
+          + (disabled || reduced ? 'hidden' : '')
+        }>
+        {/* valueText */}
+        <Field 
+          title={( () => {
+            switch (widgetType) {
+              case WidgetType.Lever:
+                return 'The direction to pull.'
+              default:
+                return 'The text value of this widget.'
+            }
+          } )()}
           className={
-            'rounded-lg px-3 py-1.5 bg-white/5 text-white '
-            + ((widgetType === WidgetType.Lever || widgetType === WidgetType.Key) ? 'w-10 text-center' : 'text-left')
-          }
-          onChange={e => {
-            // component state
-            setValueText(e.target.value)
-            // source of truth to update game model on submit
-            configRef.current.valueText = e.target.value
-            // callback to update synced UI components
-            showValueText.current(e.target.value)
-          }}
-          type='text' maxLength={widgetType === WidgetType.KeyPad ? undefined : 1}
-          value={valueText}
-          onBlur={setConfig.current} />
-      </Field>
+            'w-full flex flex-row flex-wrap justify-start gap-x-2 gap-y-1 '
+            + (configRef.current.valueText === undefined ? 'hidden' : '')
+          } >
+          <Label className='flex flex-col justify-center'>
+            <div >
+              {( () => {
+                switch (widgetType) {
+                  case WidgetType.Lever:
+                    return 'direction (U D R L)'
+                  case WidgetType.Key:
+                    return 'key value'
+                  case WidgetType.KeyPad:
+                    return 'text' 
+                  default:
+                    return ''
+                }
+              } )()}
+            </div>
+          </Label>
+          <Input 
+            className={
+              'rounded-lg px-3 py-1.5 bg-white/5 text-white '
+              + ((widgetType === WidgetType.Lever || widgetType === WidgetType.Key) ? 'w-10 text-center' : 'text-left')
+            }
+            onChange={e => {
+              // component state
+              setValueText(e.target.value)
+              // source of truth to update game model on submit
+              configRef.current.valueText = e.target.value
+              // callback to update synced UI components
+              showValueText.current(e.target.value)
+            }}
+            type='text' maxLength={widgetType === WidgetType.KeyPad ? undefined : 1}
+            value={valueText}
+            onBlur={setConfig.current} />
+        </Field>
 
-      {/* color */}
-      <Field 
-        title='Primary color of this widget icon.'
-        className='w-full flex flex-row flex-wrap justify-start gap-x-2 gap-y-1' >
-        <Label className='flex flex-col justify-center'>
-          <div>color</div>
-        </Label>
-        <Input
-          className='rounded-lg'
-          onChange={e => {
-            // component state
-            setColor(e.target.value)
-            // model
-            configRef.current.color = e.target.value
-            // synced UI components (icon)
-            showColor.current(e.target.value)
-          }}
-          type='color'
-          value={color}
-          onBlur={setConfig.current} />
-      </Field>
+        {/* color */}
+        <Field 
+          title='Primary color of this widget icon.'
+          className='w-full flex flex-row flex-wrap justify-start gap-x-2 gap-y-1' >
+          <Label className='flex flex-col justify-center'>
+            <div>color</div>
+          </Label>
+          <Input
+            className='rounded-lg'
+            onChange={e => {
+              // component state
+              setColor(e.target.value)
+              // model
+              configRef.current.color = e.target.value
+              // synced UI components (icon)
+              showColor.current(e.target.value)
+            }}
+            type='color'
+            value={color}
+            onBlur={setConfig.current} />
+        </Field>
 
-      {/* width */}
-      <Field 
-        title='Size of this widget icon.'
-        className='w-full flex flex-row flex-wrap justify-start gap-x-2 gap-y-1' >
-        <Label className='flex flex-col justify-center'>
-          <div>size</div>
-        </Label>
+        {/* width */}
+        <Field 
+          title='Size of this widget icon.'
+          className='w-full flex flex-row flex-wrap justify-start gap-x-2 gap-y-1' >
+          <Label className='flex flex-col justify-center'>
+            <div>size</div>
+          </Label>
+          <Input
+            onChange={e => {
+              const w = parseInt(e.target.value)
+              // component state
+              setWidth(w)
+              // model
+              configRef.current.width = w
+              // synced UI components (icon)
+              showWidth.current(w)
+            }}
+            type='range' min={5} max={100}
+            value={width}
+            onBlur={setConfig.current} />
+        </Field>
+
+        {/* duration */}
+        <Field 
+          title='Amount of extra time needed to do this widget, in seconds.'
+          className='w-full flex flex-row flex-wrap justify-start gap-x-2 gap-y-1' >
+          <Label className='flex flex-col justify-center'>
+            <div>duration</div>
+          </Label>
+          <Input 
+            className='rounded-lg px-3 py-1.5 bg-white/5 text-white text-left'
+            onChange={e => {
+              const d = parseFloat(e.target.value) * 1000
+              // component state
+              setDuration(d)
+              // model
+              configRef.current.duration = d
+            }}
+            type='number' min={0} max={3600} step={0.1}
+            value={duration / 1000}
+            onBlur={setConfig.current} />
+          <div className='flex flex-col justify-center'>
+            <div>sec</div>
+          </div>
+        </Field>
+
+        {/* command */}
+        <div className='w-full'>
+          <WidgetCommand 
+            game={game} widgetId={widgetId}
+            config={configRef} setConfig={setConfig}
+            audioConfigurable={commandAudioEnabled} />
+        </div>
+      </div>
+      
+      {/* reduced inputs */}
+      <div 
+        className={
+          'absolute w-full z-10 p-2 '
+          + (reduced && !disabled ? '' : 'hidden')
+        } >
         <Input
+          className='w-full'
           onChange={e => {
             const w = parseInt(e.target.value)
             // component state
@@ -175,39 +233,8 @@ export default function WidgetConfigCmp(
           type='range' min={5} max={100}
           value={width}
           onBlur={setConfig.current} />
-      </Field>
-
-      {/* duration */}
-      <Field 
-        title='Amount of extra time needed to do this widget, in seconds.'
-        className='w-full flex flex-row flex-wrap justify-start gap-x-2 gap-y-1' >
-        <Label className='flex flex-col justify-center'>
-          <div>duration</div>
-        </Label>
-        <Input 
-          className='rounded-lg px-3 py-1.5 bg-white/5 text-white text-left'
-          onChange={e => {
-            const d = parseFloat(e.target.value) * 1000
-            // component state
-            setDuration(d)
-            // model
-            configRef.current.duration = d
-          }}
-          type='number' min={0} max={3600} step={0.1}
-          value={duration / 1000}
-          onBlur={setConfig.current} />
-        <div className='flex flex-col justify-center'>
-          <div>sec</div>
-        </div>
-      </Field>
-
-      {/* command */}
-      <div className='w-full'>
-        <WidgetCommand 
-          game={game} widgetId={widgetId}
-          config={configRef} setConfig={setConfig}
-          audioConfigurable={commandAudioEnabled} />
       </div>
-    </div>
+      
+    </>
   )
 }

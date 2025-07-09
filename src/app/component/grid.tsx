@@ -26,7 +26,7 @@ export default function Grid(
     rows[r] = (
       <div
         key={`row-${r}`}
-        className='flex flex-wrap gap-4 justify-center' >
+        className='flex flex-wrap gap-1 justify-center' >
         {children.slice(c, c+rowLength)}
       </div>
     )
