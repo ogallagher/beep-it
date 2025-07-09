@@ -12,6 +12,7 @@ import GamePlay from './play'
 import RejoinGame from './rejoin'
 import { GameStateListenerKey } from '@lib/game/const'
 import Preview from './preview'
+import RandomWidget from './randomWidget'
 
 export default function GameControls(
   { widgetsDrawerOpen, setWidgetsDrawerOpen, startGame, game, deviceId, gameEventSource, onGameEvent, closeGameEventSource } : {
@@ -65,11 +66,15 @@ export default function GameControls(
         <TurnMode game={game} deviceId={deviceId} />
       </div>
 
-      <div className='flex flex-row gap-2'>
+      <div className='flex flex-row flex-wrap gap-2'>
         <WidgetsDrawerControl 
           game={game} 
           widgetsDrawerOpen={widgetsDrawerOpen} setWidgetsDrawerOpen={setWidgetsDrawerOpen} />
+        
+        <RandomWidget game={game} deviceId={deviceId} />
+      </div>
 
+      <div className='flex flex-row gap-2'>
         <Preview game={game} setWidgetsDrawerOpen={setWidgetsDrawerOpen} />
 
         <GamePlay game={game} startGame={startGame} />

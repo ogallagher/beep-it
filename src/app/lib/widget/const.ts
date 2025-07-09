@@ -16,13 +16,24 @@ export enum WidgetType {
   Wait = 'wait'
 }
 
+/**
+ * Enabled/usable widget types.
+ */
 export const widgetTypes = [
   WidgetType.Button,
   WidgetType.Lever,
   WidgetType.Twist,
   WidgetType.Key,
-  WidgetType.Path,
-  WidgetType.KeyPad,
+  WidgetType.Wait
+]
+
+/**
+ * Subset of widget types that should work consistently on any client device.
+ */
+export const crossPlatformWidgetTypes = [
+  WidgetType.Button,
+  WidgetType.Lever,
+  WidgetType.Twist,
   WidgetType.Wait
 ]
 
