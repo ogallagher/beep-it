@@ -253,7 +253,7 @@ export default function Home() {
     await joinGame(game.current, false, clientDeviceId.current, false, gameEventSource, onGameEvent.current, closeGameEventSource.current)
 
     const requestParams = game.current.save()
-    Game.saveGameId(game.current.id, urlParams)
+    Game.saveGameId(game.current.id, requestParams)
 
     if (game.current.getDeviceCount() > 1) {
       // game is hosted on server; request start
