@@ -46,6 +46,7 @@ export default function WidgetsDrawer(
               widget={widget.save()}
               labelEditable={false}
               configurable={true}
+              active={false}
               commandAudioEnabled={false}
               className='max-w-100'
               onClick={addWidget} />
