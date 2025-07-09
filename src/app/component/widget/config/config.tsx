@@ -177,7 +177,8 @@ export default function WidgetConfigCmp(
             }}
             type='range' min={5} max={100}
             value={width}
-            onBlur={setConfig.current} />
+            // onBlur doesn't work for range inputs on some touch screens
+            onMouseUp={setConfig.current} onTouchEnd={setConfig.current} />
         </Field>
 
         {/* duration */}
@@ -232,7 +233,7 @@ export default function WidgetConfigCmp(
           }}
           type='range' min={5} max={100}
           value={width}
-          onBlur={setConfig.current} />
+          onMouseUp={setConfig.current} onTouchEnd={setConfig.current} />
       </div>
       
     </>
