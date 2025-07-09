@@ -61,13 +61,14 @@ export default function Board({ game, deviceId }: BoardParams) {
   }
 
   function renderWidget(widget: Widget): JSX.Element {
+    const active = gameStarted && !gameEnded
     return WidgetCmp({
       widget: widget.save(),
       game: game,
       deviceId: deviceId,
-      labelEditable: (!gameStarted || gameEnded) && !gamePreview,
+      labelEditable: !active,
       configurable: (!gameStarted || gameEnded) && !gamePreview,
-      active: gameStarted && !gameEnded,
+      active: active,
       commandAudioEnabled: true,
       // widget can delete itself from the board
       onDelete: deleteWidget

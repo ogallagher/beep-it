@@ -154,6 +154,7 @@ export interface WidgetExport extends WidgetConfig {
    * However, I think a refactor could reasonably move it to {@linkcode WidgetConfig}.
    */
   label: string
+  showLabel: boolean
 }
 
 // converted from graphics lib pts.UIPointerActions

@@ -1,10 +1,13 @@
 'use client'
 
 import { Input } from '@headlessui/react'
+import { GameConfigListenerKey } from '@lib/game/const'
 import Game from '@lib/game/game'
 import { clientSendConfigEvent, GameEventType } from '@lib/game/gameEvent'
 import StaticRef from '@lib/staticRef'
+import { WidgetConfig } from '@lib/widget/const'
 import { RefObject, useEffect, useState } from 'react'
+import { ChatSquare, ChatSquareDots } from 'react-bootstrap-icons'
 
 export default function WidgetLabel(
   { widgetId, valueRef, disabled, game, deviceId }: {
@@ -16,6 +19,8 @@ export default function WidgetLabel(
   }
 ) {
   const [labelValue, setLabelValue] = useState(valueRef.current)
+  const [showLabel, setShowLabel] = useState(!!game.current.config.widgets.get(widgetId)?.showLabel)
+
   useEffect(
     () => {
       setLabelValue(valueRef.current)
@@ -23,15 +28,32 @@ export default function WidgetLabel(
     [ valueRef ]
   )
 
+  useEffect(
+    () => {
+      game.current.addConfigListener(
+        GameConfigListenerKey.Widgets,
+        () => {
+          // persist game.widget model changes to component
+          const widget = game.current.config.widgets.get(widgetId)
+          if (widget !== undefined) {
+            setShowLabel(widget.showLabel)
+          }
+        }
+      )
+    },
+     [ game ]
+  )
+
   /**
    * Persist widget label update to game model.
    */
-  function changeLabel() {
+  function changeLabel(showLabel: boolean) {
     valueRef.current = labelValue
     const widget = game.current.config.widgets.get(widgetId)
 
     if (widget !== undefined) {
       widget.label = valueRef.current
+      widget.showLabel = showLabel
       // send config event to server
       clientSendConfigEvent({
         gameEventType: GameEventType.Config,
@@ -44,15 +66,33 @@ export default function WidgetLabel(
   }
 
   return (
-    <div className='w-full flex flex-row justify-center'>
+    <div className='w-full flex flex-row justify-center pt-1 gap-2'>
       <Input
         className={
-          'block rounded-lg px-3 py-1.5 bg-white/5 text-white not-dark:text-black text-center w-full '
-          + (disabled ? '' : 'mt-1')
+          'block rounded-lg px-3 py-1.5 bg-white/5 text-white not-dark:text-black text-center flex-1 '
+          + (showLabel ? '' : 'hidden')
         }
         value={labelValue} onChange={e => setLabelValue(e.target.value)}
-        onBlur={changeLabel}
+        onBlur={() => changeLabel(showLabel)}
         disabled={disabled} />
+
+      <div className={
+        'flex flex-col justify-center text-2xl '
+         + (disabled ? 'hidden' : '')
+      }>
+        <button
+          className='cursor-pointer hover:scale-105 mr-1' type='button'
+          onClick={() => {
+            const _showLabel = !showLabel
+            // update component state
+            setShowLabel(_showLabel)
+            // persist to game model
+            changeLabel(_showLabel)
+          }}
+          title='Toggle show widget label.' >
+          {showLabel ? <ChatSquare /> : <ChatSquareDots />}
+        </button>
+      </div>
     </div>
   )
 }
