@@ -1,7 +1,7 @@
-import { GameStateListenerKey } from '@lib/game/const'
-import Game from '@lib/game/game'
-import { GameEndReason } from '@lib/game/gameEvent'
-import StaticRef from '@lib/staticRef'
+import { GameStateListenerKey } from 'app/_lib/game/const'
+import Game from 'app/_lib/game/game'
+import { GameEndReason } from 'app/_lib/game/gameEvent'
+import StaticRef from 'app/_lib/staticRef'
 import { RefObject, useEffect, useState } from 'react'
 
 export default function CommandCaptions(

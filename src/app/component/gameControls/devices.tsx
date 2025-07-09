@@ -1,11 +1,11 @@
-import Game from '@lib/game/game'
-import { GameStateListenerKey } from '@lib/game/const'
-import StaticRef from '@lib/staticRef'
+import Game from 'app/_lib/game/game'
+import { GameStateListenerKey } from 'app/_lib/game/const'
+import StaticRef from 'app/_lib/staticRef'
 import { RefObject, useEffect, useState } from 'react'
 import { HddRack, PersonDash } from 'react-bootstrap-icons'
 import { Field, Input, Label } from '@headlessui/react'
-import { clientSendLeaveEvent, GameEventType } from '@lib/game/gameEvent'
-import { joinGame } from 'app/page'
+import { clientSendLeaveEvent, GameEventType } from 'app/_lib/game/gameEvent'
+import { joinGame } from 'app/_lib/page'
 
 const deviceIdSummaryLength = 4
 

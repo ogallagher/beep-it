@@ -1,12 +1,12 @@
 import { ReactSVG } from 'react-svg'
-import { CardinalDirection, KeyboardAction, UIPointerAction, WidgetType, widgetWaitProgressSteps } from '../../lib/widget/const'
+import { CardinalDirection, KeyboardAction, UIPointerAction, WidgetType, widgetWaitProgressSteps } from '../../_lib/widget/const'
 import { SVGSpace, Circle, Pt, Color } from 'pts'
 import { Ref, RefObject, useEffect, useRef } from 'react'
-import { cardinalDistance, keyboardEventToKeyboardAction, mouseEventToPointerAction, mouseEventToSvgPoint } from '@lib/widget/graphics'
+import { cardinalDistance, keyboardEventToKeyboardAction, mouseEventToPointerAction, mouseEventToSvgPoint } from 'app/_lib/widget/graphics'
 import { websiteBasePath } from '@api/const'
-import StaticRef from '@lib/staticRef'
-import Game from '@lib/game/game'
-import { GameStateListenerKey, TimeoutReference } from '@lib/game/const'
+import StaticRef from 'app/_lib/staticRef'
+import Game from 'app/_lib/game/game'
+import { GameStateListenerKey, TimeoutReference } from 'app/_lib/game/const'
 
 function controlImage(widgetType: string) {
   return `${websiteBasePath}/widgetIcon/${widgetType}.svg`

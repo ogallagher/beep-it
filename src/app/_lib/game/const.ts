@@ -1,5 +1,5 @@
 import { GameEndReason, GameEventType } from './gameEvent'
-import Widget from '@lib/widget/widget'
+import Widget from 'app/_lib/widget/widget'
 
 /**
  * Max delay between the definition of a game (first join) and game start.

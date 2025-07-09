@@ -4,16 +4,16 @@ import { useState, useRef, useEffect, RefObject, Ref } from 'react'
 import Board from '@component/board'
 import GameControls from '@component/gameControls/gameControls'
 import WidgetsDrawer from '@component/widgetsDrawer'
-import Game from '@lib/game/game'
+import Game from 'app/_lib/game/game'
 import { useSearchParams } from 'next/navigation'
 import { ApiRoute, serverEventPingDelay, websiteBasePath } from '@api/const'
-import { CommandEvent, ConfigEvent, DoWidgetEvent, EndEvent, GameEndReason, GameEvent, GameEventKey, GameEventType, JoinEvent } from '@lib/game/gameEvent'
+import { CommandEvent, ConfigEvent, DoWidgetEvent, EndEvent, GameEndReason, GameEvent, GameEventKey, GameEventType, JoinEvent } from 'app/_lib/game/gameEvent'
 import { ulid } from 'ulid'
 import CommandCaptions from '@component/commandCaptions'
-import { boardId } from '@lib/widget/const'
+import { boardId } from 'app/_lib/widget/const'
 import Header from '@component/header'
-import assert from 'assert'
-import { TimeoutReference } from '@lib/game/const'
+import { TimeoutReference } from 'app/_lib/game/const'
+import { joinGame } from 'app/_lib/page'
 
 function scrollLock(): AbortController {
   const abortController = new AbortController();
@@ -35,79 +35,6 @@ function scrollUnlock(scrollLockAbortController: AbortController | null) {
   scrollLockAbortController?.abort()
 
   document.body.classList.remove('overflow-hidden')
-}
-
-/**
- * Join the given game and open a corresponding game event stream.
- * 
- * @param force Whether to send the join event even if already joined.
- * @returns New game event stream if created.
- */
-export async function joinGame(
-  game: Game, 
-  includeGameConfig: boolean,
-  clientDeviceId: string,
-  force: boolean,
-  gameEventSource?: RefObject<EventSource | undefined> | undefined,
-  onGameEvent?: ((e: MessageEvent, onJoin: () => void) => void) | undefined,
-  closeGameEventSource?: (() => void) | undefined,
-) {
-  const requestParams = includeGameConfig ? game.save() : new URLSearchParams()
-  // set game id
-  Game.saveGameId(game.id, requestParams)
-  // set client device
-  requestParams.set(GameEventKey.DeviceId, clientDeviceId)
-
-  // game game id to url 
-  window.history.replaceState(null, '', `?${requestParams}`)
-
-  // details not in window location
-  const clientDeviceAlias = game.getDeviceAlias(clientDeviceId)
-  if (clientDeviceAlias) {
-    requestParams.set('deviceAlias', clientDeviceAlias)
-  }
-  
-  return await new Promise((res: (eventStream?: EventSource | undefined) => void) => {
-    if (gameEventSource?.current === undefined && onGameEvent !== undefined) {
-      // subscribe to game events
-      gameEventSource!.current = new EventSource(
-        `${websiteBasePath}/${ApiRoute.JoinGame}?${requestParams}`
-      )
-
-      gameEventSource!.current.onmessage = (rawEvent) => {
-        onGameEvent!(rawEvent, res)
-      }
-
-      gameEventSource!.current.onerror = (rawEvent) => {
-        console.log(`game event error = ${rawEvent}; close connection`)
-        closeGameEventSource!()
-      }
-    }
-    else if (force) {
-      // send single event
-      requestParams.set(GameEventKey.GameId, game.id)
-      requestParams.set('skipCreateEventStream', 'true')
-
-      fetch(`${websiteBasePath}/${ApiRoute.JoinGame}?${requestParams}`)
-      .then(async (res: Response) => {
-        try {
-          const resEvent = await res.json() as JoinEvent
-          assert.ok(
-            resEvent.deviceId === clientDeviceId, 
-            'GET join did not receive valid confirmation'
-          )
-        }
-        catch (err) {
-          console.log(`ERROR ${err}`)
-        }
-      })
-      .finally(res)
-    }
-    else {
-      // already joined
-      res()
-    }
-  })
 }
 
 export default function Home() {

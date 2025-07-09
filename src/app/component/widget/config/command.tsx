@@ -1,14 +1,14 @@
 import { Field, Input, Label } from '@headlessui/react'
-import { WidgetConfig } from '@lib/widget/const'
+import { WidgetConfig } from 'app/_lib/widget/const'
 import { RefObject, useEffect, useRef, useState } from 'react'
-import StaticRef from '@lib/staticRef'
+import StaticRef from 'app/_lib/staticRef'
 import { Megaphone, Mic, MicMute, StopCircle, Trash3 } from 'react-bootstrap-icons'
-import { AudioMediaType, audioToFile, audioTypeToFileExt, generateAudioFileName, generateAudioFilePath, mp3AudioBlobType, playAudio, rawAudioBlobType, readAudio, trimEncodeAudio } from '@lib/widget/audio'
-import Game from '@lib/game/game'
+import { AudioMediaType, audioToFile, audioTypeToFileExt, generateAudioFileName, generateAudioFilePath, mp3AudioBlobType, playAudio, rawAudioBlobType, readAudio, trimEncodeAudio } from 'app/_lib/widget/audio'
+import Game from 'app/_lib/game/game'
 import { ApiRoute, websiteBasePath } from '@api/const'
-import { GameAssetEvent, GameEventType } from '@lib/game/gameEvent'
+import { GameAssetEvent, GameEventType } from 'app/_lib/game/gameEvent'
 import assert from 'assert'
-import { GameConfigListenerKey, GameStateListenerKey } from '@lib/game/const'
+import { GameConfigListenerKey, GameStateListenerKey } from 'app/_lib/game/const'
 
 let canAudioRecord: boolean|undefined
 

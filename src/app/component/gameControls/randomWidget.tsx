@@ -1,7 +1,7 @@
-import Game from '@lib/game/game'
-import { clientSendConfigEvent, GameEventType } from '@lib/game/gameEvent'
-import { CardinalDirection, crossPlatformWidgetTypes, defaultWidgetCommands, defaultWidgetLabel, WidgetType } from '@lib/widget/const'
-import Widget from '@lib/widget/widget'
+import Game from 'app/_lib/game/game'
+import { clientSendConfigEvent, GameEventType } from 'app/_lib/game/gameEvent'
+import { CardinalDirection, crossPlatformWidgetTypes, defaultWidgetCommands, defaultWidgetLabel, WidgetType } from 'app/_lib/widget/const'
+import Widget from 'app/_lib/widget/widget'
 import { RefObject } from 'react'
 import { LightningFill } from 'react-bootstrap-icons'
 

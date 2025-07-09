@@ -1,5 +1,5 @@
 import { ApiRoute, gameServerPort, websiteBasePath } from '@api/const'
-import { GameAssetPathPart } from '@lib/widget/audio'
+import { GameAssetPathPart } from 'app/_lib/widget/audio'
 import { NextResponse, NextRequest } from 'next/server'
 import pino from 'pino'
 

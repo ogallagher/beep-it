@@ -1,11 +1,11 @@
 'use client'
 
 import { Input } from '@headlessui/react'
-import { GameConfigListenerKey } from '@lib/game/const'
-import Game from '@lib/game/game'
-import { clientSendConfigEvent, GameEventType } from '@lib/game/gameEvent'
-import StaticRef from '@lib/staticRef'
-import { WidgetConfig } from '@lib/widget/const'
+import { GameConfigListenerKey } from 'app/_lib/game/const'
+import Game from 'app/_lib/game/game'
+import { clientSendConfigEvent, GameEventType } from 'app/_lib/game/gameEvent'
+import StaticRef from 'app/_lib/staticRef'
+import { WidgetConfig } from 'app/_lib/widget/const'
 import { RefObject, useEffect, useState } from 'react'
 import { ChatSquare, ChatSquareDots } from 'react-bootstrap-icons'
 

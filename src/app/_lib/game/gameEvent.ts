@@ -1,4 +1,4 @@
-import { WidgetExport } from '@lib/widget/const'
+import { WidgetExport } from 'app/_lib/widget/const'
 import { BoardDisplayMode, GameTurnMode } from './const'
 import assert from 'assert'
 import { ApiRoute, websiteBasePath } from '@api/const'

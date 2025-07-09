@@ -1,9 +1,9 @@
 import { RefObject, useEffect, useState } from 'react'
-import StaticRef from '@lib/staticRef'
-import Game from '@lib/game/game'
-import { GameTurnMode, GameConfigListenerKey, GameStateListenerKey } from '@lib/game/const'
+import StaticRef from 'app/_lib/staticRef'
+import Game from 'app/_lib/game/game'
+import { GameTurnMode, GameConfigListenerKey, GameStateListenerKey } from 'app/_lib/game/const'
 import { ArrowsAngleContract, ArrowsAngleExpand } from 'react-bootstrap-icons'
-import { clientSendConfigEvent, GameEventType } from '@lib/game/gameEvent'
+import { clientSendConfigEvent, GameEventType } from 'app/_lib/game/gameEvent'
 
 export default function TurnMode(
   { game, deviceId }: {

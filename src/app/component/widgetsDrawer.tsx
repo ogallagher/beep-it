@@ -1,11 +1,11 @@
 import { RefObject } from 'react'
 import Grid from '@component/grid'
-import { defaultWidgetLabel, WidgetExport, widgetTypes } from '@lib/widget/const'
+import { defaultWidgetLabel, WidgetExport, widgetTypes } from 'app/_lib/widget/const'
 import WidgetCmp from './widget/widgetCmp'
-import Widget from '@lib/widget/widget'
-import StaticRef from '@lib/staticRef'
-import Game from '@lib/game/game'
-import { clientSendConfigEvent, GameEventType } from '@lib/game/gameEvent'
+import Widget from 'app/_lib/widget/widget'
+import StaticRef from 'app/_lib/staticRef'
+import Game from 'app/_lib/game/game'
+import { clientSendConfigEvent, GameEventType } from 'app/_lib/game/gameEvent'
 
 export default function WidgetsDrawer(
   { open, game, deviceId }: {
