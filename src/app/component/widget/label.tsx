@@ -72,16 +72,18 @@ export default function WidgetLabel(
           'block rounded-lg px-3 py-1.5 bg-white/5 text-white not-dark:text-black text-center flex-1 '
           + (showLabel ? '' : 'hidden')
         }
-        value={labelValue} onChange={e => setLabelValue(e.target.value)}
+        value={labelValue} 
+        size={labelValue.length}
+        onChange={e => setLabelValue(e.target.value)}
         onBlur={() => changeLabel(showLabel)}
         disabled={disabled} />
 
       <div className={
-        'flex flex-col justify-center text-2xl '
+        'flex flex-col justify-center text-2xl pr-1 '
          + (disabled ? 'hidden' : '')
       }>
         <button
-          className='cursor-pointer hover:scale-105 mr-1' type='button'
+          className='cursor-pointer hover:scale-105' type='button'
           onClick={() => {
             const _showLabel = !showLabel
             // update component state
