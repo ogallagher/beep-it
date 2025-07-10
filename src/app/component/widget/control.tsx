@@ -8,6 +8,7 @@ import StaticRef from 'app/_lib/staticRef'
 import Game from 'app/_lib/game/game'
 import { GameStateListenerKey, TimeoutReference } from 'app/_lib/game/const'
 import { clientSendConfigEvent, GameEventType } from 'app/_lib/game/gameEvent'
+import { scrollLock, scrollUnlock } from 'app/_lib/page'
 
 function controlImage(widgetType: string) {
   return `${websiteBasePath}/widgetIcon/${widgetType}.svg`
@@ -453,6 +454,9 @@ function enableInput(
       if (eventType === UIPointerAction.down) {
         // down = define first point
         value = new Group(p)
+
+        // lock scroll
+        scrollLock()
       }
       else if (value && value.length > 0) {
         if (eventType === UIPointerAction.move) {
@@ -469,6 +473,9 @@ function enableInput(
             onInput(curveToSvgPathD(value, spaceSize, sourceSize))
           }
           value = undefined
+
+          // unlock scroll
+          scrollUnlock()
         }
       }
 

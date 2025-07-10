@@ -1,9 +1,31 @@
-import { websiteBasePath, ApiRoute } from '@api/const';
-import assert from 'assert';
-import { RefObject } from 'react';
-import Game from './game/game';
-import { GameEventKey, JoinEvent } from './game/gameEvent';
+import { websiteBasePath, ApiRoute } from '@api/const'
+import assert from 'assert'
+import { RefObject } from 'react'
+import Game from './game/game'
+import { GameEventKey, JoinEvent } from './game/gameEvent'
+import StaticRef from './staticRef'
 
+const scrollLockAbortController: StaticRef<AbortController | null> = new StaticRef(null)
+
+export function scrollLock() {
+  scrollLockAbortController.current = new AbortController();
+
+  ['scroll', 'touchmove', 'wheel'].forEach((eventType) => {
+    document.body.addEventListener(
+      eventType, 
+      (e) => e.preventDefault(), 
+      { signal: scrollLockAbortController.current!.signal, passive: false }
+    )
+  })
+
+  document.body.classList.add('overflow-hidden')
+}
+
+export function scrollUnlock() {
+  scrollLockAbortController.current?.abort()
+
+  document.body.classList.remove('overflow-hidden')
+}
 
 /**
  * Join the given game and open a corresponding game event stream.

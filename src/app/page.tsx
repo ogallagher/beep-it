@@ -13,29 +13,7 @@ import CommandCaptions from '@component/commandCaptions'
 import { boardId } from 'app/_lib/widget/const'
 import Header from '@component/header'
 import { TimeoutReference } from 'app/_lib/game/const'
-import { joinGame } from 'app/_lib/page'
-
-function scrollLock(): AbortController {
-  const abortController = new AbortController();
-
-  ['scroll', 'touchmove', 'wheel'].forEach((eventType) => {
-    document.body.addEventListener(
-      eventType, 
-      (e) => e.preventDefault(), 
-      { signal: abortController.signal, passive: false }
-    )
-  })
-
-  document.body.classList.add('overflow-hidden')
-
-  return abortController
-}
-
-function scrollUnlock(scrollLockAbortController: AbortController | null) {
-  scrollLockAbortController?.abort()
-
-  document.body.classList.remove('overflow-hidden')
-}
+import { joinGame, scrollLock, scrollUnlock } from 'app/_lib/page'
 
 export default function Home() {
   const urlParams = useSearchParams()
@@ -48,7 +26,6 @@ export default function Home() {
   const gameEventSource: RefObject<EventSource | undefined> = useRef(undefined)
 
   const [widgetsDrawerOpen, setWidgetsDrawerOpen] = useState(false)
-  const scrollLockAbortController: RefObject<AbortController | null> = useRef(null)
 
   /**
    * Closes the game event source and updates local game model to remove this client accordingly.
@@ -120,7 +97,7 @@ export default function Home() {
         console.log(`confirmed start of game=${gameEvent.gameId}`)
         game.current.setStarted(true)
         // anchor scroll
-        scrollLockAbortController.current = scrollLock()
+        scrollLock()
         break
 
       case GameEventType.Command:
@@ -154,7 +131,7 @@ export default function Home() {
         game.current.setEnded(true)
         
         // release scroll lock
-        scrollUnlock(scrollLockAbortController.current)
+        scrollUnlock()
         // clear devices and disconnect
         if (endReason === GameEndReason.StartDelay) {
           game.current.setJoined(false)
