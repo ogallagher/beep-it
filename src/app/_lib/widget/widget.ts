@@ -16,6 +16,7 @@ export default class Widget {
    * For {@linkcode WidgetType.Lever}, this is the direction as a character (U,R,D,L).
    * For {@linkcode WidgetType.Key}, this is a single visible character.
    * For {@linkcode WidgetType.KeyPad}, this is a string of visible characters.
+   * For {@linkcode WidgetType.Path}, this is a bezier curve in svg syntax.
    */
   valueText: string | undefined
   width: number

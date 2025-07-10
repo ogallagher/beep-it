@@ -227,12 +227,18 @@ export default class Game {
     this.configListeners.get(GameConfigListenerKey.Widgets)?.forEach(l => l(this.config.widgets))
   }
 
-  setWidgets(widgets: WidgetExport[]) {
-    this.config.widgets.clear()
-    this.config.widgets = new Map(widgets.map((widgetExport) => {
-      const widget = new Widget(widgetExport)
-      return [widgetExport.id, widget]
-    }))
+  /**
+   * @param widgets Updated widgets list. Leave `undefined` to invoke listeners without updating config.
+   */
+  setWidgets(widgets?: WidgetExport[]) {
+    if (widgets !== undefined) {
+      this.config.widgets.clear()
+      this.config.widgets = new Map(widgets.map((widgetExport) => {
+        const widget = new Widget(widgetExport)
+        return [widgetExport.id, widget]
+      }))
+    }
+    
     this.configListeners.get(GameConfigListenerKey.Widgets)?.forEach(l => l(this.config.widgets))
   }
 

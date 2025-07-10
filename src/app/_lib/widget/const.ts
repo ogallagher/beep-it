@@ -24,7 +24,8 @@ export const widgetTypes = [
   WidgetType.Lever,
   WidgetType.Twist,
   WidgetType.Key,
-  WidgetType.Wait
+  WidgetType.Wait,
+  WidgetType.Path
 ]
 
 /**
@@ -114,6 +115,9 @@ export function defaultWidgetValueText(type: WidgetType) {
 
     case WidgetType.KeyPad:
       return 'please'
+
+    case WidgetType.Path:
+      return 'M 15 10 l 20 70 l 20 -70 l 20 70'
 
     default:
       return undefined

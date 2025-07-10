@@ -1,12 +1,13 @@
 import { ReactSVG } from 'react-svg'
-import { CardinalDirection, KeyboardAction, UIPointerAction, WidgetType, widgetWaitProgressSteps } from '../../_lib/widget/const'
-import { SVGSpace, Circle, Pt, Color } from 'pts'
-import { Ref, RefObject, useEffect, useRef } from 'react'
-import { cardinalDistance, keyboardEventToKeyboardAction, mouseEventToPointerAction, mouseEventToSvgPoint } from 'app/_lib/widget/graphics'
+import { CardinalDirection, KeyboardAction, UIPointerAction, WidgetConfig, WidgetType, widgetWaitProgressSteps } from '../../_lib/widget/const'
+import { SVGSpace, Circle, Pt, Color, Group, Curve } from 'pts'
+import { RefObject, useEffect, useRef } from 'react'
+import { cardinalDistance, curveToSvgPathD, keyboardEventToKeyboardAction, mouseEventToPointerAction, mouseEventToSvgPoint } from 'app/_lib/widget/graphics'
 import { websiteBasePath } from '@api/const'
 import StaticRef from 'app/_lib/staticRef'
 import Game from 'app/_lib/game/game'
 import { GameStateListenerKey, TimeoutReference } from 'app/_lib/game/const'
+import { clientSendConfigEvent, GameEventType } from 'app/_lib/game/gameEvent'
 
 function controlImage(widgetType: string) {
   return `${websiteBasePath}/widgetIcon/${widgetType}.svg`
@@ -263,7 +264,7 @@ function enableAction(
   }
   space.add({ 
     // start,
-    action: (t,x,y,e) => action(t as UIPointerAction, new DOMPoint(x, y), e)
+    action: (t,x,y,e) => action(t as UIPointerAction | KeyboardAction, new DOMPoint(x, y), e)
   })
 
   // enable event listeners
@@ -303,7 +304,112 @@ function enableAction(
   return listenerAbortController
 }
 
-function disableAction(listenerAbortController: AbortController) {
+/**
+ * // TODO reduce duplicate code with `enableAction`.
+ * 
+ * @param type 
+ * @param svg 
+ * @param onInput 
+ * 
+ * @returns Event listeners abort controller.
+ */
+function enableInput(
+  type: WidgetType, 
+  svg: SVGSVGElement,
+  onInput: (value: string) => void,
+  iconSvg: RefObject<SVGSVGElement | null>
+) {
+  const space = new SVGSpace(svg)
+  space.setup({
+    bgcolor: '#fff0',
+    resize: true
+  })
+
+  const form = space.getForm()
+  
+  /**
+   * Min distance between control points in a spline curve, expressed as a proportion of the space size.
+   */
+  const pathStepMinCoeff = 0.05
+
+  // create points instance to store path as value
+  let value: Group | undefined
+
+  function action(
+    eventType: UIPointerAction | KeyboardAction, 
+    loc: DOMPoint | undefined, 
+    event: Event
+  ) {
+    space.clear()
+    const spaceSize = Math.min(space.innerBound.width, space.innerBound.height)
+    const pathStepMin = spaceSize * pathStepMinCoeff
+
+    if (type === WidgetType.Path && loc) {
+      const p = new Pt(loc.x, loc.y)
+
+      if (eventType === UIPointerAction.down) {
+        // down = define first point
+        value = new Group(p)
+      }
+      else if (value && value.length > 0) {
+        if (eventType === UIPointerAction.move) {
+          // move = determine step length from last point; add point if exceeds step length
+          let dist = p.$subtract(value.q1).magnitude()
+          if (dist > pathStepMin) {
+            value.push(p)
+          }
+        }
+        else if (eventType === UIPointerAction.up) {
+          // up = call onInput with value as svg.path.d
+          const sourceSize = parseInt(iconSvg.current!.getAttribute('viewBox')!.split(' ')[2]!)
+          onInput(curveToSvgPathD(value, spaceSize, sourceSize))
+          value = undefined
+        }
+      }
+
+      if (value && value.length > 0) {
+        // render path 
+        form.fill('#0092b8aa')
+        form.stroke(false)
+        form.circle(Circle.fromCenter(value.p1, spaceSize * 0.05))
+
+        if (value.length > 1) {
+          form.fill(false)
+          form.stroke('#0092b8ff', spaceSize * 0.01, 'round', 'round')
+          // pts renders curve as interpolated straight segments. This should be replaced with svg.path.d curve commands M,C,S.
+          form.line(Curve.bezier(value, 10))
+          // draw remainder if not enough points
+          const remainderLength = (value.length-1) % 3
+          form.line(value.slice(value.length-1 - remainderLength))
+        }
+      }
+    }
+  }
+  space.add({ 
+    // start,
+    action: (t,x,y,e) => action(t as UIPointerAction, new DOMPoint(x, y), e)
+  })
+
+  // enable event listeners
+  const listenerAbortController = new AbortController()
+
+  if (type === WidgetType.Path) {
+    function onMouseWrapper(e: MouseEvent | TouchEvent) {
+      action(mouseEventToPointerAction(e), mouseEventToSvgPoint(svg, e), e)
+    }
+    svg.addEventListener('mousemove', onMouseWrapper, {signal: listenerAbortController.signal})
+    svg.addEventListener('touchmove', onMouseWrapper, {signal: listenerAbortController.signal})
+    svg.addEventListener('mousedown', onMouseWrapper, {signal: listenerAbortController.signal})
+    svg.addEventListener('touchstart', onMouseWrapper, {signal: listenerAbortController.signal})
+    svg.addEventListener('mouseup', onMouseWrapper, {signal: listenerAbortController.signal})
+    svg.addEventListener('touchend', onMouseWrapper, {signal: listenerAbortController.signal})
+  }
+  svg.addEventListener('contextmenu', (e) => {e.preventDefault()}, {signal: listenerAbortController.signal})
+
+  return listenerAbortController
+}
+
+function disableInteraction(listenerAbortController: AbortController) {
   // removes all input event listeners used for widget actions  
   listenerAbortController.abort()
 }
@@ -335,7 +441,7 @@ function animateProgress(
 }
 
 export default function WidgetControl(
-  {widgetId, type, onClick, onAction, active, valueText, showValueText, color, showColor, width, showWidth, game, className}: {
+  {widgetId, type, onClick, onAction, active, configurable, configRef, showValueText, showColor, showWidth, game, deviceId, className}: {
     widgetId: string
     type: WidgetType
     onClick?: () => void
@@ -344,19 +450,19 @@ export default function WidgetControl(
      * Whether widget control is accepting actions from user input.
      */
     active: boolean
-    valueText: string | undefined
+    /**
+     * Whether the widget control is accepting configuration from user input.
+     */
+    configurable: boolean
+    configRef: RefObject<WidgetConfig> | StaticRef<WidgetConfig>
     /**
      * Reference to callback that updates valueText in control icon.
      */
-    color: string
     showValueText: RefObject<CallableFunction> | StaticRef<CallableFunction>
     showColor: RefObject<CallableFunction> | StaticRef<CallableFunction>
-    /**
-     * Width of icon as percentage of available in row.
-     */
-    width: number
     showWidth: RefObject<CallableFunction> | StaticRef<CallableFunction>
     game: RefObject<Game> | StaticRef<Game>
+    deviceId: StaticRef<string> | RefObject<string>
     className?: string
   }
 ) {
@@ -373,7 +479,7 @@ export default function WidgetControl(
         interactAbortController.current = enableAction(type, interactiveSvg.current, onAction, iconSvg)
       }
       else if (!active && interactiveSvg.current && interactAbortController.current) {
-        disableAction(interactAbortController.current)
+        disableInteraction(interactAbortController.current)
       }
     },
     [ active ]
@@ -421,6 +527,48 @@ export default function WidgetControl(
     [ game, active ]
   )
 
+  useEffect(
+    /**
+     * Accept input from interactiveSvg to define control path.
+     */
+    () => {
+      if (type === WidgetType.Path) {
+        if (interactAbortController.current) {
+          disableInteraction(interactAbortController.current)
+        }
+
+        if (onAction !== undefined && configurable && !active && interactiveSvg.current) {
+          interactAbortController.current = enableInput(
+            type, 
+            interactiveSvg.current, 
+            (value: string) => {
+              // update component icon
+              showValueText.current(value)
+              // update source of truth for game model updates
+              configRef.current.valueText = value
+
+              // update game model and persist to server
+              const widget = game.current.config.widgets.get(widgetId)
+              if (widget !== undefined) {
+                widget.valueText = configRef.current.valueText
+                clientSendConfigEvent({
+                  gameEventType: GameEventType.Config,
+                  gameId: game.current.id,
+                  deviceId: deviceId.current,
+                  widgets: [...game.current.config.widgets.values()]
+                })
+
+                game.current.setWidgets()
+              }
+            },
+            iconSvg
+          )
+        }
+      }
+    },
+    [ game, configRef, interactiveSvg, active, iconSvg ]
+  )
+
   // show width changes
   showWidth.current = (width: number) => {
     if (iconWrapper.current) {
@@ -446,7 +594,7 @@ export default function WidgetControl(
         el.style.fill = colorSecondary.hex
       }
     }
-    showColor.current(color)
+    showColor.current(configRef.current.color)
 
     // show valueText changes
     showValueText.current = (valueText: string | undefined) => {
@@ -460,8 +608,11 @@ export default function WidgetControl(
       else if (type === WidgetType.Lever) {
         svg.setAttribute('data-direction', valueText?.toUpperCase() || CardinalDirection.Down)
       }
+      else if (type === WidgetType.Path && valueText !== undefined) {
+        svg.getElementById('foreground').firstElementChild?.setAttribute('d', valueText)
+      }
     }
-    showValueText.current(valueText)
+    showValueText.current(configRef.current.valueText)
   }
 
   return (
@@ -475,15 +626,16 @@ export default function WidgetControl(
         <div ref={iconWrapper}
           className='flex flex-col justify-center'
           style={{
-            width: `${width}%`
+            width: `${configRef.current.width}%`
           }} >
           <ReactSVG 
             src={controlImage(type)}
             width={1} height={1}
             afterInjection={loadIconSvg} />
+          
+          {/* interactive layer */}
+          <svg className='absolute w-full h-full' ref={interactiveSvg} />
         </div>
-        {/* interactive layer */}
-        <svg className='absolute w-full h-full' ref={interactiveSvg} />
       </div>
     </div>
   )

@@ -18,6 +18,7 @@ export interface WidgetParams {
   labelEditable: boolean
   configurable: boolean
   active: boolean
+  doAction: boolean
   commandAudioEnabled: boolean
   onClick?: (params: WidgetExport) => void
   onDelete?: (id: string) => void
@@ -31,7 +32,7 @@ export interface WidgetParams {
  * @returns Widget UI component.
  */
 export default function WidgetCmp(
-  { widget, labelEditable, configurable, active, commandAudioEnabled, onClick, onDelete, className, game, deviceId }: WidgetParams
+  { widget, labelEditable, configurable, active, doAction, commandAudioEnabled, onClick, onDelete, className, game, deviceId }: WidgetParams
 ) {
   // something about how widgets can be dynamically added to the board
   // means I can't call useRef here
@@ -121,8 +122,8 @@ export default function WidgetCmp(
             configurable ? 'hover:bg-white/10 active:bg-white/30' : 'bg-gray-500'
           }
           widgetId={widget.id} type={widget.type}
-          active={active}
-          game={game}
+          active={active} configurable={configurable}
+          game={game} deviceId={deviceId}
           onClick={
             onClick === undefined ? undefined : () => {
               // persist widget config updates to export copy for click handler input
@@ -136,10 +137,11 @@ export default function WidgetCmp(
               onClick(widget)
             }
           }
-          onAction={onAction}
-          color={configRef.current.color} showColor={showColor}
-          valueText={configRef.current.valueText} showValueText={showValueText}
-          width={configRef.current.width} showWidth={showWidth} />
+          onAction={doAction ? onAction : undefined}
+          showColor={showColor}
+          configRef={configRef}
+          showValueText={showValueText}
+          showWidth={showWidth} />
       </div>
 
       <WidgetDelete 

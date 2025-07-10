@@ -1,4 +1,4 @@
-import { Pt } from 'pts'
+import { Group, Pt } from 'pts'
 import { CardinalDirection, KeyboardAction, UIPointerAction } from './const'
 
 /**
@@ -79,4 +79,55 @@ export function cardinalDistance(pStart: Pt, pEnd: Pt, pDir: Pt): number {
     case CardinalDirection.Right:
       return pEnd.x - pStart.x
   }
+}
+
+/**
+ * @param curve Curve/spline expressed as a list of control points with absolute coordinates.
+ */
+export function curveToSvgPathD(curve: Group, screenSize: number, sourceSize: number) {
+  let d: string[] = []
+  let pi = 0
+  let rn = curve.length
+
+  const scale = sourceSize / screenSize
+  curve.forEach(p => p.multiply(scale))
+
+  function advance(controlSteps: number) {
+    pi += controlSteps
+    rn -= controlSteps
+  }
+
+  // move to first point
+  d.push(`M ${curve[pi].x},${curve[pi].y}`)
+  advance(1)
+
+  // first curve 
+  if (rn >= 3) {
+    d.push(
+      [
+        'C',
+        `${curve[pi].x},${curve[pi].y}`,
+        `${curve[pi+1].x},${curve[pi+1].y}`,
+        `${curve[pi+2].x},${curve[pi+2].y}`
+      ].join(' ')
+    )
+    advance(3)
+  }
+
+  // subsequent curves
+  while (rn >= 2) {
+    d.push(
+      [
+        'S',
+        `${curve[pi].x},${curve[pi].y}`,
+        `${curve[pi+1].x},${curve[pi+1].y}`
+      ].join(' ')
+    )
+    advance(2)
+  }
+
+  // skip remainder
+  
+  // return path
+  return d.join(' ')
 }

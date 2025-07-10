@@ -69,6 +69,7 @@ export default function Board({ game, deviceId }: BoardParams) {
       labelEditable: !active,
       configurable: (!gameStarted || gameEnded) && !gamePreview,
       active: active,
+      doAction: true,
       commandAudioEnabled: true,
       // widget can delete itself from the board
       onDelete: deleteWidget

@@ -19,7 +19,15 @@ export default function WidgetLabel(
   }
 ) {
   const [labelValue, setLabelValue] = useState(valueRef.current)
-  const [showLabel, setShowLabel] = useState(!!game.current.config.widgets.get(widgetId)?.showLabel)
+  const [showLabel, setShowLabel] = useState(() => {
+    const widget = game.current.config.widgets.get(widgetId)
+    if (widget) {
+      return widget.showLabel
+    }
+    else {
+      return true
+    }
+  })
 
   useEffect(
     () => {

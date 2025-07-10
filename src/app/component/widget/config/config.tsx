@@ -94,6 +94,8 @@ export default function WidgetConfigCmp(
             switch (widgetType) {
               case WidgetType.Lever:
                 return 'The direction to pull.'
+              case WidgetType.Path:
+                return 'Path data.'
               default:
                 return 'The text value of this widget.'
             }
@@ -112,6 +114,8 @@ export default function WidgetConfigCmp(
                     return 'key value'
                   case WidgetType.KeyPad:
                     return 'text' 
+                  case WidgetType.Path:
+                    return 'path'
                   default:
                     return ''
                 }
@@ -120,7 +124,7 @@ export default function WidgetConfigCmp(
           </Label>
           <Input 
             className={
-              'rounded-lg px-3 py-1.5 bg-white/5 text-white '
+              'rounded-lg px-3 py-1.5 font-mono bg-white/5 text-white '
               + ((widgetType === WidgetType.Lever || widgetType === WidgetType.Key) ? 'w-10 text-center' : 'text-left')
             }
             onChange={e => {
@@ -131,7 +135,7 @@ export default function WidgetConfigCmp(
               // callback to update synced UI components
               showValueText.current(e.target.value)
             }}
-            type='text' maxLength={widgetType === WidgetType.KeyPad ? undefined : 1}
+            type='text' maxLength={widgetType === WidgetType.KeyPad || widgetType === WidgetType.Path ? undefined : 1}
             value={valueText}
             onBlur={setConfig.current} />
         </Field>
