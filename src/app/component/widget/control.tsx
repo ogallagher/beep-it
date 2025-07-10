@@ -2,7 +2,7 @@ import { ReactSVG } from 'react-svg'
 import { CardinalDirection, KeyboardAction, UIPointerAction, WidgetConfig, WidgetType, widgetWaitProgressSteps } from '../../_lib/widget/const'
 import { SVGSpace, Circle, Pt, Color, Group, Curve } from 'pts'
 import { RefObject, useEffect, useRef } from 'react'
-import { cardinalDistance, curveToSvgPathD, keyboardEventToKeyboardAction, mouseEventToPointerAction, mouseEventToSvgPoint } from 'app/_lib/widget/graphics'
+import { cardinalDistance, curveToSvgPathD, cycleIndex, keyboardEventToKeyboardAction, mouseEventToPointerAction, mouseEventToSvgPoint, svgPathDToCurve } from 'app/_lib/widget/graphics'
 import { websiteBasePath } from '@api/const'
 import StaticRef from 'app/_lib/staticRef'
 import Game from 'app/_lib/game/game'
@@ -38,10 +38,20 @@ function enableAction(
   let p3: Pt | undefined
   let p4: Pt | undefined
   let pEnd: Pt | undefined
+  let g1: Group | undefined
+  let g2: Group | undefined
 
   if (type === WidgetType.Lever) {
     // store lever direction as code point in p1.x
     p1 = new Pt((iconSvg.current?.getAttribute('data-direction') || CardinalDirection.Down).codePointAt(0)!, 0)
+  }
+  else if (type === WidgetType.Path) {
+    // store icon source size in p3.w
+    p3 = new Pt(-1,-1,-1,-1)
+    p3.w = parseInt(iconSvg.current!.getAttribute('viewBox')!.split(' ')[2]!)
+
+    // store control path points in g1
+    g1 = svgPathDToCurve(iconSvg.current!.getElementById('foreground').firstElementChild!.getAttribute('d')!)
   }
 
   /**
@@ -61,6 +71,10 @@ function enableAction(
     start()
 
     const spaceSize = Math.min(space.innerBound.width, space.innerBound.height)
+    if (spaceSize < 1) {
+      // space is not ready
+      return
+    }
 
     switch (type) {
       case WidgetType.Button:
@@ -246,7 +260,96 @@ function enableAction(
         break
 
       case WidgetType.Path:
-        // TODO fetch canvas overlay and capture max distance between sample points along control path and drag path
+        // capture subset of control path points that are reached
+        const maxDist = spaceSize * 0.08
+        /**
+         * Convert from icon source to interactive target.
+         */
+        const scale = spaceSize / p3!.w
+
+        if (g1) {
+          // render control path
+          form.stroke(false)
+          form.fill('#000000aa')
+          form.circles(g1.map(p => Circle.fromCenter(p.$multiply(scale), spaceSize * 0.01)))
+        }
+        
+        if (g1 && p3 && eventType === UIPointerAction.down) {
+          // begin drag path
+          g2 = new Group()
+          // neighbors for drag start are endpoints
+          p1 = g1.p1.$multiply(scale)
+          p2 = g1.q1.$multiply(scale)
+          // last reached index is unknown
+          p3.x = -1
+          // reached point indeces in p4
+          p4 = new Pt(new Array(g1.length))
+
+          // render endpoints
+          form.fill('#ff92b8ff')
+          form.circles([p1, p2].map(p => Circle.fromCenter(p, spaceSize * 0.05)))
+        }
+        else if (g1 && g2 && p1 && p2 && p3 && p4 && eventType === UIPointerAction.move) {
+          // pointer in pStart
+          pStart = new Pt(loc!.x, loc!.y)
+
+          /**
+           * Index of newly reached control path point.
+           */
+          let pIdx: number | undefined
+          let minDist = maxDist
+          // select closest neighboring point from control path 
+          let d1 = p1.$subtract(pStart).magnitude()
+          let d2 = p2.$subtract(pStart).magnitude()
+
+          if (d1 < minDist) {
+            minDist = d1
+            if (p3.x === -1) {
+              p3.x = 0 + 1
+            }
+            pIdx = cycleIndex(p3.x - 1, g1.length)
+          }
+          else if (d2 < minDist) {
+            minDist = d2
+            if (p3.x === -1) {
+              p3.x = g1.length - 2
+            }
+            pIdx = cycleIndex(p3.x + 1, g1.length)
+          }
+          
+          if (pIdx !== undefined) {
+            // last reached in pEnd
+            pEnd = g1[pIdx].$multiply(scale)
+
+            if (!p4[pIdx]) {
+              p4[pIdx] = 1
+
+              // neighbors in p1,p2
+              p1 = g1[cycleIndex(pIdx - 1, g1.length)].$multiply(scale)
+              p2 = g1[cycleIndex(pIdx + 1, g1.length)].$multiply(scale)
+              // last reached index in p3.x
+              p3.x = pIdx
+
+              // add last reached to drag path
+              g2.push(pEnd)
+            }
+          }
+
+          // render drag path 
+          form.fill('#0092b8ff')
+          form.circles(g2.map(p => Circle.fromCenter(p, spaceSize * 0.02)))
+        }
+        else if (g1 && g2 && eventType === UIPointerAction.up) {
+          if (g2.length === g1.length) {
+            // every control path point was reached; submit action
+            onAction()
+          }
+          
+          // unset drag path
+          g2 = undefined
+        }
+        
+        break
 
       case WidgetType.KeyPad:
         // TODO capture keyup sequence from document
@@ -361,8 +464,10 @@ function enableInput(
         }
         else if (eventType === UIPointerAction.up) {
           // up = call onInput with value as svg.path.d
-          const sourceSize = parseInt(iconSvg.current!.getAttribute('viewBox')!.split(' ')[2]!)
-          onInput(curveToSvgPathD(value, spaceSize, sourceSize))
+          if (value.length > 3) {
+            const sourceSize = parseInt(iconSvg.current!.getAttribute('viewBox')!.split(' ')[2]!)
+            onInput(curveToSvgPathD(value, spaceSize, sourceSize))
+          }
           value = undefined
         }
       }
@@ -470,11 +575,12 @@ export default function WidgetControl(
   const iconWrapper: RefObject<HTMLDivElement|null> = useRef(null)
   const interactiveSvg: RefObject<SVGSVGElement|null> = useRef(null)
   const interactAbortController: RefObject<AbortController|null> = useRef(null)
+  const inputAbortController: RefObject<AbortController|null> = useRef(null)
   const commandDelayInterval: RefObject<TimeoutReference> = useRef(undefined)
 
+  // enable and disable interactive action
   useEffect(
     () => {
-      // enable and disable action
       if (onAction !== undefined && active && interactiveSvg.current) {
         interactAbortController.current = enableAction(type, interactiveSvg.current, onAction, iconSvg)
       }
@@ -526,19 +632,17 @@ export default function WidgetControl(
     },
     [ game, active ]
   )
-
+  
+  // enable and disable interactive input
   useEffect(
-    /**
-     * Accept input from interactiveSvg to define control path.
-     */
     () => {
       if (type === WidgetType.Path) {
-        if (interactAbortController.current) {
-          disableInteraction(interactAbortController.current)
+        if (inputAbortController.current) {
+          disableInteraction(inputAbortController.current)
         }
 
         if (onAction !== undefined && configurable && !active && interactiveSvg.current) {
-          interactAbortController.current = enableInput(
+          inputAbortController.current = enableInput(
             type, 
             interactiveSvg.current, 
             (value: string) => {

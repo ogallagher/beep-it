@@ -71,6 +71,6 @@
     <path
       id="controlPath"
       class="fillPrimary"
-      d="M 15 10 l 20 70 l 20 -70 l 20 70" />
+      d="M 15 10 L 35 80 L 55 10 L 75 80" />
   </g>
 </svg>

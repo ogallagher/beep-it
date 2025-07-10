@@ -85,7 +85,7 @@ export function cardinalDistance(pStart: Pt, pEnd: Pt, pDir: Pt): number {
  * @param curve Curve/spline expressed as a list of control points with absolute coordinates.
  */
 export function curveToSvgPathD(curve: Group, screenSize: number, sourceSize: number) {
-  let d: string[] = []
+  const d: string[] = []
   let pi = 0
   let rn = curve.length
 
@@ -130,4 +130,34 @@ export function curveToSvgPathD(curve: Group, screenSize: number, sourceSize: nu
   
   // return path
   return d.join(' ')
+}
+
+/**
+ * @param d svg.path.d expression of a curve/spline.
+ */
+export function svgPathDToCurve(d: string) {
+  const ctrlCoords = d.replaceAll(/[MCSQL][,\s]+/g, '').split(/[ ,]+/g)
+
+  return Group.fromPtArray(
+    // convert coordinates to list of control points
+    ctrlCoords.map((cc, ci, ca) => {
+      if (ci % 2 === 0) {
+        return new Pt(parseFloat(cc), parseFloat(ca[ci+1]))
+      }
+      else {
+        return undefined
+      }
+    })
+    .filter(p => p !== undefined)
+  )
+}
+
+export function cycleIndex(idx: number, len: number) {
+  idx = idx % len
+
+  if (idx < 0) {
+    idx = len + idx
+  }
+
+  return idx
 }

@@ -117,7 +117,7 @@ export function defaultWidgetValueText(type: WidgetType) {
       return 'please'
 
     case WidgetType.Path:
-      return 'M 15 10 l 20 70 l 20 -70 l 20 70'
+      return 'M 15 10 L 35 80 L 55 10 L 75 80'
 
     default:
       return undefined
