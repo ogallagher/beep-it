@@ -90,7 +90,7 @@ export function curveToSvgPathD(curve: Group, screenSize: number, sourceSize: nu
   let rn = curve.length
 
   const scale = sourceSize / screenSize
-  curve.forEach(p => p.multiply(scale))
+  curve.forEach(p => p.multiply(scale).round())
 
   function advance(controlSteps: number) {
     pi += controlSteps
