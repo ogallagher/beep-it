@@ -45,6 +45,12 @@ export enum CardinalDirection {
   Left = 'L'
 }
 
+export enum TraceDirection {
+  Forward = 1,
+  Backward = -1,
+  Unknown = 0
+}
+
 /**
  * @param type 
  * @returns Ranked list of default commands.

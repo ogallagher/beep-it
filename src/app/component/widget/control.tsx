@@ -1,5 +1,5 @@
 import { ReactSVG } from 'react-svg'
-import { CardinalDirection, KeyboardAction, UIPointerAction, WidgetConfig, WidgetType, widgetWaitProgressSteps } from '../../_lib/widget/const'
+import { CardinalDirection, KeyboardAction, TraceDirection, UIPointerAction, WidgetConfig, WidgetType, widgetWaitProgressSteps } from '../../_lib/widget/const'
 import { SVGSpace, Circle, Pt, Color, Group, Curve } from 'pts'
 import { RefObject, useEffect, useRef } from 'react'
 import { cardinalDistance, curveToSvgPathD, cycleIndex, keyboardEventToKeyboardAction, mouseEventToPointerAction, mouseEventToSvgPoint, svgPathDToCurve } from 'app/_lib/widget/graphics'
@@ -12,6 +12,14 @@ import { scrollLock, scrollUnlock } from 'app/_lib/page'
 
 function controlImage(widgetType: string) {
   return `${websiteBasePath}/widgetIcon/${widgetType}.svg`
+}
+
+function enableResize(svg: SVGSVGElement) {
+  const space = new SVGSpace(svg)
+  space.setup({
+    bgcolor: '#fff0',
+    resize: true
+  })
 }
 
 function enableAction(
@@ -47,9 +55,16 @@ function enableAction(
     p1 = new Pt((iconSvg.current?.getAttribute('data-direction') || CardinalDirection.Down).codePointAt(0)!, 0)
   }
   else if (type === WidgetType.Path) {
-    // store icon source size in p3.w
-    p3 = new Pt(-1,-1,-1,-1)
-    p3.w = parseInt(iconSvg.current!.getAttribute('viewBox')!.split(' ')[2]!)
+    p3 = new Pt(
+      // p3.x = last reached index
+      -1,
+      // p3.y = direction (1 = from start, -1 = from end)
+      TraceDirection.Unknown,
+      // p3.z = not used
+      -1,
+      // p3.w = icon source size
+      parseInt(iconSvg.current!.getAttribute('viewBox')!.split(' ')[2]!)
+    )
 
     // store control path points in g1
     g1 = svgPathDToCurve(iconSvg.current!.getElementById('foreground').firstElementChild!.getAttribute('d')!)
@@ -262,7 +277,7 @@ function enableAction(
 
       case WidgetType.Path:
         // capture subset of control path points that are reached
-        const maxDist = spaceSize * 0.08
+        const maxDist = spaceSize * 0.2
         /**
          * Convert from icon source to interactive target.
          */
@@ -298,41 +313,59 @@ function enableAction(
            * Index of newly reached control path point.
            */
           let pIdx: number | undefined
-          let minDist = maxDist
-          // select closest neighboring point from control path 
-          let d1 = p1.$subtract(pStart).magnitude()
-          let d2 = p2.$subtract(pStart).magnitude()
+          let minDist: number
+          let loop = true
+          while (loop) {
+            pIdx = undefined
+            minDist = maxDist
 
-          if (d1 < minDist) {
-            minDist = d1
-            if (p3.x === -1) {
-              p3.x = 0 + 1
+            // select closest neighboring point from control path 
+            let d1 = (p3.y !== TraceDirection.Forward) ? p1.$subtract(pStart).magnitude() : Number.MAX_VALUE
+            let d2 = (p3.y !== TraceDirection.Backward) ? p2.$subtract(pStart).magnitude() : Number.MAX_VALUE
+
+            if (d1 < minDist) {
+              minDist = d1
+              if (p3.x === -1) {
+                // first reached is start endpoint
+                p3.x = 0 + 1
+                p3.y = TraceDirection.Forward
+              }
+              pIdx = cycleIndex(p3.x - 1, g1.length)
             }
-            pIdx = cycleIndex(p3.x - 1, g1.length)
-          }
-          else if (d2 < minDist) {
-            minDist = d2
-            if (p3.x === -1) {
-              p3.x = g1.length - 2
+            else if (d2 < minDist) {
+              minDist = d2
+              if (p3.x === -1) {
+                // first reached is end endpoint
+                p3.x = g1.length - 2
+                p3.y = TraceDirection.Backward
+              }
+              pIdx = cycleIndex(p3.x + 1, g1.length)
             }
-            pIdx = cycleIndex(p3.x + 1, g1.length)
-          }
-          
-          if (pIdx !== undefined) {
-            // last reached in pEnd
-            pEnd = g1[pIdx].$multiply(scale)
+            
+            if (pIdx !== undefined) {
+              // last reached in pEnd
+              pEnd = g1[pIdx].$multiply(scale)
 
-            if (!p4[pIdx]) {
-              p4[pIdx] = 1
+              if (!p4[pIdx]) {
+                // newly reached
+                p4[pIdx] = 1
 
-              // neighbors in p1,p2
-              p1 = g1[cycleIndex(pIdx - 1, g1.length)].$multiply(scale)
-              p2 = g1[cycleIndex(pIdx + 1, g1.length)].$multiply(scale)
-              // last reached index in p3.x
-              p3.x = pIdx
+                // neighbors in p1,p2
+                p1 = g1[cycleIndex(pIdx - 1, g1.length)].$multiply(scale)
+                p2 = g1[cycleIndex(pIdx + 1, g1.length)].$multiply(scale)
+                // last reached index in p3.x
+                p3.x = pIdx
 
-              // add last reached to drag path
-              g2.push(pEnd)
+                // add last reached to drag path
+                g2.push(pEnd)
+              }
+              else {
+                // already reached
+                loop = false
+              }
+            }
+            else {
+              loop = false
             }
           }
 
@@ -406,14 +439,6 @@ function enableAction(
   space.play()
 
   return listenerAbortController
-}
-
-function enableResize(svg: SVGSVGElement) {
-  const space = new SVGSpace(svg)
-  space.setup({
-    bgcolor: '#fff0',
-    resize: true
-  })
 }
 
 /**
