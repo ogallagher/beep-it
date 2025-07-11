@@ -48,6 +48,7 @@
 
     .fillSecondary {
       fill: #808080;
+      fill-opacity: 0;
     }
   </style>
   <g

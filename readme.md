@@ -146,8 +146,13 @@ The configurable `key` to press is case sensitive and should support any printab
 Action is to do nothing.
 
 <br style="clear: right" />
+<img alt="path" src="public/widgetIcon/path.svg" style="float: right; padding-left: 1em; padding-bottom: 1em; width: 10em;" />
 
-**Path (pending)**
+**Path**
+
+Action is to trace the single connected path, starting from either endpoint.
+
+The configurable `path` to trace is in [`svg.path.d` string format](https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Attribute/d). Define it by dragging in the widget's control graphic area. The text input provides access to manually edit the control points. Their coordinates are expressed in the icon's source viewport space (90x90).
 
 <br style="clear: right" />
 
