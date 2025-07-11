@@ -408,6 +408,14 @@ function enableAction(
   return listenerAbortController
 }
 
+function enableResize(svg: SVGSVGElement) {
+  const space = new SVGSpace(svg)
+  space.setup({
+    bgcolor: '#fff0',
+    resize: true
+  })
+}
+
 /**
  * // TODO reduce duplicate code with `enableAction`.
  * 
@@ -643,12 +651,17 @@ export default function WidgetControl(
   // enable and disable interactive input
   useEffect(
     () => {
-      if (type === WidgetType.Path) {
+      const configCanInput = type === WidgetType.Path
+      const configDoInput = configCanInput && (onAction !== undefined && configurable && !active)
+
+      if (configCanInput) {
         if (inputAbortController.current) {
           disableInteraction(inputAbortController.current)
         }
-
-        if (onAction !== undefined && configurable && !active && interactiveSvg.current) {
+      }
+      
+      if (interactiveSvg.current) {
+        if (configDoInput) {
           inputAbortController.current = enableInput(
             type, 
             interactiveSvg.current, 
@@ -675,6 +688,9 @@ export default function WidgetControl(
             iconSvg
           )
         }
+        else {
+          enableResize(interactiveSvg.current)
+        }
       }
     },
     [ game, configRef, interactiveSvg, active, iconSvg ]
@@ -684,6 +700,10 @@ export default function WidgetControl(
   showWidth.current = (width: number) => {
     if (iconWrapper.current) {
       iconWrapper.current.style.width = `${width}%`
+    }
+
+    if (interactiveSvg.current) {
+      window.dispatchEvent(new Event('resize'))
     }
   }
 
@@ -730,22 +750,25 @@ export default function WidgetControl(
     <div className={className}>
       <div 
         onClick={onClick}
-        className={
-          `relative flex flex-row flex-1 justify-center cursor-pointer`
-        } >
-        {/* icon layer */}
+        className='relative flex flex-row flex-1 justify-center' >
         <div ref={iconWrapper}
-          className='flex flex-col justify-center'
+          className={
+            'flex flex-col justify-center '
+            + (type === WidgetType.Path && onAction !== undefined && configurable && !active ? 'cursor-crosshair' : 'cursor-pointer')
+          }
           style={{
             width: `${configRef.current.width}%`
           }} >
+          {/* icon layer */}
           <ReactSVG 
             src={controlImage(type)}
             width={1} height={1}
             afterInjection={loadIconSvg} />
           
           {/* interactive layer */}
-          <svg className='absolute w-full h-full' ref={interactiveSvg} />
+          <svg 
+            className='absolute w-full h-full' 
+            ref={interactiveSvg} />
         </div>
       </div>
     </div>
