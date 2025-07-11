@@ -1,8 +1,13 @@
-import { GameStateListenerKey } from 'app/_lib/game/const'
+import { GameStateListenerKey, TimeoutReference } from 'app/_lib/game/const'
 import Game from 'app/_lib/game/game'
 import { GameEndReason } from 'app/_lib/game/gameEvent'
 import StaticRef from 'app/_lib/staticRef'
-import { RefObject, useEffect, useState } from 'react'
+import { RefObject, useEffect, useRef, useState } from 'react'
+
+/**
+ * Period of command delay progress update cycle, in milliseconds.
+ */
+const commandDelayIntervalPeriod = 100
 
 export default function CommandCaptions(
   { game }: {
@@ -16,7 +21,8 @@ export default function CommandCaptions(
     }
     return {
       action: game.current.config.widgets.get(commandWidgetId)?.command,
-      targetLabel: game.current.config.widgets.get(commandWidgetId)?.label
+      targetLabel: game.current.config.widgets.get(commandWidgetId)?.label,
+      delay: game.current.getCommandDelay(true)
     }
   }
   function getGameEnd() {
@@ -27,6 +33,8 @@ export default function CommandCaptions(
   }
 
   const [command, setCommand] = useState(getCommand)
+  const [commandDelayProgress, setCommandDelayProgress] = useState(0)
+  const commandDelayInterval = useRef(undefined as TimeoutReference)
   function getScore() {
     return Math.max(0, game.current.getCommandCount()-1)
   }
@@ -37,19 +45,44 @@ export default function CommandCaptions(
     () => {
       // state listener for command
       game.current.addStateListener(GameStateListenerKey.CommandWidgetId, CommandCaptions.name, () => {
-        setCommand(getCommand())
+        // latest states are not available without being dependencies,
+        // and are not dependencies to prevent overwriting the state listener.
+        // So we create local references to latest state values, similar to useRef.
+        const command = getCommand()
+        setCommand(command)
         setScore(getScore())
+
+        let commandDelayProgress = 0
+        setCommandDelayProgress(commandDelayProgress)
+        clearInterval(commandDelayInterval.current)
+
+        commandDelayInterval.current = setInterval(
+          () => {
+            commandDelayProgress += commandDelayIntervalPeriod
+            if (commandDelayProgress >= command!.delay) {
+              commandDelayProgress = command!.delay
+              clearInterval(commandDelayInterval.current)
+            }
+
+            setCommandDelayProgress(commandDelayProgress)
+          },
+          commandDelayIntervalPeriod
+        )
       })
       // listener for game end
-      game.current.addStateListener(GameStateListenerKey.Ended, CommandCaptions.name, () => setGameEnd(getGameEnd()))
+      game.current.addStateListener(GameStateListenerKey.Ended, CommandCaptions.name, () => {
+        setGameEnd(getGameEnd())
+        clearInterval(commandDelayInterval.current)
+      })
     },
-    []
+    [ game ]
   )
 
   return (
     <div 
       className='w-full px-4 pb-2 pt-2' >
       <div className='flex flex-row gap-2 justify-between'>
+        {/* command */}
         <div
           className={
             'flex flex-row gap-2 justify-center text-left '
@@ -61,8 +94,18 @@ export default function CommandCaptions(
           <div className='flex flex-col justify-center'>
             <div className='text-1xl'>{command?.targetLabel}</div>
           </div>
+          {/* command-action delay */}
+          <div
+            className={
+              'flex flex-col justify-center '
+              + (command === undefined || gameEnd.ended ? 'hidden' : '')
+            } >
+            <progress max={command?.delay} value={commandDelayProgress}
+              className='w-10 md:w-20' />
+          </div>
         </div>
 
+        {/* score */}
         <div className='flex flex-col justify-center text-center'>
           <div className='text-2xl text-nowrap'>
             <b>score: </b>
@@ -70,6 +113,7 @@ export default function CommandCaptions(
           </div>
         </div>
         
+        {/* game end */}
         <div 
           className={
             'flex flex-row gap-2 justify-center text-right '
