@@ -2,8 +2,7 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
-   width-ignore="90mm"
-   height-ignore="90mm"
+   data-widget-type="lever"
    viewBox="0 0 90 90"
    version="1.1"
    class="rest"
@@ -39,57 +38,58 @@
      id="defs1" />
   <style>
     /* rest */
-    svg.rest g#rest {
+    svg[data-widget-type="lever"].rest g#rest {
       display: inline;
     }
 
-    svg.rest g#pull1,g#pull2 {
+    svg[data-widget-type="lever"].rest g#pull1,g#pull2 {
       display: none;
     }
 
     /* pull1 */
-    svg.pull1 g#pull1 {
+    svg[data-widget-type="lever"].pull1 g#pull1 {
       display: inline;
     }
 
-    svg.pull1 g#rest,g#pull2 {
+    svg[data-widget-type="lever"].pull1 g#rest,g#pull2 {
       display: none;
     }
 
     /* pull2 */
-    svg.pull2 g#pull2 {
+    svg[data-widget-type="lever"].pull2 g#pull2 {
       display: inline;
     }
 
-    svg.pull2 g#rest,g#pull1 {
+    svg[data-widget-type="lever"].pull2 g#rest,g#pull1 {
       display: none;
     }
 
     /* directions */
-    g#root {
+    svg[data-widget-type="lever"] g#root {
       transform-origin: 45px 45px;
     }
 
-    svg[data-direction="U"] g#root {
+    svg[data-widget-type="lever"][data-direction="U"] g#root {
       transform: rotate(180deg);
     }
-    svg[data-direction="R"] g#root {
+    svg[data-widget-type="lever"][data-direction="R"] g#root {
       transform: rotate(270deg);
     }
-    svg[data-direction="L"] g#root {
+    svg[data-widget-type="lever"][data-direction="L"] g#root {
       transform: rotate(90deg);
     }
 
     /* global */
-    .fillPrimary,.fillSecondary {
+    svg[data-widget-type="lever"] .fillPrimary,
+    svg[data-widget-type="lever"] .fillSecondary {
       fill-opacity: 1;
     }
 
-    .fillPrimary {
+    svg[data-widget-type="lever"] .fillPrimary {
       fill: #ffffff;
     }
 
-    .fillSecondary {
+    svg[data-widget-type="lever"] .fillSecondary {
       fill: #aaaaaa;
     }
   </style>

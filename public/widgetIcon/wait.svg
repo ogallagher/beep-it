@@ -2,8 +2,7 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
-   width-ignore="90mm"
-   height-ignore="90mm"
+   data-widget-type="wait"
    viewBox="0 0 90 90"
    version="1.1"
    data-choice="circlesRing"
@@ -35,52 +34,50 @@
      inkscape:window-maximized="0"
      inkscape:current-layer="up"
      showgrid="false" />
-  <defs
-     id="defs1" />
-  <style
-     id="style1">   
+  <defs id="defs1" />
+  <style id="style1">   
     /* circlesRing */
-    svg[data-choice="circlesRing"] #circlesRing {
+    svg[data-widget-type="wait"][data-choice="circlesRing"] #circlesRing {
       display: inline;
     }
 
-    #circlesRing circle {
+    svg[data-widget-type="wait"] #circlesRing circle {
       display: none;
     }
 
-    svg[data-progress~="1"] circle#load1 {
+    svg[data-widget-type="wait"][data-progress~="1"] circle#load1 {
       display: inline;
     }
-    svg[data-progress~="2"] circle#load2 {
+    svg[data-widget-type="wait"][data-progress~="2"] circle#load2 {
       display: inline;
     }
-    svg[data-progress~="3"] circle#load3 {
+    svg[data-widget-type="wait"][data-progress~="3"] circle#load3 {
       display: inline;
     }
-    svg[data-progress~="4"] circle#load4 {
+    svg[data-widget-type="wait"][data-progress~="4"] circle#load4 {
       display: inline;
     }
-    svg[data-progress~="5"] circle#load5 {
+    svg[data-widget-type="wait"][data-progress~="5"] circle#load5 {
       display: inline;
     }
-    svg[data-progress~="6"] circle#load6 {
+    svg[data-widget-type="wait"][data-progress~="6"] circle#load6 {
       display: inline;
     }
-    svg[data-progress~="7"] circle#load7 {
+    svg[data-widget-type="wait"][data-progress~="7"] circle#load7 {
       display: inline;
     }
-    svg[data-progress~="8"] circle#load8 {
+    svg[data-widget-type="wait"][data-progress~="8"] circle#load8 {
       display: inline;
     }
 
     /* global */
 
-    .fillPrimary {
+    svg[data-widget-type="wait"] .fillPrimary {
       fill: #ffffff;
       fill-opacity: 1;
     }
 
-    #circlesRing circle.stroke {
+    svg[data-widget-type="wait"] #circlesRing circle.stroke {
       stroke:#000000;
       stroke-width:2.22681;
       stroke-dasharray:none;
