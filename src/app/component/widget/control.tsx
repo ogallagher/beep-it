@@ -285,8 +285,7 @@ function enableAction(
 
         if (g1) {
           // render control path
-          form.stroke(false)
-          form.fill('#000000aa')
+          form.fillOnly('#000000aa')
           form.circles(g1.map(p => Circle.fromCenter(p.$multiply(scale), spaceSize * 0.01)))
         }
         
@@ -370,8 +369,17 @@ function enableAction(
           }
 
           // render drag path 
-          form.fill('#0092b8ff')
-          form.circles(g2.map(p => Circle.fromCenter(p, spaceSize * 0.02)))
+          const isTraced = g1.length === g2.length
+
+          // if (!isTraced) {
+          //   form.fillOnly('#0092b8ff')
+          //   form.circles(
+          //     g2.map(p => Circle.fromCenter(p, spaceSize * 0.02))
+          //   )
+          // }
+          
+          form.strokeOnly('#0092b8ff', spaceSize * (isTraced ? 0.06 : 0.04), 'round', 'round')
+          form.line(g2)
         }
         else if (g1 && g2 && eventType === UIPointerAction.up) {
           if (g2.length === g1.length) {
