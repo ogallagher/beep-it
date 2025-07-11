@@ -60,8 +60,8 @@ function enableAction(
       -1,
       // p3.y = direction (1 = from start, -1 = from end)
       TraceDirection.Unknown,
-      // p3.z = not used
-      -1,
+      // p3.z = space size
+      0,
       // p3.w = icon source size
       parseInt(iconSvg.current!.getAttribute('viewBox')!.split(' ')[2]!)
     )
@@ -276,17 +276,40 @@ function enableAction(
         break
 
       case WidgetType.Path:
+        if (p3 && !p3.z && g1) {
+          // first time that space is ready
+          p3.z = spaceSize
+
+          // reduce to subset of points in control path
+          const ctrlMinScreenDist = 25
+          const scale = p3.z / p3.w
+          let gCtrl = new Group(g1.p1)
+          let p: Pt
+          let ctrlDist: number
+
+          for (let i=1; i<g1.length-1; i++) {
+            p = g1[i]
+            ctrlDist = p.$subtract(gCtrl.q1).magnitude() * scale
+            if (ctrlDist > ctrlMinScreenDist) {
+              gCtrl.push(p)
+            }
+          }
+          gCtrl.push(g1.q1)
+
+          g1 = gCtrl
+        }
+
         // capture subset of control path points that are reached
-        const maxDist = spaceSize * 0.2
+        const maxDist = p3!.z * 0.2
         /**
          * Convert from icon source to interactive target.
          */
-        const scale = spaceSize / p3!.w
+        const scale = p3!.z / p3!.w
 
         if (g1) {
           // render control path
           form.fillOnly('#000000aa')
-          form.circles(g1.map(p => Circle.fromCenter(p.$multiply(scale), spaceSize * 0.01)))
+          form.circles(g1.map(p => Circle.fromCenter(p.$multiply(scale), p3!.z * 0.01)))
         }
         
         if (g1 && p3 && eventType === UIPointerAction.down) {
@@ -297,6 +320,8 @@ function enableAction(
           p2 = g1.q1.$multiply(scale)
           // last reached index is unknown
           p3.x = -1
+          // direction is unknown
+          p3.y = TraceDirection.Unknown
           // reached point indeces in p4
           p4 = new Pt(new Array(g1.length))
 
@@ -370,15 +395,7 @@ function enableAction(
 
           // render drag path 
           const isTraced = g1.length === g2.length
-
-          // if (!isTraced) {
-          //   form.fillOnly('#0092b8ff')
-          //   form.circles(
-          //     g2.map(p => Circle.fromCenter(p, spaceSize * 0.02))
-          //   )
-          // }
-          
-          form.strokeOnly('#0092b8ff', spaceSize * (isTraced ? 0.06 : 0.04), 'round', 'round')
+          form.strokeOnly('#0092b8ff', p3.z * (isTraced ? 0.06 : 0.04), 'round', 'round')
           form.line(g2)
         }
         else if (g1 && g2 && eventType === UIPointerAction.up) {
