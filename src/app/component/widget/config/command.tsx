@@ -151,7 +151,7 @@ export default function WidgetCommand(
         )
       }
     },
-    [ game ]
+    [ game, config ]
   )
 
   return (
