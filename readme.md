@@ -134,7 +134,7 @@ Specify with the first letter of `U`p, `D`own, `L`eft, or `R`ight.
 
 **Key**
 
-Action is to press the corresponding keyboard key, This is only compatible with devices that have peripheral keyboards (generally not mobile).
+Action is to press the corresponding keyboard key. This is only compatible with devices that have peripheral keyboards (generally not mobile).
 
 The configurable `key` to press is case sensitive and should support any printable character, even if the physical source keyboard requires a combination of keys to press it.
 
@@ -155,5 +155,8 @@ Action is to trace the single connected path, starting from either endpoint.
 The configurable `path` to trace is in [`svg.path.d` string format](https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Attribute/d). Define it by dragging in the widget's control graphic area. The text input provides access to manually edit the control points. Their coordinates are expressed in the icon's source viewport space (90x90).
 
 <br style="clear: right" />
+<img alt="path" src="doc/widget-icon_keypad.svg" style="float: right; padding-left: 1em; padding-bottom: 1em; width: 10em;" />
 
 **Keypad (pending)**
+
+Action is to type a key combination/phrase, configurable with `text`. As with **key**, this is only compatible with devices that have peripheral keyboards (generally not mobile).
