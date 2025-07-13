@@ -1,5 +1,5 @@
 import { ReactSVG } from 'react-svg'
-import { CardinalDirection, KeyboardAction, TraceDirection, UIPointerAction, WidgetConfig, WidgetType, widgetWaitProgressSteps } from '../../_lib/widget/const'
+import { CardinalDirection, KeyboardAction, TraceDirection, UIPointerAction, WidgetConfig, WidgetType, widgetWaitProgressSteps } from '../../../_lib/widget/const'
 import { SVGSpace, Circle, Pt, Color, Group, Curve } from 'pts'
 import { RefObject, useEffect, useRef, useState } from 'react'
 import { cardinalDistance, curveToSvgPathD, cycleIndex, keyboardEventToKeyboardAction, mouseEventToPointerAction, mouseEventToSvgPoint, svgPathDToCurve } from 'app/_lib/widget/graphics'
@@ -10,6 +10,7 @@ import { GameStateListenerKey, TimeoutReference } from 'app/_lib/game/const'
 import { clientSendConfigEvent, GameEventType } from 'app/_lib/game/gameEvent'
 import { scrollLock, scrollUnlock } from 'app/_lib/page'
 import Grid from '@component/grid'
+import ActionText from './actionText'
 
 function controlImage(widgetType: string) {
   return `${websiteBasePath}/widgetIcon/${widgetType}.svg`
@@ -21,6 +22,46 @@ function enableResize(svg: SVGSVGElement) {
     bgcolor: '#fff0',
     resize: true
   })
+}
+
+function enableKeyAction(onAction: (keyChar?: string) => void, iconSvg: RefObject<SVGSVGElement|SVGSVGElement[]|null>) {
+  const listenerAbortController = new AbortController()
+
+  function onKeyWrapper(event: KeyboardEvent) {
+    // event.preventDefault()
+    // event.stopPropagation()
+
+    const eventType = keyboardEventToKeyboardAction(event)
+    // capture keydown matching widget control character
+    let keyIcons = iconSvg.current
+    if (keyIcons) {
+      if (!Array.isArray(keyIcons)) {
+        keyIcons = [keyIcons]
+      }
+
+      for (const keyIcon of keyIcons) {
+        let char = keyIcon.getAttribute('data-char')
+        if (char === event.key) {
+          if (eventType === KeyboardAction.down) {
+            keyIcon.classList.remove(UIPointerAction.up)
+            keyIcon.classList.add(UIPointerAction.down)
+            onAction(char)
+          }
+          else if (eventType === KeyboardAction.up) {
+            keyIcon.classList.remove(UIPointerAction.down)
+            keyIcon.classList.add(UIPointerAction.up)
+          }
+
+          // key icons within same widget control should be unique, so only 1 can receive a single key event
+          break
+        }
+      }
+    }
+  }
+  document.body.addEventListener('keydown', onKeyWrapper, {signal: listenerAbortController.signal})
+  document.body.addEventListener('keyup', onKeyWrapper, {signal: listenerAbortController.signal})
+
+  return listenerAbortController
 }
 
 function enableAction(
@@ -260,22 +301,6 @@ function enableAction(
 
         break
 
-      case WidgetType.Key:
-        // capture keydown matching widget control character
-        let char = iconSvg.current?.getAttribute('data-char')
-        if (char === (event as KeyboardEvent).key) {
-          if (eventType === KeyboardAction.down) {
-            onAction()
-            iconSvg.current?.classList.remove(UIPointerAction.up)
-            iconSvg.current?.classList.add(UIPointerAction.down)
-          }
-          else if (eventType === KeyboardAction.up) {
-            iconSvg.current?.classList.remove(UIPointerAction.down)
-            iconSvg.current?.classList.add(UIPointerAction.up)
-          }
-        }
-        break
-
       case WidgetType.Path:
         if (p3 && !p3.z && g1) {
           // first time that space is ready
@@ -411,9 +436,6 @@ function enableAction(
         
         break
 
-      case WidgetType.KeyPad:
-        // TODO capture keyup sequence from document
-
       case WidgetType.Wait:
         // any mistaken pointer input submits the action to end the game
         if (eventType === UIPointerAction.down) {
@@ -443,15 +465,6 @@ function enableAction(
     svg.addEventListener('touchstart', onMouseWrapper, {signal: listenerAbortController.signal})
     svg.addEventListener('mouseup', onMouseWrapper, {signal: listenerAbortController.signal})
     svg.addEventListener('touchend', onMouseWrapper, {signal: listenerAbortController.signal})
-  }
-  if (type === WidgetType.Key || type === WidgetType.KeyPad) {
-    function onKeyWrapper(e: KeyboardEvent) {
-      e.preventDefault()
-      e.stopPropagation()
-      action(keyboardEventToKeyboardAction(e), undefined, e)
-    }
-    document.body.addEventListener('keydown', onKeyWrapper, {signal: listenerAbortController.signal})
-    document.body.addEventListener('keyup', onKeyWrapper, {signal: listenerAbortController.signal})
   }
   if (type === WidgetType.Wait) {
     function onMouseWrapper(e: MouseEvent | TouchEvent) {
@@ -637,7 +650,9 @@ export default function WidgetControl(
     className?: string
   }
 ) {
-  const iconSvg: RefObject<SVGSVGElement|null> = useRef(null)
+  const iconSvg: RefObject<SVGSVGElement|SVGSVGElement[]|null> = useRef(
+    type === WidgetType.KeyPad ? [] : null
+  )
   const iconWrapper: RefObject<HTMLDivElement|null> = useRef(null)
   const interactiveSvg: RefObject<SVGSVGElement|null> = useRef(null)
   const interactAbortController: RefObject<AbortController|null> = useRef(null)
@@ -661,18 +676,31 @@ export default function WidgetControl(
   if (type === WidgetType.KeyPad) {
     showValueText.current = (valueText: string | undefined) => setValueChars(getValueChars(valueText))
   }
+  const showActionChar = useRef(null as unknown as (c: string|undefined) => void)
   
   // enable and disable interactive action
   useEffect(
     () => {
-      if (onAction !== undefined && active && interactiveSvg.current) {
-        interactAbortController.current = enableAction(type, interactiveSvg.current, onAction, iconSvg)
+      if (onAction !== undefined && active) {
+        if (type === WidgetType.Key) {
+          interactAbortController.current = enableKeyAction(onAction, iconSvg)
+        }
+        else if (type === WidgetType.KeyPad) {
+          showActionChar.current(undefined)
+          interactAbortController.current = enableKeyAction(showActionChar.current, iconSvg)
+        }
+        else if (interactiveSvg.current) {
+          interactAbortController.current = enableAction(type, interactiveSvg.current, onAction, iconSvg as RefObject<SVGSVGElement>)
+        }
       }
-      else if (!active && interactiveSvg.current && interactAbortController.current) {
+      else if (!active && interactAbortController.current) {
+        if (type === WidgetType.KeyPad) {
+          showActionChar.current(undefined)
+        }
         disableInteraction(interactAbortController.current)
       }
     },
-    [ active ]
+    [ active, configRef, showActionChar ]
   )
   
   // wait: render command delay progress
@@ -699,7 +727,7 @@ export default function WidgetControl(
                 }
               }
 
-              animateProgress(iconSvg, commandDelayInterval, game)
+              animateProgress(iconSvg as RefObject<SVGSVGElement>, commandDelayInterval, game)
             }
           }
           onCommand(game.current.getCommandWidgetId())
@@ -755,7 +783,7 @@ export default function WidgetControl(
                 game.current.setWidgets()
               }
             },
-            iconSvg
+            iconSvg as RefObject<SVGSVGElement>
           )
         }
         else {
@@ -851,24 +879,38 @@ export default function WidgetControl(
               </>
             )
             : (
-              // icon grid
-              <Grid viewportAspectRatio={1}>
-                {[...valueChars.keys()].map((valueChar) => (
-                  <ReactSVG 
-                    key={valueChar}
-                    className='flex-1'
-                    src={controlImage(WidgetType.Key)}
-                    width={1} height={1}
-                    afterInjection={svg => {
-                      svg.setAttribute('data-char', valueChar)
-                      for (let el of svg.getElementsByClassName('char')) {
-                        el.textContent = valueChar
-                      }
+              <>
+                {/* TODO show action text */}
+                <ActionText
+                  showActionChar={showActionChar}
+                  configRef={configRef}
+                  onAction={onAction!} />
 
-                      return loadIconSvg(svg, false)
-                    }} />
-                ))}
-              </Grid>
+                {/* icon grid */}
+                <Grid viewportAspectRatio={1}>
+                  {( () => {
+                    iconSvg.current = []
+
+                    return [...valueChars.keys()].map((valueChar) => (
+                    <ReactSVG 
+                      key={valueChar}
+                      className='flex-1'
+                      src={controlImage(WidgetType.Key)}
+                      width={1} height={1}
+                      afterInjection={svg => {
+                        (iconSvg.current as SVGElement[]).push(svg)
+
+                        svg.setAttribute('data-char', valueChar)
+                        for (let el of svg.getElementsByClassName('char')) {
+                          el.textContent = valueChar
+                        }
+
+                        return loadIconSvg(svg, false)
+                      }} />
+                  ))
+                  } )()}
+                </Grid>
+              </>
             )
           }
         </div>

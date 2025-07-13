@@ -1,6 +1,6 @@
 import WidgetConfigCmp from './config/config'
 import { WidgetConfig } from 'app/_lib/widget/const'
-import WidgetControl from './control'
+import WidgetControl from './control/control'
 import WidgetLabel from './label'
 import StaticRef from 'app/_lib/staticRef'
 import { widgetActionMinDelay, WidgetExport } from 'app/_lib/widget/const'

@@ -121,7 +121,7 @@ export function defaultWidgetValueText(type: WidgetType) {
       return 'A'
 
     case WidgetType.KeyPad:
-      return 'please'
+      return 'hello'
 
     case WidgetType.Path:
       return 'M 15 10 L 35 80 L 55 10 L 75 80'
