@@ -157,6 +157,6 @@ The configurable `path` to trace is in [`svg.path.d` string format](https://deve
 <br style="clear: right" />
 <img alt="path" src="doc/widget-icon_keypad.svg" style="float: right; padding-left: 1em; padding-bottom: 1em; width: 10em;" />
 
-**Keypad (pending)**
+**Keypad**
 
 Action is to type a key combination/phrase, configurable with `text`. As with **key**, this is only compatible with devices that have peripheral keyboards (generally not mobile).
