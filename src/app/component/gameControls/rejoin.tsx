@@ -1,7 +1,7 @@
-import { GameStateListenerKey } from 'app/_lib/game/const'
-import Game from 'app/_lib/game/game'
-import StaticRef from 'app/_lib/staticRef'
-import { joinGame } from 'app/_lib/page'
+import { GameStateListenerKey } from '@lib/game/const'
+import Game from '@lib/game/game'
+import StaticRef from '@lib/staticRef'
+import { joinGame } from '@lib/page'
 import { RefObject, useEffect, useState } from 'react'
 import { Plugin } from 'react-bootstrap-icons'
 

@@ -2,12 +2,12 @@
 
 import { RefObject, useEffect, useState } from 'react'
 import { Field, Input, Label } from '@headlessui/react'
-import StaticRef from 'app/_lib/staticRef'
-import Game from 'app/_lib/game/game'
-import { clientSendConfigEvent, GameEventType } from 'app/_lib/game/gameEvent'
-import { WidgetConfig, WidgetType } from 'app/_lib/widget/const'
+import StaticRef from '@lib/staticRef'
+import Game from '@lib/game/game'
+import { clientSendConfigEvent, GameEventType } from '@lib/game/gameEvent'
+import { WidgetConfig, WidgetType } from '@lib/widget/const'
 import WidgetCommand from './command'
-import { GameConfigListenerKey } from 'app/_lib/game/const'
+import { GameConfigListenerKey } from '@lib/game/const'
 
 export default function WidgetConfigCmp(
   {widgetId, widgetType, configRef, showColor, showValueText, showWidth, disabled, reduced, game, deviceId, commandAudioEnabled}: {

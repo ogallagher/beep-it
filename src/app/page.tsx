@@ -1,19 +1,20 @@
 'use client'
 
-import { useState, useRef, useEffect, RefObject, Ref } from 'react'
+import { useState, useRef, useEffect, RefObject } from 'react'
 import Board from '@component/board'
 import GameControls from '@component/gameControls/gameControls'
 import WidgetsDrawer from '@component/widgetsDrawer'
-import Game from 'app/_lib/game/game'
+import Game from '@lib/game/game'
 import { useSearchParams } from 'next/navigation'
 import { ApiRoute, serverEventPingDelay, websiteBasePath } from '@api/const'
-import { CommandEvent, ConfigEvent, DoWidgetEvent, EndEvent, GameEndReason, GameEvent, GameEventKey, GameEventType, JoinEvent } from 'app/_lib/game/gameEvent'
+import { CommandEvent, ConfigEvent, DoWidgetEvent, EndEvent, GameEndReason, GameEvent, GameEventKey, GameEventType, JoinEvent } from '@lib/game/gameEvent'
 import { ulid } from 'ulid'
 import CommandCaptions from '@component/commandCaptions'
-import { boardId } from 'app/_lib/widget/const'
+import { boardId } from '@lib/widget/const'
 import Header from '@component/header'
-import { TimeoutReference } from 'app/_lib/game/const'
-import { joinGame, scrollLock, scrollUnlock } from 'app/_lib/page'
+import { TimeoutReference } from '@lib/game/const'
+import { joinGame, scrollLock, scrollUnlock } from '@lib/page'
+import { initKeyboardDispatcher } from '@lib/keyboardDispatcher'
 
 export default function Home() {
   const urlParams = useSearchParams()
@@ -21,7 +22,6 @@ export default function Home() {
   const clientDeviceId = useRef(urlParams.get(GameEventKey.DeviceId) || ulid())
   // load game
   const game = useRef(Game.loadGame(urlParams, Game.loadGameId(urlParams)) || new Game())
-  console.log(`game=${game.current}`)
 
   const gameEventSource: RefObject<EventSource | undefined> = useRef(undefined)
 
@@ -184,11 +184,10 @@ export default function Home() {
       }
     })
   }
-
   
   useEffect(
     () => {
-      // join game
+      // join game on page load
       joinGame(
         game.current,
         // no id in url means load from save/config rather than to join an existing game
@@ -197,6 +196,9 @@ export default function Home() {
         false, 
         gameEventSource, onGameEvent.current, closeGameEventSource.current
       )
+
+      // init keyboard dispatcher
+      initKeyboardDispatcher(game)
     }
   )
 

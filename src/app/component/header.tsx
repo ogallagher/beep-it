@@ -3,8 +3,8 @@
 import { Github, QuestionCircle } from 'react-bootstrap-icons'
 import { About } from '@component/about/about'
 import { RefObject, useEffect, useState } from 'react'
-import Game from 'app/_lib/game/game'
-import { GameStateListenerKey } from 'app/_lib/game/const'
+import Game from '@lib/game/game'
+import { GameStateListenerKey } from '@lib/game/const'
 
 export default function Header(
   { githubUrl, game }: {

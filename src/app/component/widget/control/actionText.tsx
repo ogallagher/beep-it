@@ -1,6 +1,6 @@
 import { Input } from '@headlessui/react'
-import StaticRef from 'app/_lib/staticRef'
-import { WidgetConfig } from 'app/_lib/widget/const'
+import StaticRef from '@lib/staticRef'
+import { WidgetConfig } from '@lib/widget/const'
 import { RefObject, useState, useRef, useEffect } from 'react'
 
 

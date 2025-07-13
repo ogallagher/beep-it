@@ -1,9 +1,9 @@
 import { Input } from '@headlessui/react'
-import Game, {  } from 'app/_lib/game/game'
-import { GameConfigListenerKey, GameStateListenerKey } from 'app/_lib/game/const'
-import StaticRef from 'app/_lib/staticRef'
+import Game, {  } from '@lib/game/game'
+import { GameConfigListenerKey, GameStateListenerKey } from '@lib/game/const'
+import StaticRef from '@lib/staticRef'
 import { ChangeEvent, RefObject, useEffect, useState } from 'react'
-import { clientSendConfigEvent, GameEventType } from 'app/_lib/game/gameEvent'
+import { clientSendConfigEvent, GameEventType } from '@lib/game/gameEvent'
 
 export default function GamePlayers(
   { game, deviceId }: {

@@ -1,11 +1,11 @@
 import { JSX, RefObject, useEffect, useState } from 'react'
 import Grid from '@component/grid'
-import Game from 'app/_lib/game/game'
-import StaticRef from 'app/_lib/staticRef'
-import { BoardDisplayMode, GameConfigListenerKey, GameStateListenerKey } from 'app/_lib/game/const'
-import Widget from 'app/_lib/widget/widget'
+import Game from '@lib/game/game'
+import StaticRef from '@lib/staticRef'
+import { BoardDisplayMode, GameConfigListenerKey, GameStateListenerKey } from '@lib/game/const'
+import Widget from '@lib/widget/widget'
 import WidgetCmp from './widget/widgetCmp'
-import { clientSendConfigEvent, GameEventType } from 'app/_lib/game/gameEvent'
+import { clientSendConfigEvent, GameEventType } from '@lib/game/gameEvent'
 
 export type BoardParams = {
   game: StaticRef<Game> | RefObject<Game>

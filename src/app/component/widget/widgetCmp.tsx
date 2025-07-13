@@ -1,14 +1,14 @@
 import WidgetConfigCmp from './config/config'
-import { WidgetConfig } from 'app/_lib/widget/const'
+import { WidgetConfig } from '@lib/widget/const'
 import WidgetControl from './control/control'
 import WidgetLabel from './label'
-import StaticRef from 'app/_lib/staticRef'
-import { widgetActionMinDelay, WidgetExport } from 'app/_lib/widget/const'
+import StaticRef from '@lib/staticRef'
+import { widgetActionMinDelay, WidgetExport } from '@lib/widget/const'
 import WidgetDelete from './delete'
-import Game from 'app/_lib/game/game'
+import Game from '@lib/game/game'
 import { RefObject } from 'react'
 import { ApiRoute, websiteBasePath } from '@api/const'
-import { DoWidgetEvent, GameEvent, GameEventType } from 'app/_lib/game/gameEvent'
+import { DoWidgetEvent, GameEvent, GameEventType } from '@lib/game/gameEvent'
 
 /**
  * Inputs to widget UI component.

@@ -1,7 +1,7 @@
-import { GameStateListenerKey, TimeoutReference } from 'app/_lib/game/const'
-import Game from 'app/_lib/game/game'
-import { GameEndReason } from 'app/_lib/game/gameEvent'
-import StaticRef from 'app/_lib/staticRef'
+import { GameStateListenerKey, TimeoutReference } from '@lib/game/const'
+import Game from '@lib/game/game'
+import { GameEndReason } from '@lib/game/gameEvent'
+import StaticRef from '@lib/staticRef'
 import { RefObject, useEffect, useRef, useState } from 'react'
 
 /**

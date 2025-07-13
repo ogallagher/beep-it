@@ -1,5 +1,5 @@
 import { websiteBasePath } from '@api/const'
-import StaticRef from 'app/_lib/staticRef'
+import StaticRef from '@lib/staticRef'
 import { RefObject } from 'react'
 import { ulid } from 'ulid'
 declare class AudioProcessor {

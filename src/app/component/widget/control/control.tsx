@@ -2,15 +2,16 @@ import { ReactSVG } from 'react-svg'
 import { CardinalDirection, KeyboardAction, TraceDirection, UIPointerAction, WidgetConfig, WidgetType, widgetWaitProgressSteps } from '../../../_lib/widget/const'
 import { SVGSpace, Circle, Pt, Color, Group, Curve } from 'pts'
 import { RefObject, useEffect, useRef, useState } from 'react'
-import { cardinalDistance, curveToSvgPathD, cycleIndex, keyboardEventToKeyboardAction, mouseEventToPointerAction, mouseEventToSvgPoint, svgPathDToCurve } from 'app/_lib/widget/graphics'
+import { cardinalDistance, curveToSvgPathD, cycleIndex, keyboardEventToKeyboardAction, mouseEventToPointerAction, mouseEventToSvgPoint, svgPathDToCurve } from '@lib/widget/graphics'
 import { websiteBasePath } from '@api/const'
-import StaticRef from 'app/_lib/staticRef'
-import Game from 'app/_lib/game/game'
-import { GameStateListenerKey, TimeoutReference } from 'app/_lib/game/const'
-import { clientSendConfigEvent, GameEventType } from 'app/_lib/game/gameEvent'
-import { scrollLock, scrollUnlock } from 'app/_lib/page'
+import StaticRef from '@lib/staticRef'
+import Game from '@lib/game/game'
+import { GameStateListenerKey, TimeoutReference } from '@lib/game/const'
+import { clientSendConfigEvent, GameEventType } from '@lib/game/gameEvent'
+import { scrollLock, scrollUnlock } from '@lib/page'
 import Grid from '@component/grid'
 import ActionText from './actionText'
+import { addKeyboardListener, KeyboardListener, removeKeyboardListener } from '@lib/keyboardDispatcher'
 
 function controlImage(widgetType: string) {
   return `${websiteBasePath}/widgetIcon/${widgetType}.svg`
@@ -24,10 +25,11 @@ function enableResize(svg: SVGSVGElement) {
   })
 }
 
-function enableKeyAction(onAction: (keyChar?: string) => void, iconSvg: RefObject<SVGSVGElement|SVGSVGElement[]|null>) {
-  const listenerAbortController = new AbortController()
-
-  function onKeyWrapper(event: KeyboardEvent) {
+function enableKeyAction(
+  onAction: (keyChar?: string) => void, 
+  iconSvg: RefObject<SVGSVGElement|SVGSVGElement[]|null>
+): KeyboardListener {
+  return (event: KeyboardEvent) => {
     // event.preventDefault()
     // event.stopPropagation()
 
@@ -58,10 +60,6 @@ function enableKeyAction(onAction: (keyChar?: string) => void, iconSvg: RefObjec
       }
     }
   }
-  document.body.addEventListener('keydown', onKeyWrapper, {signal: listenerAbortController.signal})
-  document.body.addEventListener('keyup', onKeyWrapper, {signal: listenerAbortController.signal})
-
-  return listenerAbortController
 }
 
 function enableAction(
@@ -655,6 +653,10 @@ export default function WidgetControl(
   )
   const iconWrapper: RefObject<HTMLDivElement|null> = useRef(null)
   const interactiveSvg: RefObject<SVGSVGElement|null> = useRef(null)
+  /**
+   * Reference to abort controller that disables input events for the control icon.
+   * Not used for keyboard events, which are managed by {@linkcode KeyboardDispatcher}.
+   */
   const interactAbortController: RefObject<AbortController|null> = useRef(null)
   const inputAbortController: RefObject<AbortController|null> = useRef(null)
   const commandDelayInterval: RefObject<TimeoutReference> = useRef(undefined)
@@ -683,24 +685,39 @@ export default function WidgetControl(
     () => {
       if (onAction !== undefined && active) {
         if (type === WidgetType.Key) {
-          interactAbortController.current = enableKeyAction(onAction, iconSvg)
+          addKeyboardListener(
+            [configRef.current.valueText!], 
+            widgetId, 
+            enableKeyAction(onAction, iconSvg)
+          )
         }
         else if (type === WidgetType.KeyPad) {
           showActionChar.current(undefined)
-          interactAbortController.current = enableKeyAction(showActionChar.current, iconSvg)
+          addKeyboardListener(
+            valueChars,
+            widgetId,
+            enableKeyAction(showActionChar.current, iconSvg)
+          )
         }
         else if (interactiveSvg.current) {
           interactAbortController.current = enableAction(type, interactiveSvg.current, onAction, iconSvg as RefObject<SVGSVGElement>)
         }
       }
-      else if (!active && interactAbortController.current) {
+      else if (!active) {
+        if (type === WidgetType.Key) {
+          removeKeyboardListener(widgetId)
+        }
         if (type === WidgetType.KeyPad) {
           showActionChar.current(undefined)
+          removeKeyboardListener(widgetId)
         }
-        disableInteraction(interactAbortController.current)
+
+        if (interactAbortController.current) {
+          disableInteraction(interactAbortController.current)
+        }
       }
     },
-    [ active, configRef, showActionChar ]
+    [ active, configRef, showActionChar, valueChars ]
   )
   
   // wait: render command delay progress

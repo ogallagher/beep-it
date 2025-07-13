@@ -1,6 +1,6 @@
-import { GameStateListenerKey } from 'app/_lib/game/const'
-import Game from 'app/_lib/game/game'
-import StaticRef from 'app/_lib/staticRef'
+import { GameStateListenerKey } from '@lib/game/const'
+import Game from '@lib/game/game'
+import StaticRef from '@lib/staticRef'
 import { Dispatch, RefObject, SetStateAction, useEffect, useState } from 'react'
 import { ChevronBarDown, PatchPlus } from 'react-bootstrap-icons'
 

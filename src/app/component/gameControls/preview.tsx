@@ -1,5 +1,5 @@
-import { GameStateListenerKey } from 'app/_lib/game/const'
-import Game from 'app/_lib/game/game'
+import { GameStateListenerKey } from '@lib/game/const'
+import Game from '@lib/game/game'
 import { Dispatch, RefObject, SetStateAction, useEffect, useState } from 'react'
 import { Eye, Gear } from 'react-bootstrap-icons'
 

@@ -1,6 +1,6 @@
 import { Input } from '@headlessui/react'
-import Game from 'app/_lib/game/game'
-import StaticRef from 'app/_lib/staticRef'
+import Game from '@lib/game/game'
+import StaticRef from '@lib/staticRef'
 import { RefObject, useRef, useState } from 'react'
 import { BookmarkPlus } from 'react-bootstrap-icons'
 

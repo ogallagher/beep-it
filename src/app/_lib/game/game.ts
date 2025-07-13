@@ -1,8 +1,8 @@
 import { ulid } from 'ulid'
-import Widget from 'app/_lib/widget/widget'
+import Widget from '@lib/widget/widget'
 import { CommandEvent, ConfigEvent, DoWidgetEvent, EndEvent, GameEndReason, GameEvent, GameEventListener, GameEventType } from './gameEvent'
 import { BoardDisplayMode, GameTurnMode, GameConfigListenerKey, GameStateListenerKey, commandDelayMin, ConfigListener, GameConfig, gameStartDelayMax, GameState, StateListener, gameDeleteDelay, commandDelayDefault } from './const'
-import { WidgetExport, WidgetType } from 'app/_lib/widget/const'
+import { WidgetExport, WidgetType } from '@lib/widget/const'
 
 export default class Game {
   public id: string

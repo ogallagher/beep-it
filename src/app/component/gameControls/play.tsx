@@ -1,6 +1,6 @@
-import { GameConfigListenerKey, GameStateListenerKey } from 'app/_lib/game/const'
-import Game from 'app/_lib/game/game'
-import StaticRef from 'app/_lib/staticRef'
+import { GameConfigListenerKey, GameStateListenerKey } from '@lib/game/const'
+import Game from '@lib/game/game'
+import StaticRef from '@lib/staticRef'
 import { RefObject, useEffect, useState } from 'react'
 import { PlayCircle } from 'react-bootstrap-icons'
 
