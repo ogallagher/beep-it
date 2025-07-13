@@ -1,7 +1,7 @@
 import { ReactSVG } from 'react-svg'
 import { CardinalDirection, KeyboardAction, TraceDirection, UIPointerAction, WidgetConfig, WidgetType, widgetWaitProgressSteps } from '../../_lib/widget/const'
 import { SVGSpace, Circle, Pt, Color, Group, Curve } from 'pts'
-import { RefObject, useEffect, useRef } from 'react'
+import { RefObject, useEffect, useRef, useState } from 'react'
 import { cardinalDistance, curveToSvgPathD, cycleIndex, keyboardEventToKeyboardAction, mouseEventToPointerAction, mouseEventToSvgPoint, svgPathDToCurve } from 'app/_lib/widget/graphics'
 import { websiteBasePath } from '@api/const'
 import StaticRef from 'app/_lib/staticRef'
@@ -9,6 +9,7 @@ import Game from 'app/_lib/game/game'
 import { GameStateListenerKey, TimeoutReference } from 'app/_lib/game/const'
 import { clientSendConfigEvent, GameEventType } from 'app/_lib/game/gameEvent'
 import { scrollLock, scrollUnlock } from 'app/_lib/page'
+import Grid from '@component/grid'
 
 function controlImage(widgetType: string) {
   return `${websiteBasePath}/widgetIcon/${widgetType}.svg`
@@ -643,6 +644,24 @@ export default function WidgetControl(
   const inputAbortController: RefObject<AbortController|null> = useRef(null)
   const commandDelayInterval: RefObject<TimeoutReference> = useRef(undefined)
 
+  function getValueChars(valueText: string|undefined): Set<string> {
+    if (valueText === undefined) {
+      return new Set()
+    }
+    return new Set(valueText.split(''))
+  }
+  const [
+    /**
+     * Characters from {@linkcode Widget#valueText} that are used for keypad.
+     */
+    valueChars, 
+    setValueChars
+  ] = useState(getValueChars(configRef.current.valueText))
+  // show valueText changes in valueChars
+  if (type === WidgetType.KeyPad) {
+    showValueText.current = (valueText: string | undefined) => setValueChars(getValueChars(valueText))
+  }
+  
   // enable and disable interactive action
   useEffect(
     () => {
@@ -656,6 +675,7 @@ export default function WidgetControl(
     [ active ]
   )
   
+  // wait: render command delay progress
   useEffect(
     () => {
       if (type === WidgetType.Wait) {
@@ -757,9 +777,11 @@ export default function WidgetControl(
     }
   }
 
-  function loadIconSvg(svg: SVGSVGElement) {
+  function loadIconSvg(svg: SVGSVGElement, isSingular = true) {
     // update reference to icon svg
-    iconSvg.current = svg
+    if (isSingular) {
+      iconSvg.current = svg
+    }
     
     // show color changes
     showColor.current = (color: string) => {
@@ -777,23 +799,26 @@ export default function WidgetControl(
     }
     showColor.current(configRef.current.color)
 
-    // show valueText changes
-    showValueText.current = (valueText: string | undefined) => {
-      if (type === WidgetType.Key) {
-        // update character from valueText
-        svg.setAttribute('data-char', valueText || '')
-        for (let el of svg.getElementsByClassName('char')) {
-          el.textContent = valueText || ''
+    
+    if (isSingular) {
+      // show valueText changes for singular icon
+      showValueText.current = (valueText: string | undefined) => {
+        if (type === WidgetType.Key) {
+          // update character from valueText
+          svg.setAttribute('data-char', valueText || '')
+          for (let el of svg.getElementsByClassName('char')) {
+            el.textContent = valueText || ''
+          }
+        }
+        else if (type === WidgetType.Lever) {
+          svg.setAttribute('data-direction', valueText?.toUpperCase() || CardinalDirection.Down)
+        }
+        else if (type === WidgetType.Path && valueText !== undefined) {
+          svg.getElementById('foreground').firstElementChild?.setAttribute('d', valueText)
         }
       }
-      else if (type === WidgetType.Lever) {
-        svg.setAttribute('data-direction', valueText?.toUpperCase() || CardinalDirection.Down)
-      }
-      else if (type === WidgetType.Path && valueText !== undefined) {
-        svg.getElementById('foreground').firstElementChild?.setAttribute('d', valueText)
-      }
+      showValueText.current(configRef.current.valueText)
     }
-    showValueText.current(configRef.current.valueText)
   }
 
   return (
@@ -809,16 +834,43 @@ export default function WidgetControl(
           style={{
             width: `${configRef.current.width}%`
           }} >
-          {/* icon layer */}
-          <ReactSVG 
-            src={controlImage(type)}
-            width={1} height={1}
-            afterInjection={loadIconSvg} />
-          
-          {/* interactive layer */}
-          <svg 
-            className='absolute w-full h-full' 
-            ref={interactiveSvg} />
+          {
+            type !== WidgetType.KeyPad 
+            ? (
+              <>
+                {/* icon layer */}
+                <ReactSVG 
+                  src={controlImage(type)}
+                  width={1} height={1}
+                  afterInjection={loadIconSvg} />
+                
+                {/* interactive layer */}
+                <svg 
+                  className='absolute w-full h-full' 
+                  ref={interactiveSvg} />
+              </>
+            )
+            : (
+              // icon grid
+              <Grid viewportAspectRatio={1}>
+                {[...valueChars.keys()].map((valueChar) => (
+                  <ReactSVG 
+                    key={valueChar}
+                    className='flex-1'
+                    src={controlImage(WidgetType.Key)}
+                    width={1} height={1}
+                    afterInjection={svg => {
+                      svg.setAttribute('data-char', valueChar)
+                      for (let el of svg.getElementsByClassName('char')) {
+                        el.textContent = valueChar
+                      }
+
+                      return loadIconSvg(svg, false)
+                    }} />
+                ))}
+              </Grid>
+            )
+          }
         </div>
       </div>
     </div>

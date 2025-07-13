@@ -60,6 +60,12 @@ export default class Game {
     [GameStateListenerKey.Ended, new Map()],
     [GameStateListenerKey.CommandWidgetId, new Map()]
   ])
+  /**
+   * References to config and state listeners by widget, to enable child listener
+   * removal when the parent widget is deleted from the game.
+   * // TODO use this for issue #68
+   */
+  protected listenerWidgets: Map<string, Map<string, string>> = new Map()
 
   constructor(id?: string | null, config?: GameConfig) {
     this.id = id || Game.generateId()

@@ -1,19 +1,25 @@
 import { JSX } from 'react'
 
 export default function Grid(
-  { children, className }: {
+  { children, className, viewportAspectRatio }: {
     children: JSX.Element[],
-    className?: string
+    className?: string,
+    viewportAspectRatio?: number
   }
 ) {
   let screenAspectRatio = 1
-  try {
-    const screenWidth = window.innerWidth
-    const screenHeight = window.innerHeight
-    screenAspectRatio = screenWidth / screenHeight
+  if (viewportAspectRatio !== undefined) {
+    screenAspectRatio = viewportAspectRatio
   }
-  catch (_err) {
-    // DOM not ready; assume dimensions
+  else {
+    try {
+      const screenWidth = window.innerWidth
+      const screenHeight = window.innerHeight
+      screenAspectRatio = screenWidth / screenHeight
+    }
+    catch (_err) {
+      // DOM not ready; assume dimensions
+    }
   }
 
   // a = aspectRatio; r = rowCount; n = widgets.length; a*r * r = n

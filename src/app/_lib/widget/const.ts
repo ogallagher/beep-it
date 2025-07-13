@@ -25,7 +25,8 @@ export const widgetTypes = [
   WidgetType.Twist,
   WidgetType.Key,
   WidgetType.Wait,
-  WidgetType.Path
+  WidgetType.Path,
+  WidgetType.KeyPad
 ]
 
 /**
