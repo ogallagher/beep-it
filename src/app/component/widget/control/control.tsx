@@ -42,7 +42,7 @@ function enableKeyAction(
       }
 
       for (const keyIcon of keyIcons) {
-        let char = keyIcon.getAttribute('data-char')
+        const char = keyIcon.getAttribute('data-char')
         if (char === event.key) {
           if (eventType === KeyboardAction.down) {
             keyIcon.classList.remove(UIPointerAction.up)
@@ -240,8 +240,8 @@ function enableAction(
             }
 
             if (pStart) {
-              let qx = loc!.x - origin.x
-              let qy = loc!.y - origin.y
+              const qx = loc!.x - origin.x
+              const qy = loc!.y - origin.y
 
               // assign point to 1 of 4 quadrants, corresponding to 4 stored points
               if (qx > 0) {
@@ -307,7 +307,7 @@ function enableAction(
           // reduce to subset of points in control path
           const ctrlMinScreenDist = 25
           const scale = p3.z / p3.w
-          let gCtrl = new Group(g1.p1)
+          const gCtrl = new Group(g1.p1)
           let p: Pt
           let ctrlDist: number
 
@@ -368,8 +368,8 @@ function enableAction(
             minDist = maxDist
 
             // select closest neighboring point from control path 
-            let d1 = (p3.y !== TraceDirection.Forward) ? p1.$subtract(pStart).magnitude() : Number.MAX_VALUE
-            let d2 = (p3.y !== TraceDirection.Backward) ? p2.$subtract(pStart).magnitude() : Number.MAX_VALUE
+            const d1 = (p3.y !== TraceDirection.Forward) ? p1.$subtract(pStart).magnitude() : Number.MAX_VALUE
+            const d2 = (p3.y !== TraceDirection.Backward) ? p2.$subtract(pStart).magnitude() : Number.MAX_VALUE
 
             if (d1 < minDist) {
               minDist = d1
@@ -531,7 +531,7 @@ function enableInput(
       else if (value && value.length > 0) {
         if (eventType === UIPointerAction.move) {
           // move = determine step length from last point; add point if exceeds step length
-          let dist = p.$subtract(value.q1).magnitude()
+          const dist = p.$subtract(value.q1).magnitude()
           if (dist > pathStepMin) {
             value.push(p)
           }
@@ -831,14 +831,14 @@ export default function WidgetControl(
     // show color changes
     showColor.current = (color: string) => {
       // use primary color
-      for (let el of svg.getElementsByClassName('fillPrimary') as HTMLCollectionOf<SVGElement>) {
+      for (const el of svg.getElementsByClassName('fillPrimary') as HTMLCollectionOf<SVGElement>) {
         el.style.fill = color
       }
       // create secondary color as darker version of primary
       const colorSecondary = Color.RGBtoHSL(Color.fromHex(color))
       colorSecondary.l *= 0.5
       colorSecondary.toMode('rgb', true)
-      for (let el of svg.getElementsByClassName('fillSecondary') as HTMLCollectionOf<SVGElement>) {
+      for (const el of svg.getElementsByClassName('fillSecondary') as HTMLCollectionOf<SVGElement>) {
         el.style.fill = colorSecondary.hex
       }
     }
@@ -851,7 +851,7 @@ export default function WidgetControl(
         if (type === WidgetType.Key) {
           // update character from valueText
           svg.setAttribute('data-char', valueText || '')
-          for (let el of svg.getElementsByClassName('char')) {
+          for (const el of svg.getElementsByClassName('char')) {
             el.textContent = valueText || ''
           }
         }
@@ -918,7 +918,7 @@ export default function WidgetControl(
                         (iconSvg.current as SVGElement[]).push(svg)
 
                         svg.setAttribute('data-char', valueChar)
-                        for (let el of svg.getElementsByClassName('char')) {
+                        for (const el of svg.getElementsByClassName('char')) {
                           el.textContent = valueChar
                         }
 

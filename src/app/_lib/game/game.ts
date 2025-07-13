@@ -132,7 +132,7 @@ export default class Game {
    */
   setDevices(deviceIds: Iterable<string>, deviceAliases: Iterable<[string, string|undefined]>) {
     this.state.devices.ids = new Set(deviceIds)
-    for (let [id, alias] of deviceAliases) {
+    for (const [id, alias] of deviceAliases) {
       this.state.devices.aliases.set(id, alias)
     }
     this.setDeviceCount(this.state.devices.ids.size)

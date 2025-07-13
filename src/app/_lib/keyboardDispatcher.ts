@@ -43,7 +43,7 @@ class KeyboardDispatcher {
     // widget keys
     this.widgetKeys.set(widgetId, new Set(keyChars))
 
-    for (let keyChar of keyChars) {
+    for (const keyChar of keyChars) {
       if (!this.keyListeners.has(keyChar)) {
         this.keyListeners.set(keyChar, new Map())
       }
@@ -55,7 +55,7 @@ class KeyboardDispatcher {
   public removeListener(widgetId: string) {
     if (this.widgetKeys.has(widgetId)) {
       // remove from key listeners
-      for (let keyChar of this.widgetKeys.get(widgetId)!.keys()) {
+      for (const keyChar of this.widgetKeys.get(widgetId)!.keys()) {
         this.keyListeners.get(keyChar)?.delete(widgetId)
       }
 
@@ -96,7 +96,7 @@ class KeyboardDispatcher {
     this.abortController = new AbortController()
 
     // enable shared keyboard listeners in DOM
-    for (let keyEventType of ['keydown', 'keyup']) {
+    for (const keyEventType of ['keydown', 'keyup']) {
       document.body.addEventListener(
         keyEventType as ('keydown'|'keyup'), 
         e => this.onKeyboardEvent(e), 

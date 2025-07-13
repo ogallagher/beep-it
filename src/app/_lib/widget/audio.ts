@@ -1,6 +1,5 @@
 import { websiteBasePath } from '@api/const'
 import StaticRef from '@lib/staticRef'
-import { RefObject } from 'react'
 import { ulid } from 'ulid'
 declare class AudioProcessor {
   processPart(b: Blob): Promise<BlobPart>

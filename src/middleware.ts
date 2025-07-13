@@ -26,7 +26,7 @@ const siblingServers: Map<string, SiblingServerConfig> = new Map([
  * Route some paths to sibling servers on internal ports.
  */
 export default function middleware(request: NextRequest) {
-  let urlOut = new URL(request.url)
+  const urlOut = new URL(request.url)
 
   const reqIsApi = urlOut.pathname.startsWith(`${websiteBasePath}/${ApiRoute.Root}`)
   const reqIsGameAsset = urlOut.pathname.startsWith(`${websiteBasePath}/${GameAssetPathPart['0_Root']}`)

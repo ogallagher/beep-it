@@ -26,7 +26,7 @@ export default function ActionText(
           setActionText('')
         }
 
-        let _actionText = actionTextRef.current + keyChar
+        const _actionText = actionTextRef.current + keyChar
         if (configRef.current.valueText!.startsWith(_actionText)) {
           if (configRef.current.valueText!.length === _actionText.length) {
             // key combination complete; submit widget action
