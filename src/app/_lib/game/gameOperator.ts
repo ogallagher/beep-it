@@ -3,6 +3,7 @@ import Game from './game'
 import { ConfigEvent, GameEndReason, GameEventListener, GameEventType, JoinEvent, LeaveEvent, serverSendGameEvent } from './gameEvent'
 import { Response } from 'express'
 import { serverDeviceId } from '@api/const'
+import { DeviceId, GameId } from './const'
 
 const logger = pino({
   name: 'gameOperator'
@@ -11,22 +12,22 @@ const logger = pino({
 /**
  * Known games, each of which have at least 1 client device.
  */
-const games: Map<string, Game> = new Map()
+const games: Map<GameId, Game> = new Map()
 /**
  * Map client devices web response server event streams.
  */
-const clients: Map<string, Response> = new Map()
+const clients: Map<DeviceId, Response> = new Map()
 /**
  * Game event listeners, which broadcast game events to client devices.
  */
-const listeners: Map<string, GameEventListener> = new Map()
+const listeners: Map<GameId, GameEventListener> = new Map()
 
 /**
  * Create and register game if not exists and return.
  * 
  * @param gameUrlParams Serialized game as URL search params.
  */
-export function getGame(gameUrlParams: URLSearchParams, deviceId: string): Game {
+export function getGame(gameUrlParams: URLSearchParams, deviceId: DeviceId): Game {
   const gameId = Game.loadGameId(gameUrlParams)
   if (gameId === undefined) {
     throw new Error(`game id missing in ${gameUrlParams}`)
@@ -59,7 +60,7 @@ export function getGame(gameUrlParams: URLSearchParams, deviceId: string): Game 
  * @param deviceId Client device id.
  * @param client Response object to stream game events to the client device.
  */
-export function addGameClient(gameId: string, deviceId: string, deviceAlias?: string, client?: Response) {
+export function addGameClient(gameId: GameId, deviceId: DeviceId, deviceAlias?: string, client?: Response) {
   if (!games.has(gameId)) {
     throw new Error(`cannot add client to missing game ${gameId}`)
   }
@@ -117,7 +118,7 @@ export function addGameClient(gameId: string, deviceId: string, deviceAlias?: st
  * @param gameId Game id.
  * @param deviceId Client device id.
  */
-export function removeGameClient(gameId: string, deviceId: string) {
+export function removeGameClient(gameId: GameId, deviceId: DeviceId) {
   if (!games.has(gameId)) {
     logger.warn(`cannot add client to missing game ${gameId}`)
   }
@@ -144,7 +145,7 @@ export function removeGameClient(gameId: string, deviceId: string) {
  * @param gameId Game id.
  * @returns Listener to broadcast game events to all client devices.
  */
-export function getGameEventListener(gameId: string): GameEventListener {
+export function getGameEventListener(gameId: GameId): GameEventListener {
   if (!listeners.has(gameId)) {
     logger.info(`create listener for ${gameId}`)
     listeners.set(gameId, (event) => {
@@ -194,14 +195,14 @@ export function configGame(configEvent: ConfigEvent) {
   game.refreshStartTimeout()
 }
 
-function deleteGame(gameId: string) {
+function deleteGame(gameId: GameId) {
   logger.info(`delete game ${gameId}`)
   listeners.delete(gameId)
   games.get(gameId)?.getDevices().forEach((deviceId) => removeGameClient(gameId, deviceId))
   games.delete(gameId)
 }
 
-function queueDeleteGame(gameId: string) {
+function queueDeleteGame(gameId: GameId) {
   const game = games.get(gameId)
   if (game === undefined) {
     logger.info(`reference missing for game ${gameId}; delete without delay`)

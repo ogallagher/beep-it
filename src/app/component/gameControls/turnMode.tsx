@@ -18,7 +18,7 @@ export default function TurnMode(
   useEffect(
     () => {
       // render turn mode
-      game.current.addConfigListener(GameConfigListenerKey.GameTurnMode, setTurnMode)
+      game.current.addConfigListener(GameConfigListenerKey.GameTurnMode, TurnMode.name, setTurnMode)
       // disable/enable input on game start/end
       game.current.addStateListener(GameStateListenerKey.Started, TurnMode.name, setGameStarted)
       game.current.addStateListener(GameStateListenerKey.Ended, TurnMode.name, setGameEnded)

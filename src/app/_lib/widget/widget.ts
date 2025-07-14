@@ -1,8 +1,8 @@
 import { ulid } from 'ulid'
-import { defaultWidgetCommands, defaultWidgetDuration, defaultWidgetLabel, defaultWidgetValueText, WidgetExport, WidgetType } from './const'
+import { defaultWidgetCommands, defaultWidgetDuration, defaultWidgetLabel, defaultWidgetValueText, WidgetExport, WidgetId, WidgetType } from './const'
 
 export default class Widget {
-  id: string
+  id: WidgetId
   type: WidgetType
   label: string
   showLabel: boolean
@@ -90,7 +90,7 @@ export default class Widget {
     return clone
   }
 
-  private static generateId() {
+  private static generateId(): WidgetId {
     return ulid()
   }
 

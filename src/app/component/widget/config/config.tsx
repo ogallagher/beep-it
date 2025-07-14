@@ -5,13 +5,13 @@ import { Field, Input, Label } from '@headlessui/react'
 import StaticRef from '@lib/staticRef'
 import Game from '@lib/game/game'
 import { clientSendConfigEvent, GameEventType } from '@lib/game/gameEvent'
-import { WidgetConfig, WidgetType } from '@lib/widget/const'
+import { WidgetConfig, WidgetId, WidgetType } from '@lib/widget/const'
 import WidgetCommand from './command'
-import { GameConfigListenerKey } from '@lib/game/const'
+import { DeviceId, GameConfigListenerKey } from '@lib/game/const'
 
 export default function WidgetConfigCmp(
   {widgetId, widgetType, configRef, showColor, showValueText, showWidth, disabled, reduced, game, deviceId, commandAudioEnabled}: {
-    widgetId: string
+    widgetId: WidgetId
     widgetType: WidgetType
     configRef: RefObject<WidgetConfig> | StaticRef<WidgetConfig>
     showColor: RefObject<CallableFunction> | StaticRef<CallableFunction>
@@ -23,7 +23,7 @@ export default function WidgetConfigCmp(
     disabled: boolean
     reduced: boolean
     game: RefObject<Game> | StaticRef<Game>
-    deviceId: StaticRef<string> | RefObject<string>
+    deviceId: StaticRef<DeviceId> | RefObject<DeviceId>
     commandAudioEnabled: boolean
   }
 ) {
@@ -61,6 +61,7 @@ export default function WidgetConfigCmp(
     () => {
       game.current.addConfigListener(
         GameConfigListenerKey.Widgets, 
+        `${WidgetConfigCmp.name}.${widgetId}`,
         /**
          * Persist game.widget model changes to component and config ref.
          * Synced UI components (ex. widget control) are already updated separately.

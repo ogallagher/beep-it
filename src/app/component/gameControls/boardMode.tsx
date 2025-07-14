@@ -1,14 +1,14 @@
 import { RefObject, useEffect, useState } from 'react'
 import StaticRef from '@lib/staticRef'
 import Game from '@lib/game/game'
-import { BoardDisplayMode, GameConfigListenerKey, GameStateListenerKey } from '@lib/game/const'
+import { BoardDisplayMode, DeviceId, GameConfigListenerKey, GameStateListenerKey } from '@lib/game/const'
 import { Copy, Vr } from 'react-bootstrap-icons'
 import { clientSendConfigEvent, GameEventType } from '@lib/game/gameEvent'
 
 export default function BoardMode(
   { game, deviceId }: {
     game: StaticRef<Game> | RefObject<Game>
-    deviceId: StaticRef<string> | RefObject<string>
+    deviceId: StaticRef<DeviceId> | RefObject<DeviceId>
   }
 ) {
   const [boardMode, setBoardMode] = useState(game.current.config.boardDisplayMode)
@@ -18,7 +18,7 @@ export default function BoardMode(
   useEffect(
     () => {
       // render board mode
-      game.current.addConfigListener(GameConfigListenerKey.BoardDisplayMode, setBoardMode)
+      game.current.addConfigListener(GameConfigListenerKey.BoardDisplayMode, BoardMode.name, setBoardMode)
       // disable/enable input on game start/end
       game.current.addStateListener(GameStateListenerKey.Started, BoardMode.name, setGameStarted)
       game.current.addStateListener(GameStateListenerKey.Ended, BoardMode.name, setGameEnded)

@@ -1,5 +1,5 @@
 import { Field, Input, Label } from '@headlessui/react'
-import { WidgetConfig } from '@lib/widget/const'
+import { WidgetConfig, WidgetId } from '@lib/widget/const'
 import { RefObject, useEffect, useRef, useState } from 'react'
 import StaticRef from '@lib/staticRef'
 import { Megaphone, Mic, MicMute, StopCircle, Trash3 } from 'react-bootstrap-icons'
@@ -76,7 +76,7 @@ async function recordAudio(
 export default function WidgetCommand(
   { game, widgetId, config, setConfig, audioConfigurable }: {
     game: RefObject<Game> | StaticRef<Game>
-    widgetId: string
+    widgetId: WidgetId
     config: RefObject<WidgetConfig> | StaticRef<WidgetConfig>
     setConfig: RefObject<() => void> | StaticRef<() => void>
     audioConfigurable: boolean
@@ -125,13 +125,17 @@ export default function WidgetCommand(
       }
 
       // render widget command updates
-      game.current.addConfigListener(GameConfigListenerKey.Widgets, () => {
-        const widget = game.current.config.widgets.get(widgetId)
-        if (widget !== undefined) {
-          setCommand(widget.command)
-          setCommandAudioUrl(widget.commandAudio)
+      game.current.addConfigListener(
+        GameConfigListenerKey.Widgets, 
+        `${WidgetCommand.name}.${widgetId}`,
+        () => {
+          const widget = game.current.config.widgets.get(widgetId)
+          if (widget !== undefined) {
+            setCommand(widget.command)
+            setCommandAudioUrl(widget.commandAudio)
+          }
         }
-      })
+      )
 
       // play audio on game command
       if (audioConfigurable) {

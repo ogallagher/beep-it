@@ -6,6 +6,8 @@ export const boardId = 'gameBoard'
 export const widgetActionMinDelay = 500
 export const widgetWaitProgressSteps = 8
 
+export type WidgetId = string
+
 export enum WidgetType {
   Button = 'button',
   Lever = 'lever',
@@ -157,7 +159,7 @@ export interface WidgetConfig {
 }
 
 export interface WidgetExport extends WidgetConfig {
-  id: string
+  id: WidgetId
   type: WidgetType
   /**
    * Label was originally not included in parent type because of its special handling in the client UI 

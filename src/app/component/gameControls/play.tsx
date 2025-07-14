@@ -34,7 +34,7 @@ export default function GamePlay(
       // for join (no play if not joined)
       game.current.addStateListener(GameStateListenerKey.Joined, GamePlay.name, updateEnable)
       // config event listener for widgets
-      game.current.addConfigListener(GameConfigListenerKey.Widgets, updateEnable)
+      game.current.addConfigListener(GameConfigListenerKey.Widgets, GamePlay.name, updateEnable)
     },
     [ game ]
   )

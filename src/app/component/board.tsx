@@ -86,7 +86,7 @@ export default function Board({ game, deviceId }: BoardParams) {
       game.current.addStateListener(GameStateListenerKey.Preview, Board.name, setGamePreview)
 
       // render widgets
-      game.current.addConfigListener(GameConfigListenerKey.Widgets, placeWidgets)
+      game.current.addConfigListener(GameConfigListenerKey.Widgets, Board.name, placeWidgets)
     },
     []
   )

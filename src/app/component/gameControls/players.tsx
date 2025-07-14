@@ -1,6 +1,6 @@
 import { Input } from '@headlessui/react'
 import Game, {  } from '@lib/game/game'
-import { GameConfigListenerKey, GameStateListenerKey } from '@lib/game/const'
+import { DeviceId, GameConfigListenerKey, GameStateListenerKey } from '@lib/game/const'
 import StaticRef from '@lib/staticRef'
 import { ChangeEvent, RefObject, useEffect, useState } from 'react'
 import { clientSendConfigEvent, GameEventType } from '@lib/game/gameEvent'
@@ -8,7 +8,7 @@ import { clientSendConfigEvent, GameEventType } from '@lib/game/gameEvent'
 export default function GamePlayers(
   { game, deviceId }: {
     game: StaticRef<Game> | RefObject<Game>
-    deviceId: StaticRef<string> | RefObject<string>
+    deviceId: StaticRef<DeviceId> | RefObject<DeviceId>
   }
 ) {
   const [playerCount, setPlayerCount] = useState(game.current.getPlayerCount())
@@ -18,7 +18,7 @@ export default function GamePlayers(
   useEffect(
     () => {
       // render device count updates
-      game.current.addConfigListener(GameConfigListenerKey.PlayersCount, setPlayerCount)
+      game.current.addConfigListener(GameConfigListenerKey.PlayersCount, GamePlayers.name, setPlayerCount)
       // disable input on game start and end
       game.current.addStateListener(GameStateListenerKey.Started, GamePlayers.name, setGameStarted)
       game.current.addStateListener(GameStateListenerKey.Ended, GamePlayers.name, setGameEnded)

@@ -1,21 +1,21 @@
 'use client'
 
 import { Input } from '@headlessui/react'
-import { GameConfigListenerKey } from '@lib/game/const'
+import { DeviceId, GameConfigListenerKey } from '@lib/game/const'
 import Game from '@lib/game/game'
 import { clientSendConfigEvent, GameEventType } from '@lib/game/gameEvent'
 import StaticRef from '@lib/staticRef'
-import { WidgetConfig } from '@lib/widget/const'
+import { WidgetId } from '@lib/widget/const'
 import { RefObject, useEffect, useState } from 'react'
 import { ChatSquare, ChatSquareDots } from 'react-bootstrap-icons'
 
 export default function WidgetLabel(
   { widgetId, valueRef, disabled, game, deviceId }: {
-    widgetId: string
+    widgetId: WidgetId
     valueRef: RefObject<string> | StaticRef<string>
     disabled: boolean
     game: RefObject<Game> | StaticRef<Game>
-    deviceId: StaticRef<string> | RefObject<string>
+    deviceId: StaticRef<DeviceId> | RefObject<DeviceId>
   }
 ) {
   const [labelValue, setLabelValue] = useState(valueRef.current)
@@ -40,6 +40,7 @@ export default function WidgetLabel(
     () => {
       game.current.addConfigListener(
         GameConfigListenerKey.Widgets,
+        `${WidgetLabel.name}.${widgetId}`,
         () => {
           // persist game.widget model changes to component
           const widget = game.current.config.widgets.get(widgetId)

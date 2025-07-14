@@ -1,11 +1,11 @@
 import { ulid } from 'ulid'
 import Widget from '@lib/widget/widget'
 import { CommandEvent, ConfigEvent, DoWidgetEvent, EndEvent, GameEndReason, GameEvent, GameEventListener, GameEventType } from './gameEvent'
-import { BoardDisplayMode, GameTurnMode, GameConfigListenerKey, GameStateListenerKey, commandDelayMin, ConfigListener, GameConfig, gameStartDelayMax, GameState, StateListener, gameDeleteDelay, commandDelayDefault } from './const'
-import { WidgetExport, WidgetType } from '@lib/widget/const'
+import { BoardDisplayMode, GameTurnMode, GameConfigListenerKey, GameStateListenerKey, commandDelayMin, ConfigListener, GameConfig, gameStartDelayMax, GameState, StateListener, gameDeleteDelay, commandDelayDefault, GameId, DeviceId } from './const'
+import { WidgetExport, WidgetId, WidgetType } from '@lib/widget/const'
 
 export default class Game {
-  public id: string
+  public id: GameId
   /**
    * Attributes of a game that become static on start.
    * 
@@ -42,17 +42,17 @@ export default class Game {
    * Methods to call when the given config attr changes.
    * Used to propogate game model changes to UI components.
    */
-  protected configListeners: Map<string, ConfigListener[]> = new Map([
-    [GameConfigListenerKey.PlayersCount, []],
-    [GameConfigListenerKey.Widgets, []],
-    [GameConfigListenerKey.BoardDisplayMode, []],
-    [GameConfigListenerKey.GameTurnMode, []]
+  protected configListeners: Map<GameConfigListenerKey, Map<string, ConfigListener>> = new Map([
+    [GameConfigListenerKey.PlayersCount, new Map()],
+    [GameConfigListenerKey.Widgets, new Map()],
+    [GameConfigListenerKey.BoardDisplayMode, new Map()],
+    [GameConfigListenerKey.GameTurnMode, new Map()]
   ])
   /**
    * Methods to call when the given state attr changes.
    * Very similar to `configListeners`.
    */
-  protected stateListeners: Map<string, Map<string, StateListener>> = new Map([
+  protected stateListeners: Map<GameStateListenerKey, Map<string, StateListener>> = new Map([
     [GameStateListenerKey.DevicesCount, new Map()],
     [GameStateListenerKey.Joined, new Map()],
     [GameStateListenerKey.Preview, new Map()],
@@ -65,9 +65,15 @@ export default class Game {
    * removal when the parent widget is deleted from the game.
    * // TODO use this for issue #68
    */
-  protected listenerWidgets: Map<string, Map<string, string>> = new Map()
+  protected listenerWidgets: Map<
+    WidgetId, 
+    {
+      config: Set<string>,
+      state: Set<string>
+    }
+  > = new Map()
 
-  constructor(id?: string | null, config?: GameConfig) {
+  constructor(id?: WidgetId | null, config?: GameConfig) {
     this.id = id || Game.generateId()
     this.config = config || {
       boardDisplayMode: BoardDisplayMode.Default,
@@ -83,10 +89,10 @@ export default class Game {
     // of widgets across devices must change.
 
     // board mode, devices --> widgets
-    this.addConfigListener(GameConfigListenerKey.BoardDisplayMode, () => {
+    this.addConfigListener(GameConfigListenerKey.BoardDisplayMode, `${Game.name}.config.widgets`, () => {
       this.configListeners.get(GameConfigListenerKey.Widgets)?.forEach(l => l(this.config.widgets))
     })
-    this.addStateListener(GameStateListenerKey.DevicesCount, 'game.config.widgets', () => {
+    this.addStateListener(GameStateListenerKey.DevicesCount, `${Game.name}.config.widgets`, () => {
       this.configListeners.get(GameConfigListenerKey.Widgets)?.forEach(l => l(this.config.widgets))
     })
   }
@@ -118,19 +124,19 @@ export default class Game {
   /**
    * Remove from devices. Internally calls `setDeviceCount`.
    */
-  deleteDevice(deviceId: string) {
+  deleteDevice(deviceId: DeviceId) {
     this.state.devices.ids.delete(deviceId)
     this.setDeviceCount(this.state.devices.ids.size)
   }
 
-  getDeviceAlias(deviceId: string) {
+  getDeviceAlias(deviceId: DeviceId) {
     return this.state.devices.aliases.get(deviceId)
   }
 
   /**
    * Replace devices list. Internally calls `setDeviceCount`.
    */
-  setDevices(deviceIds: Iterable<string>, deviceAliases: Iterable<[string, string|undefined]>) {
+  setDevices(deviceIds: Iterable<DeviceId>, deviceAliases: Iterable<[DeviceId, string|undefined]>) {
     this.state.devices.ids = new Set(deviceIds)
     for (const [id, alias] of deviceAliases) {
       this.state.devices.aliases.set(id, alias)
@@ -356,8 +362,8 @@ export default class Game {
     this.deleteTimeout?.refresh()
   }
 
-  addConfigListener(configKey: GameConfigListenerKey, listener: StateListener) {
-    this.configListeners.get(configKey)?.push(listener)
+  addConfigListener(configKey: GameConfigListenerKey, listenerKey: string, listener: StateListener) {
+    this.configListeners.get(configKey)?.set(listenerKey, listener)
   }
 
   addStateListener(stateKey: GameStateListenerKey, listenerKey: string, listener: StateListener) {
@@ -529,7 +535,7 @@ export default class Game {
     return `Game[id=${this.id}]`
   }
 
-  static saveGameId(gameId: string, urlParams: URLSearchParams) {
+  static saveGameId(gameId: GameId, urlParams: URLSearchParams) {
     urlParams.set('id', gameId)
   }
 
@@ -537,7 +543,7 @@ export default class Game {
     return urlParams.get('id') || urlParams.get('gameId') || undefined
   }
 
-  static loadGame(urlParams: URLSearchParams, id?: string) {
+  static loadGame(urlParams: URLSearchParams, id?: GameId) {
     return new Game(id, {
       boardDisplayMode: urlParams.get('boardDisplayMode') as BoardDisplayMode || BoardDisplayMode.Default,
       gameTurnMode: urlParams.get('gameTurnMode') as GameTurnMode || BoardDisplayMode.Default,
@@ -555,7 +561,7 @@ export default class Game {
     })
   }
 
-  private static generateId() {
+  private static generateId(): GameId {
     return ulid()
   }
 }

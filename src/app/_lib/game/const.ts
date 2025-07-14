@@ -16,6 +16,9 @@ export const gameDeleteDelay = 1000 * 60 * 15
 
 export const commandDelayDefault = 1000 * 3
 
+export type GameId = string
+export type DeviceId = string
+
 export enum BoardDisplayMode {
   Mirror = 'mirror',
   Extend = 'extend',
@@ -86,7 +89,7 @@ export interface GameState {
   /**
    * Game host device.
    */
-  deviceId: string | null
+  deviceId: DeviceId | null
   /**
    * Whether the current/self client device joined the game.
    */
@@ -99,11 +102,11 @@ export interface GameState {
     /**
      * Set of participant/player device ids.
      */
-    ids: Set<string>
+    ids: Set<DeviceId>
     /**
      * Map device ids to aliases.
      */
-    aliases: Map<string, string | undefined>
+    aliases: Map<DeviceId, string | undefined>
   }
 }
 
