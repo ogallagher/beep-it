@@ -47,7 +47,8 @@ export default function WidgetLabel(
           if (widget !== undefined) {
             setShowLabel(widget.showLabel)
           }
-        }
+        },
+        widgetId
       )
     },
      [ game ]

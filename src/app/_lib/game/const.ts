@@ -56,6 +56,8 @@ export enum GameStateListenerKey {
   CommandWidgetId = 'commandWidgetId'
 }
 
+export type GameAnyListenerKey = GameConfigListenerKey | GameStateListenerKey
+
 export interface GameConfig {
   boardDisplayMode: BoardDisplayMode
   gameTurnMode: GameTurnMode

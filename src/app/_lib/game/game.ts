@@ -1,7 +1,7 @@
 import { ulid } from 'ulid'
 import Widget from '@lib/widget/widget'
 import { CommandEvent, ConfigEvent, DoWidgetEvent, EndEvent, GameEndReason, GameEvent, GameEventListener, GameEventType } from './gameEvent'
-import { BoardDisplayMode, GameTurnMode, GameConfigListenerKey, GameStateListenerKey, commandDelayMin, ConfigListener, GameConfig, gameStartDelayMax, GameState, StateListener, gameDeleteDelay, commandDelayDefault, GameId, DeviceId } from './const'
+import { BoardDisplayMode, GameTurnMode, GameConfigListenerKey, GameStateListenerKey, commandDelayMin, ConfigListener, GameConfig, gameStartDelayMax, GameState, StateListener, gameDeleteDelay, commandDelayDefault, GameId, DeviceId, GameAnyListenerKey } from './const'
 import { WidgetExport, WidgetId, WidgetType } from '@lib/widget/const'
 
 export default class Game {
@@ -63,13 +63,12 @@ export default class Game {
   /**
    * References to config and state listeners by widget, to enable child listener
    * removal when the parent widget is deleted from the game.
-   * // TODO use this for issue #68
    */
   protected listenerWidgets: Map<
     WidgetId, 
     {
-      config: Set<string>,
-      state: Set<string>
+      config: Map<GameAnyListenerKey, Set<string>>,
+      state: Map<GameAnyListenerKey, Set<string>>
     }
   > = new Map()
 
@@ -237,6 +236,22 @@ export default class Game {
   deleteWidget(widgetId: string) {
     this.config.widgets.delete(widgetId)
     this.configListeners.get(GameConfigListenerKey.Widgets)?.forEach(l => l(this.config.widgets))
+    
+    // remove child listeners of parent widget
+    const widgetListeners = this.listenerWidgets.get(widgetId)
+    if (widgetListeners) {
+      widgetListeners.config.entries().forEach(([sourceKey, targetKeys]) => {
+        targetKeys.forEach(targetKey => {
+          this.configListeners.get(sourceKey as GameConfigListenerKey)?.delete(targetKey)
+        })
+      })
+      widgetListeners.state.entries().forEach(([sourceKey, targetKeys]) => {
+        targetKeys.forEach(targetKey => {
+          this.stateListeners.get(sourceKey as GameStateListenerKey)?.delete(targetKey)
+        })
+      })
+    }
+    this.listenerWidgets.delete(widgetId)
   }
 
   /**
@@ -362,12 +377,40 @@ export default class Game {
     this.deleteTimeout?.refresh()
   }
 
-  addConfigListener(configKey: GameConfigListenerKey, listenerKey: string, listener: StateListener) {
-    this.configListeners.get(configKey)?.set(listenerKey, listener)
+  protected addListenerWidget(
+    type: 'config'|'state', 
+    widgetId: WidgetId, 
+    sourceKey: GameAnyListenerKey, 
+    targetKey: string
+  ) {
+    // register widget
+    if (!this.listenerWidgets.has(widgetId)) {
+      this.listenerWidgets.set(widgetId, {
+        config: new Map(), 
+        state: new Map()
+      })
+    }
+    // register source key
+    const widgetListeners = this.listenerWidgets.get(widgetId)![type]
+    if (!widgetListeners.has(sourceKey)) {
+      widgetListeners.set(sourceKey, new Set())
+    }
+    // register target key
+    widgetListeners.get(sourceKey)!.add(targetKey)
   }
 
-  addStateListener(stateKey: GameStateListenerKey, listenerKey: string, listener: StateListener) {
+  addConfigListener(configKey: GameConfigListenerKey, listenerKey: string, listener: StateListener, widgetId?: WidgetId) {
+    this.configListeners.get(configKey)?.set(listenerKey, listener)
+    if (widgetId) {
+      this.addListenerWidget('config', widgetId, configKey, listenerKey)
+    }
+  }
+  
+  addStateListener(stateKey: GameStateListenerKey, listenerKey: string, listener: StateListener, widgetId?: WidgetId) {
     this.stateListeners.get(stateKey)?.set(listenerKey, listener)
+    if (widgetId) {
+      this.addListenerWidget('state', widgetId, stateKey, listenerKey)
+    }
   }
 
   /**

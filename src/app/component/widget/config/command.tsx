@@ -134,7 +134,8 @@ export default function WidgetCommand(
             setCommand(widget.command)
             setCommandAudioUrl(widget.commandAudio)
           }
-        }
+        },
+        widgetId
       )
 
       // play audio on game command

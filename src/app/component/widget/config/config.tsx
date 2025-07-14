@@ -75,7 +75,8 @@ export default function WidgetConfigCmp(
             setDuration(widget.duration)
             // command child component is updated separately.
           }
-        }
+        },
+        widgetId
       )
     },
     [ game ]
