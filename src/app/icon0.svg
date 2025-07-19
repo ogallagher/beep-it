@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" xmlns:xlink="http://www.w3.org/1999/xlink" width="512" height="512"><svg width="512" height="512" viewBox="0 0 135.46666 135.46667" version="1.1" id="SvgjsSvg1203" class="rotate0" data-widget-type="favicon" data-choice="circlesRing" data-progress="1 2 3 4 5 6 7 8" xml:space="preserve" inkscape:version="1.4 (e7c3feb1, 2024-10-09)" sodipodi:docname="beep-it_favicon.svg" inkscape:export-filename="beep-it_favicon.png" inkscape:export-xdpi="96" inkscape:export-ydpi="96" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview id="SvgjsSodipodi:namedview1202" pagecolor="#000000" bordercolor="#000000" borderopacity="0.25" inkscape:showpageshadow="2" inkscape:pageopacity="0.0" inkscape:pagecheckerboard="0" inkscape:deskcolor="#d1d1d1" inkscape:document-units="mm" inkscape:zoom="1.2711951" inkscape:cx="375.23744" inkscape:cy="265.49819" inkscape:window-width="1712" inkscape:window-height="1148" inkscape:window-x="473" inkscape:window-y="126" inkscape:window-maximized="0" inkscape:current-layer="rotate0" showgrid="false" inkscape:export-bgcolor="#000000ff"></sodipodi:namedview>
+  <defs id="SvgjsDefs1201"></defs>
+  <style id="SvgjsStyle1200">
+    /* rotate0 */
+    svg[data-widget-type="favicon"].rotate0 g#rotate0 {
+      display: inline;
+    }
+
+    svg[data-widget-type="favicon"].rotate0 g#rotate1,g#rotate2,g#rotate3 {
+      display: none;
+    }
+
+    /* global */
+    svg[data-widget-type="favicon"] .fillPrimary, 
+    svg[data-widget-type="favicon"] .fillSecondary {
+      fill-opacity: 1;
+    }
+
+    svg[data-widget-type="favicon"] .fillPrimary {
+      fill: #ffffff;
+      stroke: #000000;
+      stroke-width: 0.726953;
+    }
+
+    svg[data-widget-type="favicon"] .fillSecondary {
+      fill: #aaaaaa;
+      stroke: none;
+    }
+  </style>
+  <g inkscape:label="twist" inkscape:groupmode="layer" id="SvgjsG1199" transform="matrix(1.450031,0,0,1.450031,-5.3955071,-4.4548752)">
+    <ellipse style="display:inline;fill:#ffffff;stroke:none;fill-opacity:1" id="SvgjsEllipse1198" cx="50.234169" cy="72.042336" inkscape:label="base" rx="21.406775" ry="16.440975"></ellipse>
+    <g id="SvgjsG1197" inkscape:label="stem" transform="matrix(1.1428571,0,0,0.97403423,-6.0829728,16.589341)" style="display:inline;fill:#2f735c;fill-opacity:1">
+      <rect id="SvgjsRect1196" class="fillSecondary" width="28.771654" height="25.237078" x="35.063755" y="30.468161" inkscape:label="stem" style="fill:#2f735c;fill-opacity:1"></rect>
+      <ellipse id="SvgjsEllipse1195" class="fillSecondary" cx="49.449581" cy="55.07402" inkscape:label="stemBase" rx="14.407337" ry="13.264256" style="fill:#2f735c;fill-opacity:1"></ellipse>
+    </g>
+    <path id="SvgjsPath1194" class="fillPrimary" inkscape:label="cap" d="m 50.432605,11.44798 c -6.90954,8.14e-4 -12.617099,4.992285 -13.007972,11.375952 l -0.02071,8.273998 -9.001669,-0.01917 c -6.905419,0.427516 -12.275741,5.727119 -12.293362,12.131474 0.01762,6.404355 5.387943,11.703956 12.293362,12.131471 l 8.941255,-0.02556 -0.02071,8.28039 c 0.461992,6.39009 6.18898,11.359642 13.109813,11.37595 6.920832,-0.01631 12.647819,-4.98586 13.109811,-11.37595 l -0.02762,-8.352268 8.94816,-0.02556 C 79.349478,54.857659 84.738994,49.593038 84.756319,43.210236 84.75544,36.816331 79.361434,31.534708 72.462958,31.173004 l -9.025835,-0.01917 -0.02762,-8.329905 C 63.019333,16.451329 57.330146,11.464012 50.432605,11.44798 Z" style="fill:#00ffa4;fill-opacity:1;stroke:none;stroke-opacity:1"></path>
+  </g>
+  
+</svg><style>@media (prefers-color-scheme: light) { :root { filter: contrast(1) brightness(0.7); } }
+@media (prefers-color-scheme: dark) { :root { filter: none; } }
+</style></svg>
