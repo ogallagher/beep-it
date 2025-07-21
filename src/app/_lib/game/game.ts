@@ -240,16 +240,16 @@ export default class Game {
     // remove child listeners of parent widget
     const widgetListeners = this.listenerWidgets.get(widgetId)
     if (widgetListeners) {
-      widgetListeners.config.entries().forEach(([sourceKey, targetKeys]) => {
+      for (const [sourceKey, targetKeys] of widgetListeners.config.entries()) {
         targetKeys.forEach(targetKey => {
           this.configListeners.get(sourceKey as GameConfigListenerKey)?.delete(targetKey)
         })
-      })
-      widgetListeners.state.entries().forEach(([sourceKey, targetKeys]) => {
+      }
+      for (const [sourceKey, targetKeys] of widgetListeners.state.entries()) {
         targetKeys.forEach(targetKey => {
           this.stateListeners.get(sourceKey as GameStateListenerKey)?.delete(targetKey)
         })
-      })
+      }
     }
     this.listenerWidgets.delete(widgetId)
   }
