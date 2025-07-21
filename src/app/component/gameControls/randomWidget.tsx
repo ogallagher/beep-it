@@ -62,7 +62,10 @@ function generateRandomWidget(game: RefObject<Game>, deviceId: RefObject<string>
   }
 
   // label
-  if (type === WidgetType.Key) {
+  if (type === WidgetType.Lever) {
+    widget.label = `${colorNameKey} ${widget.valueText} ${defaultWidgetLabel(type)}`
+  }
+  else if (type === WidgetType.Key) {
     widget.label = `${widget.valueText} ${defaultWidgetLabel(type)}`
   }
   else {
