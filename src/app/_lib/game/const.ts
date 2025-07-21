@@ -22,7 +22,7 @@ export type DeviceId = string
 export enum BoardDisplayMode {
   Mirror = 'mirror',
   Extend = 'extend',
-  Default = BoardDisplayMode.Mirror
+  Default = BoardDisplayMode.Extend
 }
 
 export enum GameTurnMode {
