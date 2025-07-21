@@ -1,7 +1,7 @@
 import { ReactSVG } from 'react-svg'
 import { CardinalDirection, KeyboardAction, TraceDirection, UIPointerAction, WidgetConfig, WidgetType, widgetWaitProgressSteps } from '../../../_lib/widget/const'
 import { SVGSpace, Circle, Pt, Color, Group, Curve } from 'pts'
-import { RefObject, useEffect, useRef, useState } from 'react'
+import { RefObject, useContext, useEffect, useRef, useState } from 'react'
 import { cardinalDistance, curveToSvgPathD, cycleIndex, keyboardEventToKeyboardAction, mouseEventToPointerAction, mouseEventToSvgPoint, svgPathDToCurve } from '@lib/widget/graphics'
 import { websiteBasePath } from '@api/const'
 import StaticRef from '@lib/staticRef'
@@ -12,6 +12,8 @@ import { scrollLock, scrollUnlock } from '@lib/page'
 import Grid from '@component/grid'
 import ActionText from './actionText'
 import { addKeyboardListener, KeyboardListener, removeKeyboardListener } from '@lib/keyboardDispatcher'
+import { HasDeviceFeaturesCtx } from '@component/context'
+import { addHasKeyboardListener, getHasKeyboard, getHasTouch, hasKeyboardDefault } from '@lib/deviceFeatures'
 
 function controlImage(widgetType: string) {
   return `${websiteBasePath}/widgetIcon/${widgetType}.svg`
@@ -27,38 +29,87 @@ function enableResize(svg: SVGSVGElement) {
 
 function enableKeyAction(
   onAction: (keyChar?: string) => void, 
-  iconSvg: RefObject<SVGSVGElement|SVGSVGElement[]|null>
-): KeyboardListener {
-  return (event: KeyboardEvent) => {
-    // event.preventDefault()
-    // event.stopPropagation()
-
-    const eventType = keyboardEventToKeyboardAction(event)
-    // capture keydown matching widget control character
+  iconSvg: RefObject<SVGSVGElement|SVGSVGElement[]|null>,
+  useKeyboard: boolean,
+  useTouch: boolean
+): KeyboardListener|AbortController {
+  function getKeyIcons() {
     let keyIcons = iconSvg.current
     if (keyIcons) {
       if (!Array.isArray(keyIcons)) {
         keyIcons = [keyIcons]
       }
 
-      for (const keyIcon of keyIcons) {
-        const char = keyIcon.getAttribute('data-char')
-        if (char === event.key) {
-          if (eventType === KeyboardAction.down) {
-            keyIcon.classList.remove(UIPointerAction.up)
-            keyIcon.classList.add(UIPointerAction.down)
-            onAction(char)
-          }
-          else if (eventType === KeyboardAction.up) {
-            keyIcon.classList.remove(UIPointerAction.down)
-            keyIcon.classList.add(UIPointerAction.up)
-          }
+      return keyIcons
+    }
+    else {
+      return undefined
+    }
+  }
 
-          // key icons within same widget control should be unique, so only 1 can receive a single key event
-          break
+  function keyDown(keyIcon: SVGSVGElement, char: string|undefined) {
+    keyIcon.classList.remove(UIPointerAction.up)
+    keyIcon.classList.add(UIPointerAction.down)
+    onAction(char)
+  }
+
+  function keyUp(keyIcon: SVGSVGElement) {
+    keyIcon.classList.remove(UIPointerAction.down)
+    keyIcon.classList.add(UIPointerAction.up)
+  }
+
+  if (useKeyboard) {
+    return (event: KeyboardEvent) => {
+      const eventType = keyboardEventToKeyboardAction(event)
+      // capture keydown matching widget control character
+      let keyIcons = getKeyIcons()
+      if (keyIcons) {
+        for (const keyIcon of keyIcons) {
+          const char = keyIcon.getAttribute('data-char')
+          if (char === event.key) {
+            if (eventType === KeyboardAction.down) {
+              keyDown(keyIcon, char)
+            }
+            else if (eventType === KeyboardAction.up) {
+              keyUp(keyIcon)
+            }
+
+            // key icons within same widget control should be unique, so only 1 can receive a single key event
+            break
+          }
         }
       }
     }
+  }
+  else {
+    // simulate keyboard events with touch
+    let keyIcons = getKeyIcons()
+    const keyTouchAbortController = new AbortController()
+    if (keyIcons) {
+      for (const keyIcon of keyIcons) {
+        function onMouseWrapper(e: MouseEvent | TouchEvent) {
+          const eventType = mouseEventToPointerAction(e)
+
+          if (eventType === UIPointerAction.down) {
+            keyDown(keyIcon, keyIcon.getAttribute('data-char')!)
+          }
+          else if (eventType === UIPointerAction.up) {
+            keyUp(keyIcon)
+          }
+        }
+        
+        if (useTouch) {
+          keyIcon.addEventListener('touchstart', onMouseWrapper, {signal: keyTouchAbortController.signal})
+          keyIcon.addEventListener('touchend', onMouseWrapper, {signal: keyTouchAbortController.signal})
+        }
+        else {
+          keyIcon.addEventListener('mousedown', onMouseWrapper, {signal: keyTouchAbortController.signal})
+          keyIcon.addEventListener('mouseup', onMouseWrapper, {signal: keyTouchAbortController.signal})
+        }
+      }
+    }
+
+    return keyTouchAbortController
   }
 }
 
@@ -66,7 +117,8 @@ function enableAction(
   type: WidgetType, 
   svg: SVGSVGElement, 
   onAction: () => void,
-  iconSvg: RefObject<SVGSVGElement | null>
+  iconSvg: RefObject<SVGSVGElement|null>,
+  useTouch: boolean
 ) {
   const space = new SVGSpace(svg)
   space.setup({
@@ -457,19 +509,27 @@ function enableAction(
     function onMouseWrapper(e: MouseEvent | TouchEvent) {
       action(mouseEventToPointerAction(e), mouseEventToSvgPoint(svg, e), e)
     }
-    svg.addEventListener('mousemove', onMouseWrapper, {signal: listenerAbortController.signal})
-    svg.addEventListener('touchmove', onMouseWrapper, {signal: listenerAbortController.signal})
-    svg.addEventListener('mousedown', onMouseWrapper, {signal: listenerAbortController.signal})
-    svg.addEventListener('touchstart', onMouseWrapper, {signal: listenerAbortController.signal})
-    svg.addEventListener('mouseup', onMouseWrapper, {signal: listenerAbortController.signal})
-    svg.addEventListener('touchend', onMouseWrapper, {signal: listenerAbortController.signal})
+    if (useTouch) {
+      svg.addEventListener('touchmove', onMouseWrapper, {signal: listenerAbortController.signal})
+      svg.addEventListener('touchstart', onMouseWrapper, {signal: listenerAbortController.signal})
+      svg.addEventListener('touchend', onMouseWrapper, {signal: listenerAbortController.signal})
+    }
+    else {
+      svg.addEventListener('mousemove', onMouseWrapper, {signal: listenerAbortController.signal})
+      svg.addEventListener('mousedown', onMouseWrapper, {signal: listenerAbortController.signal})
+      svg.addEventListener('mouseup', onMouseWrapper, {signal: listenerAbortController.signal})
+    }
   }
   if (type === WidgetType.Wait) {
     function onMouseWrapper(e: MouseEvent | TouchEvent) {
       action(mouseEventToPointerAction(e), mouseEventToSvgPoint(svg, e), e)
     }
-    svg.addEventListener('mousedown', onMouseWrapper, {signal: listenerAbortController.signal})
-    svg.addEventListener('touchstart', onMouseWrapper, {signal: listenerAbortController.signal})
+    if (useTouch) {
+      svg.addEventListener('touchstart', onMouseWrapper, {signal: listenerAbortController.signal})
+    }
+    else {
+      svg.addEventListener('mousedown', onMouseWrapper, {signal: listenerAbortController.signal})
+    }
   }
   svg.addEventListener('contextmenu', (e) => {e.preventDefault()}, {signal: listenerAbortController.signal})
 
@@ -648,9 +708,12 @@ export default function WidgetControl(
     className?: string
   }
 ) {
+  const hasDeviceFeatures = useContext(HasDeviceFeaturesCtx)
+  const hasKeyboard = useRef(hasDeviceFeatures ? getHasKeyboard() : hasKeyboardDefault)
   const iconSvg: RefObject<SVGSVGElement|SVGSVGElement[]|null> = useRef(
     type === WidgetType.KeyPad ? [] : null
   )
+  const onIconReady: RefObject<CallableFunction|null> = useRef(null)
   const iconWrapper: RefObject<HTMLDivElement|null> = useRef(null)
   const interactiveSvg: RefObject<SVGSVGElement|null> = useRef(null)
   /**
@@ -679,37 +742,70 @@ export default function WidgetControl(
     showValueText.current = (valueText: string | undefined) => setValueChars(getValueChars(valueText))
   }
   const showActionChar = useRef(null as unknown as (c: string|undefined) => void)
+
+  // update hasKeyboard
+  useEffect(
+    () => {
+      if (hasDeviceFeatures && onAction !== undefined) {
+        addHasKeyboardListener(`${WidgetControl.name}.${widgetId}`, () => {
+          hasKeyboard.current = getHasKeyboard()
+        })
+      }
+    },
+    [hasDeviceFeatures]
+  )
   
   // enable and disable interactive action
   useEffect(
     () => {
+      const isKeyType = (type === WidgetType.Key || type === WidgetType.KeyPad)
+
       if (onAction !== undefined && active) {
-        if (type === WidgetType.Key) {
-          addKeyboardListener(
-            [configRef.current.valueText!], 
-            widgetId, 
-            enableKeyAction(onAction, iconSvg)
-          )
-        }
-        else if (type === WidgetType.KeyPad) {
-          showActionChar.current(undefined)
-          addKeyboardListener(
-            valueChars,
-            widgetId,
-            enableKeyAction(showActionChar.current, iconSvg)
-          )
+        if (isKeyType) {
+          // If isKeyType and !hasKeyboard, icons have touch handlers, which we cannot register until after 
+          // all icons are rendered.
+          onIconReady.current = () => {
+            const keyControl = enableKeyAction(
+              (type === WidgetType.Key ? onAction : showActionChar.current), 
+              iconSvg, 
+              hasKeyboard.current,
+              getHasTouch()
+            )
+
+            if (hasKeyboard.current) {
+              addKeyboardListener(
+                (type === WidgetType.Key ? [configRef.current.valueText!] : valueChars),
+                widgetId,
+                keyControl as KeyboardListener
+              )
+
+              if (type === WidgetType.KeyPad) {
+                showActionChar.current(undefined)
+              }
+            }
+            else {
+              interactAbortController.current = keyControl as AbortController
+            }
+          }
         }
         else if (interactiveSvg.current) {
-          interactAbortController.current = enableAction(type, interactiveSvg.current, onAction, iconSvg as RefObject<SVGSVGElement>)
+          interactAbortController.current = enableAction(
+            type, 
+            interactiveSvg.current, 
+            onAction, 
+            iconSvg as RefObject<SVGSVGElement>,
+            getHasTouch()
+          )
         }
       }
       else if (!active) {
-        if (type === WidgetType.Key) {
+        if (isKeyType) {
+          onIconReady.current = null
           removeKeyboardListener(widgetId)
-        }
-        if (type === WidgetType.KeyPad) {
-          showActionChar.current(undefined)
-          removeKeyboardListener(widgetId)
+
+          if (type === WidgetType.KeyPad) {
+            showActionChar.current(undefined)
+          }
         }
 
         if (interactAbortController.current) {
@@ -717,7 +813,7 @@ export default function WidgetControl(
         }
       }
     },
-    [ active, configRef, showActionChar, valueChars ]
+    [ active, configRef, showActionChar, valueChars, hasKeyboard ]
   )
   
   // wait: render command delay progress
@@ -864,6 +960,18 @@ export default function WidgetControl(
       }
       showValueText.current(configRef.current.valueText)
     }
+
+    if (onIconReady.current) {
+      if (type === WidgetType.KeyPad) {
+        // only ready after all char icons are loaded
+        if ((iconSvg.current as SVGSVGElement[]).length === valueChars.size) {
+          onIconReady.current()
+        }
+      }
+      else {
+        onIconReady.current()
+      }
+    }
   }
 
   return (
@@ -890,43 +998,47 @@ export default function WidgetControl(
                   afterInjection={loadIconSvg} />
                 
                 {/* interactive layer */}
-                <svg 
-                  className='absolute w-full h-full' 
-                  ref={interactiveSvg} />
+                {
+                  type !== WidgetType.Key 
+                  ? <svg 
+                    className='absolute w-full h-full' 
+                    ref={interactiveSvg} />
+                  : undefined
+                }
               </>
             )
             : (
               <>
-                {/* TODO show action text */}
-                <ActionText
-                  showActionChar={showActionChar}
-                  configRef={configRef}
-                  onAction={onAction!} />
-
                 {/* icon grid */}
                 <Grid viewportAspectRatio={1}>
                   {( () => {
                     iconSvg.current = []
 
                     return [...valueChars.keys()].map((valueChar) => (
-                    <ReactSVG 
-                      key={valueChar}
-                      className='flex-1'
-                      src={controlImage(WidgetType.Key)}
-                      width={1} height={1}
-                      afterInjection={svg => {
-                        (iconSvg.current as SVGElement[]).push(svg)
+                      <ReactSVG 
+                        key={valueChar}
+                        className='flex-1'
+                        src={controlImage(WidgetType.Key)}
+                        width={1} height={1}
+                        afterInjection={svg => {
+                          (iconSvg.current as SVGElement[]).push(svg)
 
-                        svg.setAttribute('data-char', valueChar)
-                        for (const el of svg.getElementsByClassName('char')) {
-                          el.textContent = valueChar
-                        }
+                          svg.setAttribute('data-char', valueChar)
+                          for (const el of svg.getElementsByClassName('char')) {
+                            el.textContent = valueChar
+                          }
 
-                        return loadIconSvg(svg, false)
-                      }} />
-                  ))
+                          return loadIconSvg(svg, false)
+                        }} />
+                    ))
                   } )()}
                 </Grid>
+
+                {/* show action text */}
+                <ActionText
+                  showActionChar={showActionChar}
+                  configRef={configRef}
+                  onAction={onAction!} />
               </>
             )
           }

@@ -47,7 +47,8 @@ export default function ActionText(
           setActionText('')
         }
       }
-    }
+    },
+    []
   )
 
   return (
