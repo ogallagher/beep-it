@@ -62,7 +62,7 @@ function enableKeyAction(
     return (event: KeyboardEvent) => {
       const eventType = keyboardEventToKeyboardAction(event)
       // capture keydown matching widget control character
-      let keyIcons = getKeyIcons()
+      const keyIcons = getKeyIcons()
       if (keyIcons) {
         for (const keyIcon of keyIcons) {
           const char = keyIcon.getAttribute('data-char')
@@ -83,7 +83,7 @@ function enableKeyAction(
   }
   else {
     // simulate keyboard events with touch
-    let keyIcons = getKeyIcons()
+    const keyIcons = getKeyIcons()
     const keyTouchAbortController = new AbortController()
     if (keyIcons) {
       for (const keyIcon of keyIcons) {

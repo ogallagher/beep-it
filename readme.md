@@ -11,6 +11,22 @@ When visiting the site, each client device/browser is assigned a game `id` and `
 If you leave the site and return relatively soon (see game delete delay) with the same game `id`, your configuration should be restored.
 To invite other player devices to join, you can tap the share button and copy the link. It omits `deviceId`.
 
+# Local device keyboard type
+
+The page will attempt to automatically determine whether the local client device has a physical keyboard, and update the corresponding button in the game controls bar. You can manually update the keyboard type using the same button.
+
+<img alt="physical keyboard" src="doc/game-controls_device-feature_keyboard.png" style="display: block; float: right; padding-left: 1em; padding-bottom: 1em;" />
+
+Use a physical keyboard.
+
+<br style="clear: right;" />
+
+<img alt="touch screen keyboard" src="doc/game-controls_device-feature_keytouch.png" style="display: block; float: right; padding-left: 1em; padding-bottom: 1em;" />
+
+Use a touch screen keyboard.
+
+<br style="clear: right" />
+
 # Manage devices
 
 <img alt="device manager" src="doc/game-controls_devices.jpeg" style="display: block; float: right; padding-left: 1em; padding-bottom: 1em;" />
