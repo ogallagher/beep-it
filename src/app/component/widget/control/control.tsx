@@ -13,7 +13,7 @@ import Grid from '@component/grid'
 import ActionText from './actionText'
 import { addKeyboardListener, KeyboardListener, removeKeyboardListener } from '@lib/keyboardDispatcher'
 import { HasDeviceFeaturesCtx } from '@component/context'
-import { addHasKeyboardListener, getHasKeyboard, getHasTouch, hasKeyboardDefault } from '@lib/deviceFeatures'
+import { getHasKeyboard, getHasTouch, hasKeyboardDefault } from '@lib/deviceFeatures'
 
 function controlImage(widgetType: string) {
   return `${websiteBasePath}/widgetIcon/${widgetType}.svg`
@@ -709,7 +709,9 @@ export default function WidgetControl(
   }
 ) {
   const hasDeviceFeatures = useContext(HasDeviceFeaturesCtx)
-  const hasKeyboard = useRef(hasDeviceFeatures ? getHasKeyboard() : hasKeyboardDefault)
+  // Currently control already renders on every setHasKeyboard due to useContext, so it's not a ref updated
+  // by a listener.
+  const hasKeyboard = hasDeviceFeatures ? getHasKeyboard() : hasKeyboardDefault
   const iconSvg: RefObject<SVGSVGElement|SVGSVGElement[]|null> = useRef(
     type === WidgetType.KeyPad ? [] : null
   )
@@ -742,18 +744,6 @@ export default function WidgetControl(
     showValueText.current = (valueText: string | undefined) => setValueChars(getValueChars(valueText))
   }
   const showActionChar = useRef(null as unknown as (c: string|undefined) => void)
-
-  // update hasKeyboard
-  useEffect(
-    () => {
-      if (hasDeviceFeatures && onAction !== undefined) {
-        addHasKeyboardListener(`${WidgetControl.name}.${widgetId}`, () => {
-          hasKeyboard.current = getHasKeyboard()
-        })
-      }
-    },
-    [hasDeviceFeatures]
-  )
   
   // enable and disable interactive action
   useEffect(
@@ -768,11 +758,11 @@ export default function WidgetControl(
             const keyControl = enableKeyAction(
               (type === WidgetType.Key ? onAction : showActionChar.current), 
               iconSvg, 
-              hasKeyboard.current,
+              hasKeyboard,
               getHasTouch()
             )
 
-            if (hasKeyboard.current) {
+            if (hasKeyboard) {
               addKeyboardListener(
                 (type === WidgetType.Key ? [configRef.current.valueText!] : valueChars),
                 widgetId,

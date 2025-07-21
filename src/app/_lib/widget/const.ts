@@ -38,7 +38,9 @@ export const crossPlatformWidgetTypes = [
   WidgetType.Button,
   WidgetType.Lever,
   WidgetType.Twist,
-  WidgetType.Wait
+  WidgetType.Key,
+  WidgetType.Wait,
+  WidgetType.KeyPad
 ]
 
 export enum CardinalDirection {
@@ -197,3 +199,31 @@ export enum KeyboardAction {
   down = 'down'
 }
 
+export enum Char {
+  a = 'a'.codePointAt(0)!,
+  z = 'z'.codePointAt(0)!,
+  zero = '0'.codePointAt(0)!,
+  nine = '9'.codePointAt(0)!
+}
+const lettersStart = Char.a
+const lettersLen = (Char.z - Char.a) + 1
+const digitsStart = Char.zero
+const digitsLen = (Char.nine - Char.zero) + 1
+
+export function idxToChar(idx: number) {
+  if (idx < digitsLen) {
+    return String.fromCodePoint(digitsStart + idx)
+  }
+  else if (idx < digitsLen + lettersLen) {
+    return String.fromCodePoint(lettersStart + (idx - digitsLen))
+  }
+  else {
+    throw new Error(`unsupported random char code index ${idx}`)
+  }
+}
+
+export function randomChar(seed: number = Math.random()) {
+  const allLen = digitsLen + lettersLen
+  const idx = Math.round(seed * (allLen-1))
+  return idxToChar(idx)
+}

@@ -1,6 +1,6 @@
 import Game from '@lib/game/game'
 import { clientSendConfigEvent, GameEventType } from '@lib/game/gameEvent'
-import { CardinalDirection, crossPlatformWidgetTypes, defaultWidgetCommands, defaultWidgetLabel, WidgetType } from '@lib/widget/const'
+import { CardinalDirection, Char, crossPlatformWidgetTypes, defaultWidgetCommands, defaultWidgetLabel, randomChar, WidgetType } from '@lib/widget/const'
 import Widget from '@lib/widget/widget'
 import { RefObject } from 'react'
 import { LightningFill } from 'react-bootstrap-icons'
@@ -43,17 +43,30 @@ function generateRandomWidget(game: RefObject<Game>, deviceId: RefObject<string>
   const colorNameKeys = Object.keys(colorNames)
   const colorNameKey = colorNameKeys[Math.trunc(Math.random() * colorNameKeys.length)]
   widget.color = colorNames[colorNameKey]
-  // label matching color
-  widget.label = `${colorNameKey} ${defaultWidgetLabel(type)}`
   // duration
   widget.duration = Math.round(Math.random() * 3000)
   // command
   const commands = defaultWidgetCommands(type)
   widget.command = commands[Math.trunc(Math.random() * commands.length)]
 
+  // value
   if (type === WidgetType.Lever) {
     // lever direction
     widget.valueText = cardinalDirections[Math.trunc(Math.random() * cardinalDirections.length)]
+  }
+  else if (type === WidgetType.Key) {
+    widget.valueText = randomChar()
+  }
+  else if (type === WidgetType.KeyPad) {
+    widget.valueText = colorNameKey
+  }
+
+  // label
+  if (type === WidgetType.Key) {
+    widget.label = `${widget.valueText} ${defaultWidgetLabel(type)}`
+  }
+  else {
+    widget.label = `${colorNameKey} ${defaultWidgetLabel(type)}`
   }
 
   // update local game model and render
