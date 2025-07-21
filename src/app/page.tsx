@@ -15,12 +15,16 @@ import Header from '@component/header'
 import { TimeoutReference } from '@lib/game/const'
 import { joinGame, scrollLock, scrollUnlock } from '@lib/page'
 import { initKeyboardDispatcher } from '@lib/keyboardDispatcher'
+import { initDeviceFeatures } from '@lib/deviceFeatures'
+import { HasDeviceFeaturesCtx } from '@component/context'
 
 export default function Home() {
   const urlParams = useSearchParams()
 
   const clientDeviceId = useRef(urlParams.get(GameEventKey.DeviceId) || ulid())
+  const [hasDeviceFeatures, setHasDeviceFeatures] = useState(false)
   // load game
+  // TODO alternative to passing game as prop to descendants is to create context.GameCtx
   const game = useRef(Game.loadGame(urlParams, Game.loadGameId(urlParams)) || new Game())
 
   const gameEventSource: RefObject<EventSource | undefined> = useRef(undefined)
@@ -197,9 +201,14 @@ export default function Home() {
         gameEventSource, onGameEvent.current, closeGameEventSource.current
       )
 
+      // init client device features
+      initDeviceFeatures()
+      setHasDeviceFeatures(true)
+
       // init keyboard dispatcher
       initKeyboardDispatcher(game)
-    }
+    },
+    []
   )
 
   return (
@@ -208,23 +217,25 @@ export default function Home() {
 
       <div className='py-4 font-[family-name:var(--font-geist-sans)] flex flex-col gap-2'>
         <main className="flex flex-col gap-[32px] items-center sm:items-start">
-          <GameControls
-            widgetsDrawerOpen={widgetsDrawerOpen} setWidgetsDrawerOpen={setWidgetsDrawerOpen}
-            startGame={startGame}
-            game={game}
-            deviceId={clientDeviceId}
-            // needed in order to rejoin game and handle new game event stream
-            gameEventSource={gameEventSource} onGameEvent={onGameEvent} closeGameEventSource={closeGameEventSource} />
-          
-          <WidgetsDrawer 
-            open={widgetsDrawerOpen}
-            game={game}
-            deviceId={clientDeviceId} />
+          <HasDeviceFeaturesCtx value={hasDeviceFeatures}>
+            <GameControls
+              widgetsDrawerOpen={widgetsDrawerOpen} setWidgetsDrawerOpen={setWidgetsDrawerOpen}
+              startGame={startGame}
+              game={game}
+              deviceId={clientDeviceId}
+              // needed in order to rejoin game and handle new game event stream
+              gameEventSource={gameEventSource} onGameEvent={onGameEvent} closeGameEventSource={closeGameEventSource} />
+            
+            <WidgetsDrawer 
+              open={widgetsDrawerOpen}
+              game={game}
+              deviceId={clientDeviceId} />
 
-          <div className='w-full h-svh' id={boardId} >
-            <CommandCaptions game={game} />
-            <Board game={game} deviceId={clientDeviceId} />
-          </div>  
+            <div className='w-full h-svh' id={boardId} >
+              <CommandCaptions game={game} />
+              <Board game={game} deviceId={clientDeviceId} />
+            </div>  
+          </HasDeviceFeaturesCtx>
         </main>
       </div>
     </div>

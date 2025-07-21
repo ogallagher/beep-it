@@ -1,4 +1,4 @@
-import { Dispatch, RefObject, SetStateAction, useEffect, useState } from 'react'
+import { Dispatch, RefObject, SetStateAction, Suspense, useEffect, useState } from 'react'
 import ShareGame from './share'
 import SaveConfig from './save'
 import StaticRef from '@lib/staticRef'
@@ -13,6 +13,7 @@ import RejoinGame from './rejoin'
 import { GameStateListenerKey } from '@lib/game/const'
 import Preview from './preview'
 import RandomWidget from './randomWidget'
+import DeviceFeaturesCmp from './deviceFeaturesCmp'
 
 export default function GameControls(
   { widgetsDrawerOpen, setWidgetsDrawerOpen, startGame, game, deviceId, gameEventSource, onGameEvent, closeGameEventSource } : {
@@ -54,6 +55,10 @@ export default function GameControls(
         <SaveConfig game={game} />
 
         <ShareGame game={game} />
+      </div>
+
+      <div className={'flex flex-row flex-wrap gap-2 ' + (gamePreview ? 'hidden' : '')}>
+        <DeviceFeaturesCmp />
       </div>
      
       <div className={'flex flex-row flex-wrap gap-2 ' + (gamePreview ? 'hidden' : '')}>
