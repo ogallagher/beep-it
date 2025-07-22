@@ -130,21 +130,21 @@ The game will emit a command and wait for a player device to do the correspondin
 
 **Button**
 
-Action is mouse click or tap.
+Action is mouse click or tap, submitted on **press** (not release).
 
 <br style="clear: right" />
 <img alt="knob" src="public/widgetIcon/twist.svg" style="float: right; padding-left: 1em; padding-bottom: 1em; width: 10em;" />
 
 **Knob / Twist**
 
-Action is to drag in a circle. Technically, the drag must pass through 3/4 quadrants.
+Action is to drag in a circle. Technically, the drag must pass through **3/4** quadrants around the center (three quarters of a circle).
 
 <br style="clear: right" />
 <img alt="lever" src="public/widgetIcon/lever.svg" style="float: right; padding-left: 1em; padding-bottom: 1em; width: 10em;" />
 
 **Lever**
 
-Action is to drag in the corresponding direction.
+Action is to drag in the corresponding direction, submitted when the drag is longer than **50%** of the widget's size(=width=height).
 
 The configurable `direction` is one of four cardinal directions in which to pull it. 
 Specify with the first letter of `U`p, `D`own, `L`eft, or `R`ight.
@@ -154,7 +154,7 @@ Specify with the first letter of `U`p, `D`own, `L`eft, or `R`ight.
 
 **Key**
 
-Action is to press the corresponding keyboard key. This is only compatible with devices that have peripheral keyboards (generally not mobile).
+Action is to press the corresponding keyboard key if using a physical keyboard (see [local device keyboard type](#local-device-keyboard-type)), or icon press, like **button**.
 
 The configurable `key` to press is case sensitive and should support any printable character, even if the physical source keyboard requires a combination of keys to press it.
 
@@ -163,7 +163,7 @@ The configurable `key` to press is case sensitive and should support any printab
 
 **Wait**
 
-Action is to do nothing.
+Action is to **do nothing**, submitted when the wait duration is complete. Tapping this widget or doing any other widget before then ends the game.
 
 <br style="clear: right" />
 <img alt="path" src="public/widgetIcon/path.svg" style="float: right; padding-left: 1em; padding-bottom: 1em; width: 10em;" />
@@ -179,4 +179,4 @@ The configurable `path` to trace is in [`svg.path.d` string format](https://deve
 
 **Keypad**
 
-Action is to type a key combination/phrase, configurable with `text`. As with **key**, this is only compatible with devices that have peripheral keyboards (generally not mobile).
+Action is to type a key combination/phrase, configurable with `text`. As with **key**, input method depends on [local device keyboard type](#local-device-keyboard-type).
