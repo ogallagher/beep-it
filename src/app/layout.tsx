@@ -15,6 +15,9 @@ const geistMono = Geist_Mono({
 
 /**
  * Populates site metadata in `head.meta` tags.
+ * 
+ * Some tags, like `link[rel="metadata"]` and `link[rel="icon"]` are auto added when relevant files are available
+ * at `src/app/`, which is why I put them there instead of `public/`.
  */
 export const metadata: Metadata = {
   title: 'Beep It',

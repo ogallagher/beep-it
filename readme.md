@@ -1,6 +1,10 @@
 # Beep It
 
+<img alt="beep it logo" src="doc/icon0.svg" style="float: right; padding-left: 1em; padding-bottom: 1em; width: 6em;" />
+
 Beep It starts with a core concept— have a set of widgets on a board/console that the player must do in the correct order at increasing speed— and takes it to the next level. Namely, it supports **multiple devices** per game, and is highly **configurable**.
+
+<br style="clear: right;" />
 
 # Join a game
 

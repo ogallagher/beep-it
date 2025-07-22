@@ -20,6 +20,14 @@ async function exposeReadme() {
     { encoding: 'utf-8' }
   )
 
+  logger.info('expose logo for web server')
+  const logo = await readFile('doc/icon0.svg', { encoding: 'utf-8' })
+  writeFile(
+    'src/app/icon0.svg',
+    logo,
+    { encoding: 'utf-8' }
+  )
+
   logger.info('expose doc/ for readme')
   cp('doc', 'public/doc', {
     errorOnExist: false,
