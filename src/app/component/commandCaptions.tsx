@@ -3,6 +3,8 @@ import Game from '@lib/game/game'
 import { GameEndReason } from '@lib/game/gameEvent'
 import StaticRef from '@lib/staticRef'
 import { RefObject, useEffect, useRef, useState } from 'react'
+import ActionText from './widget/control/actionText'
+import { WidgetType } from '@lib/widget/const'
 
 /**
  * Period of command delay progress update cycle, in milliseconds.
@@ -22,7 +24,8 @@ export default function CommandCaptions(
     return {
       action: game.current.config.widgets.get(commandWidgetId)?.command,
       targetLabel: game.current.config.widgets.get(commandWidgetId)?.label,
-      delay: game.current.getCommandDelay(true)
+      delay: game.current.getCommandDelay(true),
+      type: game.current.config.widgets.get(commandWidgetId)?.type
     }
   }
   function getGameEnd() {
@@ -106,11 +109,22 @@ export default function CommandCaptions(
         </div>
 
         {/* score */}
-        <div className='flex flex-col justify-center text-center'>
+        <div className={
+          'flex flex-col justify-center text-center '
+          + (command?.type === WidgetType.KeyPad && !gameEnd.ended ? 'hidden md:block' : '')
+        }>
           <div className='text-2xl text-nowrap'>
             <b>score: </b>
             <span className='font-mono'>{score}</span>
           </div>
+        </div>
+
+        {/* action text (input progress of active keypad) */}
+        <div className={
+          'flex flex-col justify-center text-center '
+          + (command?.type === WidgetType.KeyPad && !gameEnd.ended ? '' : 'hidden')
+        }>
+          <ActionText />
         </div>
         
         {/* game end */}

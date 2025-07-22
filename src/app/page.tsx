@@ -16,7 +16,8 @@ import { TimeoutReference } from '@lib/game/const'
 import { joinGame, scrollLock, scrollUnlock } from '@lib/page'
 import { initKeyboardDispatcher } from '@lib/keyboardDispatcher'
 import { initDeviceFeatures } from '@lib/deviceFeatures'
-import { HasDeviceFeaturesCtx } from '@component/context'
+import { ActionValueTextCtx, ActionValueTextPayload, HasDeviceFeaturesCtx } from '@component/context'
+import StaticRef from '@lib/staticRef'
 
 export default function Home() {
   const urlParams = useSearchParams()
@@ -232,8 +233,10 @@ export default function Home() {
               deviceId={clientDeviceId} />
 
             <div className='w-full h-svh' id={boardId} >
-              <CommandCaptions game={game} />
-              <Board game={game} deviceId={clientDeviceId} />
+              <ActionValueTextCtx value={new ActionValueTextPayload()}>
+                <CommandCaptions game={game} />
+                <Board game={game} deviceId={clientDeviceId} />
+              </ActionValueTextCtx>
             </div>  
           </HasDeviceFeaturesCtx>
         </main>

@@ -1,54 +1,64 @@
+import { ActionValueTextCtx } from '@component/context'
 import { Input } from '@headlessui/react'
-import StaticRef from '@lib/staticRef'
-import { WidgetConfig } from '@lib/widget/const'
-import { RefObject, useState, useRef, useEffect } from 'react'
+import { WidgetId } from '@lib/widget/const'
+import { useState, useRef, useEffect, useContext } from 'react'
 
-
-export default function ActionText(
-  { showActionChar, configRef, onAction }: {
-    showActionChar: RefObject<(c: string | undefined) => void>
-    configRef: RefObject<WidgetConfig> | StaticRef<WidgetConfig>
-    onAction: () => void
-  }) {
+export default function ActionText() {
   const [shownActionText, setShownActionText] = useState('')
-  const actionTextRef = useRef('')
+  const valueTextCtx = useContext(ActionValueTextCtx)
 
-  function setActionText(actionText: string) {
+  function setActionText(actionText: string, widgetId?: WidgetId) {
     setShownActionText(actionText)
-    actionTextRef.current = actionText
+
+    if (widgetId) {
+      valueTextCtx.actionText.set(widgetId, actionText)
+    }
+    else {
+      for (const key of valueTextCtx.actionText.keys()) {
+        valueTextCtx.actionText.set(key, actionText)
+      }
+    }
   }
 
   useEffect(
     () => {
-      showActionChar.current = (keyChar) => {
+      valueTextCtx.showActionChar = (keyChar, widgetId) => {
         if (keyChar === undefined) {
           // reset action text
-          setActionText('')
+          setActionText('', widgetId)
+          return
         }
 
-        const _actionText = actionTextRef.current + keyChar
-        if (configRef.current.valueText!.startsWith(_actionText)) {
-          if (configRef.current.valueText!.length === _actionText.length) {
-            // key combination complete; submit widget action
-            onAction()
+        if (widgetId) {
+          valueTextCtx.activeWidgetId = widgetId
+        }
+        if (valueTextCtx.activeWidgetId) {
+          const _actionText = (valueTextCtx.actionText.get(valueTextCtx.activeWidgetId) || '') + keyChar
+          const valueText = valueTextCtx.valueText.get(valueTextCtx.activeWidgetId)!
 
-            // reset for next input
-            actionTextRef.current = ''
-            // but display as complete
-            setShownActionText(`[${_actionText}]`)
+          if (valueText.startsWith(_actionText)) {
+            if (valueText.length === _actionText.length) {
+              // key combination complete; submit widget action
+              valueTextCtx.onAction.get(valueTextCtx.activeWidgetId)!()
+
+              // reset all for next input
+              valueTextCtx.actionText.set(valueTextCtx.activeWidgetId, '')
+              // but display current as complete
+              setShownActionText(`[${_actionText}]`)
+            }
+            else {
+              // single correct key
+              setActionText(_actionText, valueTextCtx.activeWidgetId)
+            }
           }
           else {
-            // single correct key
-            setActionText(_actionText)
+            // incorrect key; clear to start over
+            setActionText('', widgetId)
           }
-        }
-        else {
-          // incorrect key; clear to start over
-          setActionText('')
         }
       }
     },
-    []
+    [ valueTextCtx ]
   )
 
   return (

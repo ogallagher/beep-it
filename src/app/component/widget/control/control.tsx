@@ -10,9 +10,8 @@ import { GameStateListenerKey, TimeoutReference } from '@lib/game/const'
 import { clientSendConfigEvent, GameEventType } from '@lib/game/gameEvent'
 import { scrollLock, scrollUnlock } from '@lib/page'
 import Grid from '@component/grid'
-import ActionText from './actionText'
 import { addKeyboardListener, KeyboardListener, removeKeyboardListener } from '@lib/keyboardDispatcher'
-import { HasDeviceFeaturesCtx } from '@component/context'
+import { ActionValueTextCtx, HasDeviceFeaturesCtx } from '@component/context'
 import { getHasKeyboard, getHasTouch, hasKeyboardDefault } from '@lib/deviceFeatures'
 
 function controlImage(widgetType: string) {
@@ -743,7 +742,7 @@ export default function WidgetControl(
   if (type === WidgetType.KeyPad) {
     showValueText.current = (valueText: string | undefined) => setValueChars(getValueChars(valueText))
   }
-  const showActionChar = useRef(null as unknown as (c: string|undefined) => void)
+  const actionValueTextCtx = useContext(ActionValueTextCtx)
   
   // enable and disable interactive action
   useEffect(
@@ -755,23 +754,34 @@ export default function WidgetControl(
           // If isKeyType and !hasKeyboard, icons have touch handlers, which we cannot register until after 
           // all icons are rendered.
           onIconReady.current = () => {
+            // enable key action
             const keyControl = enableKeyAction(
-              (type === WidgetType.Key ? onAction : showActionChar.current), 
+              (
+                type === WidgetType.Key 
+                ? onAction 
+                : (keyChar) => actionValueTextCtx.showActionChar(keyChar, widgetId)
+              ), 
               iconSvg, 
               hasKeyboard,
               getHasTouch()
             )
 
+            if (type === WidgetType.KeyPad) {
+              // define input complete condition
+              actionValueTextCtx.valueText.set(widgetId, configRef.current.valueText!)
+              // handle action on input complete
+              actionValueTextCtx.onAction.set(widgetId, onAction)
+              // reset input progress
+              actionValueTextCtx.showActionChar(undefined, widgetId)
+            }
+
+            // manage input event listeners
             if (hasKeyboard) {
               addKeyboardListener(
                 (type === WidgetType.Key ? [configRef.current.valueText!] : valueChars),
                 widgetId,
                 keyControl as KeyboardListener
               )
-
-              if (type === WidgetType.KeyPad) {
-                showActionChar.current(undefined)
-              }
             }
             else {
               interactAbortController.current = keyControl as AbortController
@@ -794,7 +804,7 @@ export default function WidgetControl(
           removeKeyboardListener(widgetId)
 
           if (type === WidgetType.KeyPad) {
-            showActionChar.current(undefined)
+            actionValueTextCtx.showActionChar(undefined)
           }
         }
 
@@ -803,7 +813,7 @@ export default function WidgetControl(
         }
       }
     },
-    [ active, configRef, showActionChar, valueChars, hasKeyboard ]
+    [ active, configRef, actionValueTextCtx, valueChars, hasKeyboard ]
   )
   
   // wait: render command delay progress
@@ -998,38 +1008,30 @@ export default function WidgetControl(
               </>
             )
             : (
-              <>
-                {/* icon grid */}
-                <Grid viewportAspectRatio={1}>
-                  {( () => {
-                    iconSvg.current = []
+              // icon grid
+              <Grid viewportAspectRatio={1}>
+                {( () => {
+                  iconSvg.current = []
 
-                    return [...valueChars.keys()].map((valueChar) => (
-                      <ReactSVG 
-                        key={valueChar}
-                        className='flex-1'
-                        src={controlImage(WidgetType.Key)}
-                        width={1} height={1}
-                        afterInjection={svg => {
-                          (iconSvg.current as SVGElement[]).push(svg)
+                  return [...valueChars.keys()].map((valueChar) => (
+                    <ReactSVG 
+                      key={valueChar}
+                      className='flex-1'
+                      src={controlImage(WidgetType.Key)}
+                      width={1} height={1}
+                      afterInjection={svg => {
+                        (iconSvg.current as SVGElement[]).push(svg)
 
-                          svg.setAttribute('data-char', valueChar)
-                          for (const el of svg.getElementsByClassName('char')) {
-                            el.textContent = valueChar
-                          }
+                        svg.setAttribute('data-char', valueChar)
+                        for (const el of svg.getElementsByClassName('char')) {
+                          el.textContent = valueChar
+                        }
 
-                          return loadIconSvg(svg, false)
-                        }} />
-                    ))
-                  } )()}
-                </Grid>
-
-                {/* show action text */}
-                <ActionText
-                  showActionChar={showActionChar}
-                  configRef={configRef}
-                  onAction={onAction!} />
-              </>
+                        return loadIconSvg(svg, false)
+                      }} />
+                  ))
+                } )()}
+              </Grid>
             )
           }
         </div>
