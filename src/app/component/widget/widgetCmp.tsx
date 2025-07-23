@@ -9,6 +9,9 @@ import Game from '@lib/game/game'
 import { RefObject } from 'react'
 import { ApiRoute, websiteBasePath } from '@api/const'
 import { DoWidgetEvent, GameEvent, GameEventType } from '@lib/game/gameEvent'
+import { LightningFill } from 'react-bootstrap-icons'
+import { generateRandomWidget } from '@lib/widget/random'
+import WidgetReplaceRandom from './replaceRandom'
 
 /**
  * Inputs to widget UI component.
@@ -143,10 +146,21 @@ export default function WidgetCmp(
           showValueText={showValueText}
           showWidth={showWidth} />
       </div>
-
-      <WidgetDelete 
-          onDelete={onDelete} widgetLabel={labelRef.current} widgetId={widget.id}
-          disabled={active} />
+      
+      <div
+        className={
+          'absolute bottom-0 right-0 p-4 '
+          + (active || (onDelete === undefined) ? 'hidden' : '')
+        } >
+        <div className='flex flex-row justify-end gap-2'>
+          <WidgetReplaceRandom 
+            game={game} 
+            widget={widget}
+            deviceId={deviceId} />
+          <WidgetDelete 
+            onDelete={onDelete} widgetLabel={labelRef.current} widgetId={widget.id} />
+        </div>
+      </div>
     </div>
   )
 }

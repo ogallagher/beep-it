@@ -50,6 +50,13 @@ export enum CardinalDirection {
   Left = 'L'
 }
 
+export const cardinalDirections = [
+  CardinalDirection.Up,
+  CardinalDirection.Right,
+  CardinalDirection.Down,
+  CardinalDirection.Left
+]
+
 export enum TraceDirection {
   Forward = 1,
   Backward = -1,

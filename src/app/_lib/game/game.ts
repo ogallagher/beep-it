@@ -228,8 +228,29 @@ export default class Game {
     this.configListeners.get(GameConfigListenerKey.GameTurnMode)?.forEach(l => l(turnMode))
   }
 
-  addWidget(widget: Widget) {
-    this.config.widgets.set(widget.id, widget)
+  addWidget(widget: Widget, idx?: number) {
+    if (idx === undefined || idx >= this.config.widgets.size) {
+      // append
+      this.config.widgets.set(widget.id, widget)
+    }
+    else {
+      // insert
+      const widgetIds = [...this.config.widgets.keys()]
+      let off = 0
+      for (let i=0; i+off < widgetIds.length; i++) {
+        if (i === idx) {
+          this.config.widgets.set(widget.id, widget)
+          off = -1
+        }
+        else {
+          const id = widgetIds[i + off]
+          const configWidget = this.config.widgets.get(id)!
+          this.config.widgets.delete(id)
+          this.config.widgets.set(id, configWidget)
+        }
+      }
+    }
+
     this.configListeners.get(GameConfigListenerKey.Widgets)?.forEach(l => l(this.config.widgets))
   }
 
