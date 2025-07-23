@@ -14,6 +14,7 @@ import { GameStateListenerKey } from '@lib/game/const'
 import Preview from './preview'
 import RandomWidget from './randomWidget'
 import DeviceFeaturesCmp from './deviceFeaturesCmp'
+import WidgetCount from './widgetCount'
 
 export default function GameControls(
   { widgetsDrawerOpen, setWidgetsDrawerOpen, startGame, game, deviceId, gameEventSource, onGameEvent, closeGameEventSource } : {
@@ -77,6 +78,8 @@ export default function GameControls(
         <WidgetsDrawerControl 
           game={game} 
           widgetsDrawerOpen={widgetsDrawerOpen} setWidgetsDrawerOpen={setWidgetsDrawerOpen} />
+
+        <WidgetCount game={game} />
         
         <RandomWidget game={game} deviceId={deviceId} />
       </div>
