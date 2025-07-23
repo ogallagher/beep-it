@@ -89,6 +89,8 @@ Each widget instance can still be configured (with additional options) after add
 
 Tap the quick/random widget button to a add a randomized widget to the board.
 
+Each widget in the **board** has a delete (`X`) button, as well as a random replace/swap button (same icon as random widget button), in the lower right corner.
+
 <br style="clear: right" />
 
 ### Configure widgets
