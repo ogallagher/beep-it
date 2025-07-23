@@ -1,4 +1,4 @@
-import { Dispatch, RefObject, SetStateAction, Suspense, useEffect, useState } from 'react'
+import { Dispatch, RefObject, SetStateAction, useEffect, useState } from 'react'
 import ShareGame from './share'
 import SaveConfig from './save'
 import StaticRef from '@lib/staticRef'

@@ -27,6 +27,10 @@ export function scrollUnlock() {
   document.body.classList.remove('overflow-hidden')
 }
 
+export function clipboardWrite(text: string) {
+  return navigator.clipboard.writeText(text)
+}
+
 /**
  * Join the given game and open a corresponding game event stream.
  *

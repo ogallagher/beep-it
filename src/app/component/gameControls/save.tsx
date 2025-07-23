@@ -1,8 +1,9 @@
 import { Input } from '@headlessui/react'
 import Game from '@lib/game/game'
+import { clipboardWrite } from '@lib/page'
 import StaticRef from '@lib/staticRef'
 import { RefObject, useRef, useState } from 'react'
-import { BookmarkPlus } from 'react-bootstrap-icons'
+import { BookmarkPlus, ClipboardCheck } from 'react-bootstrap-icons'
 
 export default function SaveConfig(
   { game }: {
@@ -13,6 +14,7 @@ export default function SaveConfig(
   const saveUrl = useRef(
     typeof window === 'undefined' ? undefined : new URL(window.location.href)
   )
+  const [confirmClipboard, setConfirmClipboard] = useState(false)
 
   return (
     <div className='flex flex-col justify-center'>
@@ -20,16 +22,28 @@ export default function SaveConfig(
         <button
           className='cursor-pointer hover:scale-105'
           title='Save game config link to load the same board later.'
-          type='button' onClick={() => {
+          type='button' onClick={async () => {
             if (!saveLinkOpen && saveUrl.current) {
               // update save url before render
               const saveUrlParams = game.current.save()
               saveUrl.current.search = saveUrlParams.toString()
+
+              // copy to clipboard
+              try {
+                await clipboardWrite(saveUrl.current.toString())
+                
+                // show clipboard confirmation
+                setConfirmClipboard(true)
+                setTimeout(() => {setConfirmClipboard(false)}, 800)
+              }
+              catch (err) {
+                console.log(`failed to copy share link to clipboard. ${err}`)
+              }
             }
 
             setSaveLinkOpen(!saveLinkOpen)
           }}>
-          <BookmarkPlus />
+          {confirmClipboard ? <ClipboardCheck /> : <BookmarkPlus />}
         </button>
         <Input 
           suppressHydrationWarning={true}
@@ -41,7 +55,7 @@ export default function SaveConfig(
           }
           readOnly={true}
           value={saveUrl.current?.toString()}
-          onFocus={e => e.target.setSelectionRange(0, e.target.value.length)} />
+          onFocus={e => e.target.select()} />
       </div>
     </div>
   )

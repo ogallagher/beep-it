@@ -1,9 +1,10 @@
 import { Input } from '@headlessui/react'
 import { GameStateListenerKey } from '@lib/game/const'
 import Game from '@lib/game/game'
+import { clipboardWrite } from '@lib/page'
 import StaticRef from '@lib/staticRef'
 import { RefObject, useEffect, useRef, useState } from 'react'
-import { Share } from 'react-bootstrap-icons'
+import { ClipboardCheck, Share } from 'react-bootstrap-icons'
 
 export default function ShareGame(
   { game }: {
@@ -14,6 +15,7 @@ export default function ShareGame(
   const shareUrl = useRef(
     typeof window === 'undefined' ? undefined : new URL(window.location.href)
   )
+  const [confirmClipboard, setConfirmClipboard] = useState(false)
   const [gameStarted, setGameStarted] = useState(game.current.getStarted())
   const [gameEnded, setGameEnded] = useState(game.current.getEnded())
 
@@ -36,18 +38,30 @@ export default function ShareGame(
         <button
           className='cursor-pointer hover:scale-105'
           title='Share game link to add devices to the board.'
-          type='button' onClick={() => {
+          type='button' onClick={async () => {
             if (!gameLinkOpen && shareUrl.current) {
               // update share url before render
               const shareUrlParams = new URLSearchParams()
               Game.saveGameId(game.current.id, shareUrlParams)
               
               shareUrl.current.search = shareUrlParams.toString()
+
+              // copy to clipboard
+              try {
+                await clipboardWrite(shareUrl.current.toString())
+                
+                // show clipboard confirmation
+                setConfirmClipboard(true)
+                setTimeout(() => {setConfirmClipboard(false)}, 800)
+              }
+              catch (err) {
+                console.log(`failed to copy share link to clipboard. ${err}`)
+              }
             }
 
             setGameLinkOpen(!gameLinkOpen)
           }}>
-          <Share />
+          {confirmClipboard ? <ClipboardCheck /> : <Share />}
         </button>
         <Input 
           suppressHydrationWarning={true}
@@ -59,7 +73,7 @@ export default function ShareGame(
           }
           readOnly={true}
           value={shareUrl.current?.toString()}
-          onFocus={e => e.target.setSelectionRange(0, e.target.value.length)} />
+          onFocus={e => e.target.select()} />
       </div>
     </div>
   )
