@@ -1,6 +1,6 @@
 'use client'
 
-import getStrings, { getLocales, Locale, StringsNamespace } from '@lib/strings'
+import getStrings, { getLocaleName, getLocales, Locale, StringsNamespace } from '@lib/strings'
 import { RefObject, useContext, useState } from 'react'
 import { Globe2 } from 'react-bootstrap-icons'
 import { LocaleCtx } from './context'
@@ -49,13 +49,13 @@ export default function Footer(
                     setShowLocales(false)
                     setLocale.current(l)
                   }}>
-                  {l}
+                  {getLocaleName(l)}
                 </button>
               ))
             )
             : (
-              <span className='font-mono font-bold'>
-                {locale}
+              <span className='font-mono font-bold' title={locale}>
+                {getLocaleName(locale)}
               </span>
             )
           }

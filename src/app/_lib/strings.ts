@@ -1,6 +1,7 @@
 export enum Locale {
   English = 'eng',
-  Spanish = 'spa'
+  Spanish = 'spa',
+  Korean = 'kor'
 }
 
 export const cookieLocale = 'locale'
@@ -70,11 +71,50 @@ const internationalStrings = new Map([
       ['collabTitle', 'Colaborativo - Cualquier jugador puede actuar en cualquier momento.'],
       ['competeTitle', 'Competitivo - Jugadores van turnando y el que pierda se elimina.']
     ])]
+  ])],
+  [Locale.Korean, new Map([
+    [StringsNamespace.Footer, new Map([
+      ['selectLanguage', '언어 바꾸기']
+    ])],
+    [StringsNamespace.GameDevice, new Map([
+      ['deviceCount', '기기 수'],
+      ['manageDevices', '기기 관리'],
+      ['manageDevice', '기기 수정'],
+      ['self', '자신']
+    ])],
+    [StringsNamespace.GamePlayers, new Map([
+      ['playerCount', '선수 인원']
+    ])],
+    [StringsNamespace.BoardMode, new Map([
+      ['boardMode', '보드 모드'],
+      ['extend', '연장'],
+      ['mirror', '복제'],
+      ['extendTitle', '연장 - ...' ],
+      ['mirrorTitle', 'Mirror - ...']
+    ])],
+    [StringsNamespace.TurnMode, new Map([
+      ['turnMode', '차례 모드'],
+      ['collab', '통합'],
+      ['compete', '경쟁'],
+      ['collabTitle', '통합 - 아무 선수나 아무 때나 한수를 할 수 있음'],
+      ['competeTitle', '경쟁 - 선수들 차례로 행동하고서 패자 탈락됨.']
+    ])]
   ])]
 ])
 
 export function getLocales() {
   return internationalStrings.keys()
+}
+
+export function getLocaleName(locale: Locale) {
+  switch (locale) {
+    case Locale.English:
+      return 'english'
+    case Locale.Spanish:
+      return 'español'
+    case Locale.Korean:
+      return '한국어'
+  }
 }
 
 export default function getStrings(locale: Locale, namespace: StringsNamespace) {
