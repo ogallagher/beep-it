@@ -1,11 +1,13 @@
 import Game from '@lib/game/game'
 import { GameStateListenerKey } from '@lib/game/const'
 import StaticRef from '@lib/staticRef'
-import { RefObject, useEffect, useState } from 'react'
+import { RefObject, useContext, useEffect, useState } from 'react'
 import { HddRack, PersonDash } from 'react-bootstrap-icons'
 import { Field, Input, Label } from '@headlessui/react'
 import { clientSendLeaveEvent, GameEventType } from '@lib/game/gameEvent'
 import { joinGame } from '@lib/page'
+import { LocaleCtx } from '@component/context'
+import getStrings, { StringsNamespace } from '@lib/strings'
 
 const deviceIdSummaryLength = 4
 
@@ -16,6 +18,8 @@ function GameDevice(
     game: StaticRef<Game> | RefObject<Game>
   }
 ) {
+  const locale = useContext(LocaleCtx)
+  const s = getStrings(locale, StringsNamespace.GameDevice)
   function getDeviceAlias() {
     return game.current.getDeviceAlias(deviceId) || ''
   }
@@ -31,7 +35,10 @@ function GameDevice(
 
   return (
     <Field 
-      title={'Manage device ' + deviceId + (isClientDevice ? ' (self)' : '')}
+      title={
+        `${s('manageDevice')} ${deviceId}` 
+        + (isClientDevice ? ` (${s('self')})` : '')
+      }
       className={
         'flex flex-row gap-1 pt-2 ' + (isClientDevice ? 'font-bold' : '')
       } >
@@ -86,6 +93,8 @@ export default function GameDevices(
     clientDeviceId: StaticRef<string> | RefObject<string>
   }
 ) {
+  const locale = useContext(LocaleCtx)
+  const s = getStrings(locale, StringsNamespace.GameDevice)
   const [deviceCount, setDeviceCount] = useState(game.current.getDeviceCount())
   const [devicesOpen, setDevicesOpen] = useState(false)
   const [devices, setDevices] = useState(game.current.getDevices())
@@ -104,13 +113,15 @@ export default function GameDevices(
   return (
     <div className="flex flex-col justify-center">
       <div className="flex flex-row gap-2">
-        <div>device count:</div>
+        <div>
+          {s('deviceCount')}:
+        </div>
         <div className="font-bold">
           {deviceCount}
         </div>
         <button
           className='cursor-pointer hover:scale-105'
-          title='Manage devices.'
+          title={s('manageDevices')}
           type='button' onClick={() => setDevicesOpen(!devicesOpen)}>
           <HddRack />
         </button>

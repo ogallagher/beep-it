@@ -1,9 +1,11 @@
-import { RefObject, useEffect, useState } from 'react'
+import { RefObject, useContext, useEffect, useState } from 'react'
 import StaticRef from '@lib/staticRef'
 import Game from '@lib/game/game'
 import { BoardDisplayMode, DeviceId, GameConfigListenerKey, GameStateListenerKey } from '@lib/game/const'
 import { Copy, Vr } from 'react-bootstrap-icons'
 import { clientSendConfigEvent, GameEventType } from '@lib/game/gameEvent'
+import { LocaleCtx } from '@component/context'
+import getStrings, { StringsNamespace } from '@lib/strings'
 
 export default function BoardMode(
   { game, deviceId }: {
@@ -11,6 +13,8 @@ export default function BoardMode(
     deviceId: StaticRef<DeviceId> | RefObject<DeviceId>
   }
 ) {
+  const locale = useContext(LocaleCtx)
+  const s = getStrings(locale, StringsNamespace.BoardMode)
   const [boardMode, setBoardMode] = useState(game.current.config.boardDisplayMode)
   const [gameStarted, setGameStarted] = useState(game.current.getStarted())
   const [gameEnded, setGameEnded] = useState(game.current.getEnded())
@@ -46,10 +50,10 @@ export default function BoardMode(
   return (
     <div className="flex flex-col justify-center">
       <div className="flex flex-row gap-2">
-        <div>board mode:</div>
+        <div>{s('boardMode')}:</div>
 
         <div className="font-bold">
-          {game.current.config.boardDisplayMode === BoardDisplayMode.Extend ? 'extend' : 'mirror'}
+          {game.current.config.boardDisplayMode === BoardDisplayMode.Extend ? s('extend') : s('mirror')}
         </div>
 
         <button 
@@ -64,8 +68,8 @@ export default function BoardMode(
           disabled={gameStarted && !gameEnded ? true : undefined}
           title={
             game.current.config.boardDisplayMode === BoardDisplayMode.Extend 
-            ? 'Extend - Distribute widgets across devices as a single shared board.' 
-            : 'Mirror - Each device displays its board with a copy of the widgets.'
+            ? s('extendTitle')
+            : s('mirrorTitle')
           } >
           {game.current.config.boardDisplayMode === BoardDisplayMode.Extend ? <Vr /> : <Copy />}
         </button>

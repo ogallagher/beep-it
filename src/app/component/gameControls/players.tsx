@@ -1,9 +1,11 @@
 import { Input } from '@headlessui/react'
-import Game, {  } from '@lib/game/game'
+import Game from '@lib/game/game'
 import { DeviceId, GameConfigListenerKey, GameStateListenerKey } from '@lib/game/const'
 import StaticRef from '@lib/staticRef'
-import { ChangeEvent, RefObject, useEffect, useState } from 'react'
+import { ChangeEvent, RefObject, useContext, useEffect, useState } from 'react'
 import { clientSendConfigEvent, GameEventType } from '@lib/game/gameEvent'
+import getStrings, { StringsNamespace } from '@lib/strings'
+import { LocaleCtx } from '@component/context'
 
 export default function GamePlayers(
   { game, deviceId }: {
@@ -11,6 +13,8 @@ export default function GamePlayers(
     deviceId: StaticRef<DeviceId> | RefObject<DeviceId>
   }
 ) {
+  const locale = useContext(LocaleCtx)
+  const s = getStrings(locale, StringsNamespace.GamePlayers)
   const [playerCount, setPlayerCount] = useState(game.current.getPlayerCount())
   const [gameStarted, setGameStarted] = useState(game.current.getStarted())
   const [gameEnded, setGameEnded] = useState(game.current.getEnded())
@@ -48,7 +52,7 @@ export default function GamePlayers(
     <div className="flex flex-col justify-center">
       <div className="flex flex-row gap-2">
           <div className='flex flex-col justify-center'>
-            <div>player count:</div>
+            <div>{s('playerCount')}:</div>
           </div>
           <Input
             className='rounded-lg bg-white/5 text-white not-dark:bg-black/5 not-dark:text-black px-3 py-1.5 font-bold w-20'
