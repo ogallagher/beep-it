@@ -1,16 +1,66 @@
+'use client'
+
+import getStrings, { getLocales, Locale, StringsNamespace } from '@lib/strings'
+import { RefObject, useContext, useState } from 'react'
+import { Globe2 } from 'react-bootstrap-icons'
+import { LocaleCtx } from './context'
+
 export default function Footer(
-  { creditsUrl }: {
+  { creditsUrl, setLocale }: {
     creditsUrl: string
+    setLocale: RefObject<(locale: Locale) => void>
   }
 ) {
-    return (
-        <footer className="flex items-center justify-between px-8 pb-4">
-          <a
-            className="hover:underline hover:underline-offset-4 cursor-pointer"
-            href={creditsUrl}
-          >
-            Created by Owen Gallagher &lt;github.com/ogallagher&gt;
-          </a>
-        </footer>
-    )
+  const locale = useContext(LocaleCtx)
+  const s = getStrings(locale, StringsNamespace.Footer)
+  const [showLocales, setShowLocales] = useState(false)
+
+  return (
+    <footer className='flex flex-row justify-between px-8 py-4'>
+      <a
+        className='hover:underline hover:underline-offset-4 cursor-pointer'
+        href={creditsUrl}
+      >
+        Created by &lt;github.com/ogallagher&gt;
+      </a>
+
+      <div
+        className='flex flex-row justify-center gap-2' >
+        <button
+          className='cursor-pointer hover:scale-110'
+          type='button'
+          title={s('selectLanguage')}
+          onClick={() => {
+            setShowLocales(!showLocales)
+          }} >
+          <Globe2 />
+        </button>
+
+        <div className='flex flex-col justify-center'>
+          {
+            showLocales
+            ? (
+              getLocales().map(l => (
+                <button 
+                  className='font-mono cursor-pointer hover:font-bold hover:scale-110'
+                  type='button'
+                  title={l}
+                  onClick={() => {
+                    setShowLocales(false)
+                    setLocale.current(l)
+                  }}>
+                  {l}
+                </button>
+              ))
+            )
+            : (
+              <span className='font-mono font-bold'>
+                {locale}
+              </span>
+            )
+          }
+        </div>
+      </div>
+    </footer>
+  )
 }

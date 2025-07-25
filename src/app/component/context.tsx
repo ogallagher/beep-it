@@ -1,3 +1,4 @@
+import { defaultLocale } from '@lib/strings'
 import { WidgetId } from '@lib/widget/const'
 import { createContext } from 'react'
 
@@ -15,3 +16,5 @@ export class ActionValueTextPayload {
  * Used for keypad widgets.
  */
 export const ActionValueTextCtx = createContext(new ActionValueTextPayload())
+
+export const LocaleCtx = createContext(defaultLocale)

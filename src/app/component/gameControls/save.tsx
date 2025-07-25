@@ -1,4 +1,4 @@
-import GameLink from '@component/gameLink/gameLink'
+import GameLink from '@component/gameControls/gameLink'
 import Game from '@lib/game/game'
 import StaticRef from '@lib/staticRef'
 import { RefObject, useRef, useState } from 'react'
