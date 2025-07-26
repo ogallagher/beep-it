@@ -1,7 +1,9 @@
+import { LocaleCtx } from '@component/context'
 import { GameStateListenerKey } from '@lib/game/const'
 import Game from '@lib/game/game'
 import StaticRef from '@lib/staticRef'
-import { Dispatch, RefObject, SetStateAction, useEffect, useState } from 'react'
+import getStrings, { StringsNamespace } from '@lib/strings'
+import { Dispatch, RefObject, SetStateAction, useContext, useEffect, useState } from 'react'
 import { ChevronBarDown, PatchPlus } from 'react-bootstrap-icons'
 
 export default function WidgetsDrawerControl(
@@ -11,6 +13,7 @@ export default function WidgetsDrawerControl(
     game: StaticRef<Game> | RefObject<Game>
   }
 ) {
+  const s = getStrings(useContext(LocaleCtx), StringsNamespace.WidgetsDrawerControl)
   const [ gameStarted, setGameStarted ] = useState(game.current.getStarted())
   const [ gameEnded, setGameEnded ] = useState(game.current.getEnded())
   const [ gamePreview, setGamePreview ] = useState(game.current.getPreview())
@@ -45,7 +48,7 @@ export default function WidgetsDrawerControl(
         className='cursor-pointer hover:scale-105'
         type='button' onClick={() => setWidgetsDrawerOpen(!widgetsDrawerOpen)}
         title={
-          widgetsDrawerOpen ? 'Close widgets drawer' : 'Add widgets to the board'
+          widgetsDrawerOpen ? s('close') : s('open')
         } >
         {widgetsDrawerOpen ? <ChevronBarDown className='rotate-180' /> : <PatchPlus />}
       </button>

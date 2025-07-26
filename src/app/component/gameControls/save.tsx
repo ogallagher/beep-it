@@ -1,7 +1,9 @@
+import { LocaleCtx } from '@component/context'
 import GameLink from '@component/gameControls/gameLink'
 import Game from '@lib/game/game'
 import StaticRef from '@lib/staticRef'
-import { RefObject, useRef, useState } from 'react'
+import getStrings, { StringsNamespace } from '@lib/strings'
+import { RefObject, useContext } from 'react'
 import { BookmarkPlus } from 'react-bootstrap-icons'
 
 export default function SaveConfig(
@@ -9,9 +11,11 @@ export default function SaveConfig(
     game: StaticRef<Game> | RefObject<Game>
   }
 ) {
+  const s = getStrings(useContext(LocaleCtx), StringsNamespace.Save)
+  
   return (
     <GameLink 
-      title='Save game config link to load the same board later.'
+      title={s('title')}
       icon={<BookmarkPlus/>}
       updateUrl={(url) => {
         const saveUrlParams = game.current.save()

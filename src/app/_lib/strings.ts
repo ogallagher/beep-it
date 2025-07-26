@@ -17,7 +17,11 @@ export enum StringsNamespace {
   Play = 'play',
   Preview = 'preview',
   RandomWidget = 'randomWidget',
-  RejoinGame = 'rejoin'
+  RejoinGame = 'rejoin',
+  WidgetCount = 'widgetCount',
+  WidgetsDrawerControl = 'widgetsDrawerControl',
+  Save = 'save',
+  Share = 'share'
 }
 
 const internationalStrings = new Map([
@@ -64,6 +68,19 @@ const internationalStrings = new Map([
     ])],
     [StringsNamespace.RejoinGame, new Map([
       ['title', 'Rejoin game']
+    ])],
+    [StringsNamespace.WidgetCount, new Map([
+      ['title', 'count of widgets in the board']
+    ])],
+    [StringsNamespace.WidgetsDrawerControl, new Map([
+      ['close', 'Close widgets drawer'],
+      ['open', 'Add widgets to the board']
+    ])],
+    [StringsNamespace.Save, new Map([
+      ['title', 'Save game config link to load the same board later.']
+    ])],
+    [StringsNamespace.Share, new Map([
+      ['title', 'Share game link to add devices to the board.']
     ])]
   ])],
   [Locale.Spanish, new Map([
@@ -80,11 +97,11 @@ const internationalStrings = new Map([
       ['playerCount', 'jugadores']
     ])],
     [StringsNamespace.BoardMode, new Map([
-      ['boardMode', 'modo de tabla'],
+      ['boardMode', 'modo de tablero'],
       ['extend', 'extensión'],
       ['mirror', 'espejo'],
-      ['extendTitle', 'Extensión - Distribuir controles por pantallas como tabla única compartida.'],
-      ['mirrorTitle', 'Espejo - Cada pantalla muestra su tabla con una copia de los controles.']
+      ['extendTitle', 'Extensión - Distribuir controles por pantallas como tablero única compartida.'],
+      ['mirrorTitle', 'Espejo - Cada pantalla muestra su tablero con una copia de los controles.']
     ])],
     [StringsNamespace.TurnMode, new Map([
       ['turnMode', 'modo de turno'],
@@ -102,13 +119,26 @@ const internationalStrings = new Map([
     ])],
     [StringsNamespace.Preview, new Map([
       ['closePreview', 'Configurar juego, cerrar vista previa.'],
-      ['openPreview', 'Vista previa de tabla activa.']
+      ['openPreview', 'Vista previa de tablero activa.']
     ])],
     [StringsNamespace.RandomWidget, new Map([
-      ['title', 'Agregar control aleatorio a la tabla']
+      ['title', 'Agregar control aleatorio a la tablero']
     ])],
     [StringsNamespace.RejoinGame, new Map([
       ['title', 'Reconectar a juego']
+    ])],
+    [StringsNamespace.WidgetCount, new Map([
+      ['title', 'conteo de controles en la tablero']
+    ])],
+    [StringsNamespace.WidgetsDrawerControl, new Map([
+      ['close', 'Cerrar bandeja de controles'],
+      ['open', 'Agregar controles al tablero']
+    ])],
+    [StringsNamespace.Save, new Map([
+      ['title', 'Enlace de guardar config de juego para luego empezar con el mismo tablero.']
+    ])],
+    [StringsNamespace.Share, new Map([
+      ['title', 'Enlace de compartir juego para agregar más dispositivos.']
     ])]
   ])],
   [Locale.Korean, new Map([
@@ -154,6 +184,19 @@ const internationalStrings = new Map([
     ])],
     [StringsNamespace.RejoinGame, new Map([
       ['title', '게임 접근 회복']
+    ])],
+    [StringsNamespace.WidgetCount, new Map([
+      ['title', '보드에 있는 입력장치 수']
+    ])],
+    [StringsNamespace.WidgetsDrawerControl, new Map([
+      ['close', '입력장치 서랍 닫기'],
+      ['open', '입력장치 서랍 열기']
+    ])],
+    [StringsNamespace.Save, new Map([
+      ['title', '나중에 같은 보드로 시작할 게임 설정 저장 링크']
+    ])],
+    [StringsNamespace.Share, new Map([
+      ['title', '또한 기기 화면을 추가할 경기 공유 링크']
     ])]
   ])]
 ])
@@ -183,6 +226,9 @@ export default function getStrings(locale: Locale, namespace: StringsNamespace) 
   }
 
   return ((key: string) => {
-    return strings.get(key) || internationalStrings.get(defaultLocale)!.get(namespace)!.get(key)
+    return (
+      strings.get(key) 
+      || internationalStrings.get(defaultLocale)!.get(namespace)!.get(key))
+      || `strings error key=${key}`
   })
 }
