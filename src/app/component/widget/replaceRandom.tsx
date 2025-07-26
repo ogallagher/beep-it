@@ -14,7 +14,8 @@ export default function WidgetReplaceRandom(
     deviceId: StaticRef<string> | RefObject<string>
   }
 ) {
-  const s = getStrings(useContext(LocaleCtx), StringsNamespace.WidgetReplaceRandom)
+  const locale = useContext(LocaleCtx)
+  const s = getStrings(locale, StringsNamespace.WidgetReplaceRandom)
 
   function randomReplaceWidget() {
     const width = game.current.config.widgets.get(widget.id)?.width
@@ -22,7 +23,7 @@ export default function WidgetReplaceRandom(
     const widgetIdx = widgetIds.indexOf(widget.id)
 
     game.current.deleteWidget(widget.id)
-    generateRandomWidget(game, deviceId, widgetIdx, width)
+    generateRandomWidget(game, deviceId, widgetIdx, width, locale)
   }
 
   return (

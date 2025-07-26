@@ -3,6 +3,7 @@ import Game from '@lib/game/game'
 import { RefObject } from 'react'
 import { cardinalDirections, crossPlatformWidgetTypes, defaultWidgetCommands, defaultWidgetLabel, randomChar, WidgetType } from './const'
 import { clientSendConfigEvent, GameEventType } from '@lib/game/gameEvent'
+import { Locale } from '@lib/strings'
 
 /**
  * CSS color names that a random widget can be.
@@ -31,10 +32,11 @@ export function generateRandomWidget(
   game: RefObject<Game>, 
   deviceId: RefObject<string>,
   widgetIdx?: number,
-  width?: number
+  width?: number,
+  locale?: Locale
 ) {
   const type = crossPlatformWidgetTypes[Math.trunc(Math.random() * crossPlatformWidgetTypes.length)]
-  const widget = Widget.new(type)
+  const widget = Widget.new(type, locale)
 
   // color
   const colorNameKeys = Object.keys(colorNames)
@@ -43,7 +45,7 @@ export function generateRandomWidget(
   // duration
   widget.duration = Math.round(Math.random() * 3000)
   // command
-  const commands = defaultWidgetCommands(type)
+  const commands = defaultWidgetCommands(type, locale)
   widget.command = commands[Math.trunc(Math.random() * commands.length)]
 
   // value
@@ -60,13 +62,13 @@ export function generateRandomWidget(
 
   // label
   if (type === WidgetType.Lever) {
-    widget.label = `${colorNameKey} ${widget.valueText} ${defaultWidgetLabel(type)}`
+    widget.label = `${colorNameKey} ${widget.valueText} ${defaultWidgetLabel(type, locale)}`
   }
   else if (type === WidgetType.Key) {
-    widget.label = `${widget.valueText} ${defaultWidgetLabel(type)}`
+    widget.label = `${widget.valueText} ${defaultWidgetLabel(type, locale)}`
   }
   else {
-    widget.label = `${colorNameKey} ${defaultWidgetLabel(type)}`
+    widget.label = `${colorNameKey} ${defaultWidgetLabel(type, locale)}`
   }
 
   // size

@@ -9,8 +9,6 @@ import Game from '@lib/game/game'
 import { RefObject } from 'react'
 import { ApiRoute, websiteBasePath } from '@api/const'
 import { DoWidgetEvent, GameEvent, GameEventType } from '@lib/game/gameEvent'
-import { LightningFill } from 'react-bootstrap-icons'
-import { generateRandomWidget } from '@lib/widget/random'
 import WidgetReplaceRandom from './replaceRandom'
 
 /**

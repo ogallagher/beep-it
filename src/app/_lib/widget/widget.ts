@@ -1,5 +1,6 @@
 import { ulid } from 'ulid'
 import { defaultWidgetCommands, defaultWidgetDuration, defaultWidgetLabel, defaultWidgetValueText, WidgetExport, WidgetId, WidgetType } from './const'
+import { Locale } from '@lib/strings'
 
 export default class Widget {
   id: WidgetId
@@ -61,15 +62,15 @@ export default class Widget {
     return new Widget(JSON.parse(w))
   }
 
-  static new(type: WidgetType): Widget {
+  static new(type: WidgetType, locale?: Locale): Widget {
     const id = Widget.generateId()
 
     return new Widget({
       id,
       type,
-      label: Widget.generateLabel(type, id),
+      label: Widget.generateLabel(type, id, locale),
       showLabel: true,
-      command: defaultWidgetCommands(type)[0],
+      command: defaultWidgetCommands(type, locale)[0],
       commandAudio: undefined,
       color: '#ffffff',
       valueText: defaultWidgetValueText(type),
@@ -94,8 +95,8 @@ export default class Widget {
     return ulid()
   }
 
-  public static generateLabel(type: WidgetType, id: string) {
-    return `${defaultWidgetLabel(type)} ${id.substring(id.length-4)}`
+  public static generateLabel(type: WidgetType, id: string, locale?: Locale) {
+    return `${defaultWidgetLabel(type, locale)} ${id.substring(id.length-4)}`
   }
 }
 

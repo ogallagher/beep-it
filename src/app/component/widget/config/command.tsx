@@ -1,6 +1,6 @@
 import { Field, Input, Label } from '@headlessui/react'
 import { WidgetConfig, WidgetId } from '@lib/widget/const'
-import { RefObject, useEffect, useRef, useState } from 'react'
+import { RefObject, useContext, useEffect, useRef, useState } from 'react'
 import StaticRef from '@lib/staticRef'
 import { Megaphone, Mic, MicMute, StopCircle, Trash3 } from 'react-bootstrap-icons'
 import { AudioMediaType, audioToFile, audioTypeToFileExt, generateAudioFileName, generateAudioFilePath, mp3AudioBlobType, playAudio, rawAudioBlobType, readAudio, trimEncodeAudio } from '@lib/widget/audio'
@@ -9,6 +9,8 @@ import { ApiRoute, websiteBasePath } from '@api/const'
 import { GameAssetEvent, GameEventType } from '@lib/game/gameEvent'
 import assert from 'assert'
 import { GameConfigListenerKey, GameStateListenerKey } from '@lib/game/const'
+import getStrings, { StringsNamespace } from '@lib/strings'
+import { LocaleCtx } from '@component/context'
 
 let canAudioRecord: boolean|undefined
 
@@ -82,6 +84,7 @@ export default function WidgetCommand(
     audioConfigurable: boolean
   }
 ) {
+  const s = getStrings(useContext(LocaleCtx), StringsNamespace.WidgetCommand)
   const [commandText, setCommandText] = useState(config.current.command)
   /**
    * Widget command audio as a game asset file url.
@@ -163,12 +166,12 @@ export default function WidgetCommand(
     <Field 
       className='w-full flex flex-row flex-wrap justify-start gap-x-2 gap-y-1' >
       <Label className='flex flex-col justify-center'>
-        <div>command</div>
+        <div>{s('label')}</div>
       </Label>
       {/* command text input */}
       <Input
         className='block rounded-lg px-3 py-1.5 bg-white/5 text-white'
-        title='The verb/action done to this widget.'
+        title={s('title')}
         type='text'
         onChange={e => setCommand(e.target.value)}
         value={commandText}
@@ -181,7 +184,7 @@ export default function WidgetCommand(
           + (commandAudioUrl === undefined ? 'hidden' : '')
         }
         title={
-          commandAudioUrl !== undefined ? 'Widget has command audio' : 'No command audio'
+          commandAudioUrl !== undefined ? s('audio.yes') : s('audio.no')
         } >
         <Megaphone />
       </div>
@@ -196,7 +199,7 @@ export default function WidgetCommand(
             + (canAudioRecord ? 'cursor-pointer hover:scale-105' : 'cursor-not-allowed')
           }
           disabled={canAudioRecord ? undefined : true}
-          title='Record custom command audio'
+          title={s('record.title')}
           type='button' onClick={
             () => {
               setIsAudioRecording(!isAudioRecording)
@@ -227,7 +230,7 @@ export default function WidgetCommand(
         </button>
         <input ref={audioFileElement}
           className='block rounded-lg px-3 py-1.5 bg-white/5 max-w-40 hover:bg-white/10 cursor-pointer'
-          title='Upload custom command audio'
+          title={s('upload.title')}
           type='file' accept={[
             'audio/*',
             // mpeg-4 is not recognized under audio/
@@ -256,7 +259,7 @@ export default function WidgetCommand(
             'cursor-pointer hover:scale-105 p-1 text-2xl '
             + (commandAudioUrl === undefined ? 'hidden' : '')
           }
-          title='Delete command audio'
+          title={s('delete.title')}
           type='button' onClick={() => setCommandAudio(undefined)} >
           <Trash3 />
         </button>

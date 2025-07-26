@@ -1,4 +1,4 @@
-import { RefObject } from 'react'
+import { RefObject, useContext } from 'react'
 import Grid from '@component/grid'
 import { defaultWidgetLabel, WidgetExport, widgetTypes } from '@lib/widget/const'
 import WidgetCmp from './widget/widgetCmp'
@@ -6,6 +6,7 @@ import Widget from '@lib/widget/widget'
 import StaticRef from '@lib/staticRef'
 import Game from '@lib/game/game'
 import { clientSendConfigEvent, GameEventType } from '@lib/game/gameEvent'
+import { LocaleCtx } from './context'
 
 export default function WidgetsDrawer(
   { open, game, deviceId }: {
@@ -14,9 +15,11 @@ export default function WidgetsDrawer(
     deviceId: StaticRef<string> | RefObject<string>
   }
 ) {
+  const locale = useContext(LocaleCtx)
+
   function addWidget(widgetExport: WidgetExport) {
     const widget = Widget.clone(widgetExport)
-    widget.label = Widget.generateLabel(widget.type, widget.id)
+    widget.label = Widget.generateLabel(widget.type, widget.id, locale)
     // update local game model and render
     game.current.addWidget(widget)
 
@@ -37,9 +40,9 @@ export default function WidgetsDrawer(
       }>
       <Grid>
         {widgetTypes.map(type => {
-          const widget = Widget.new(type)
+          const widget = Widget.new(type, locale)
           widget.id = type
-          widget.label = defaultWidgetLabel(type)
+          widget.label = defaultWidgetLabel(type, locale)
 
           return <WidgetCmp 
               key={type} game={game} deviceId={deviceId}

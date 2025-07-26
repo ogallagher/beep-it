@@ -19,7 +19,7 @@ export default function RandomWidget(
       className='flex flex-col justify-center' >
       <button
         className='cursor-pointer hover:scale-105' type='button'
-        onClick={() => generateRandomWidget(game, deviceId)}
+        onClick={() => generateRandomWidget(game, deviceId, undefined, undefined, locale)}
         title={s('title')} >
         <LightningFill />
       </button>

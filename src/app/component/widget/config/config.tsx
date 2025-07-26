@@ -1,6 +1,6 @@
 'use client'
 
-import { RefObject, useEffect, useState } from 'react'
+import { RefObject, useContext, useEffect, useState } from 'react'
 import { Field, Input, Label } from '@headlessui/react'
 import StaticRef from '@lib/staticRef'
 import Game from '@lib/game/game'
@@ -8,6 +8,8 @@ import { clientSendConfigEvent, GameEventType } from '@lib/game/gameEvent'
 import { WidgetConfig, WidgetId, WidgetType } from '@lib/widget/const'
 import WidgetCommand from './command'
 import { DeviceId, GameConfigListenerKey } from '@lib/game/const'
+import getStrings, { StringsNamespace } from '@lib/strings'
+import { LocaleCtx } from '@component/context'
 
 export default function WidgetConfigCmp(
   {widgetId, widgetType, configRef, showColor, showValueText, showWidth, disabled, reduced, game, deviceId, commandAudioEnabled}: {
@@ -27,6 +29,7 @@ export default function WidgetConfigCmp(
     commandAudioEnabled: boolean
   }
 ) {
+  const s = getStrings(useContext(LocaleCtx), StringsNamespace.WidgetConfig)
   const [valueText, setValueText] = useState(configRef.current.valueText)
   const [color, setColor] = useState(configRef.current.color)
   const [width, setWidth] = useState(configRef.current.width)
@@ -95,11 +98,11 @@ export default function WidgetConfigCmp(
           title={( () => {
             switch (widgetType) {
               case WidgetType.Lever:
-                return 'The direction to pull.'
+                return s('valueText.lever')
               case WidgetType.Path:
-                return 'Path data.'
+                return s('valueText.path')
               default:
-                return 'The text value of this widget.'
+                return s('valueText.default')
             }
           } )()}
           className={
@@ -111,13 +114,13 @@ export default function WidgetConfigCmp(
               {( () => {
                 switch (widgetType) {
                   case WidgetType.Lever:
-                    return 'direction (U D R L)'
+                    return s('valueLabel.lever')
                   case WidgetType.Key:
-                    return 'key value'
+                    return s('valueLabel.key')
                   case WidgetType.KeyPad:
-                    return 'text' 
+                    return s('valueLabel.keypad')
                   case WidgetType.Path:
-                    return 'path'
+                    return s('valueLabel.path')
                   default:
                     return ''
                 }
@@ -137,17 +140,20 @@ export default function WidgetConfigCmp(
               // callback to update synced UI components
               showValueText.current(e.target.value)
             }}
-            type='text' maxLength={widgetType === WidgetType.KeyPad || widgetType === WidgetType.Path ? undefined : 1}
+            type='text' 
+            maxLength={
+              widgetType === WidgetType.KeyPad || widgetType === WidgetType.Path ? undefined : 1
+            }
             value={valueText}
             onBlur={setConfig.current} />
         </Field>
 
         {/* color */}
         <Field 
-          title='Primary color of this widget icon.'
+          title={s('color.title')}
           className='w-full flex flex-row flex-wrap justify-start gap-x-2 gap-y-1' >
           <Label className='flex flex-col justify-center'>
-            <div>color</div>
+            <div>{s('color.label')}</div>
           </Label>
           <Input
             className='rounded-lg'
@@ -166,10 +172,10 @@ export default function WidgetConfigCmp(
 
         {/* width */}
         <Field 
-          title='Size of this widget icon.'
+          title={s('width.title')}
           className='w-full flex flex-row flex-wrap justify-start gap-x-2 gap-y-1' >
           <Label className='flex flex-col justify-center'>
-            <div>size</div>
+            <div>{s('width.label')}</div>
           </Label>
           <Input
             onChange={e => {
@@ -189,10 +195,10 @@ export default function WidgetConfigCmp(
 
         {/* duration */}
         <Field 
-          title='Amount of extra time needed to do this widget, in seconds.'
+          title={s('duration.title')}
           className='w-full flex flex-row flex-wrap justify-start gap-x-2 gap-y-1' >
           <Label className='flex flex-col justify-center'>
-            <div>duration</div>
+            <div>{s('duration.label')}</div>
           </Label>
           <Input 
             className='rounded-lg px-3 py-1.5 bg-white/5 text-white text-left'
@@ -207,7 +213,7 @@ export default function WidgetConfigCmp(
             value={duration / 1000}
             onBlur={setConfig.current} />
           <div className='flex flex-col justify-center'>
-            <div>sec</div>
+            <div>{s('duration.unitSecond')}</div>
           </div>
         </Field>
 

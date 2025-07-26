@@ -1,3 +1,5 @@
+import { Locale } from "@lib/strings"
+
 export const boardId = 'gameBoard'
 
 /**
@@ -67,56 +69,168 @@ export enum TraceDirection {
  * @param type 
  * @returns Ranked list of default commands.
  */
-export function defaultWidgetCommands(type: WidgetType) {
+export function defaultWidgetCommands(type: WidgetType, locale?: Locale) {
   switch (type) {
     case WidgetType.Button:
-      return ['bop', 'press', 'tap']
+      switch (locale) {
+        case Locale.Spanish:
+          return ['pulsa', 'omprime', 'pega', 'dale a', 'toca']
+        case Locale.Korean:
+          return ['누르기', '때리기', '치기']
+        case Locale.English:
+        default:
+          return ['bop', 'press', 'tap']
+      }
 
     case WidgetType.Lever:
-      return ['pull', 'push']
+      switch (locale) {
+        case Locale.Spanish:
+          return ['jala', 'empuja', 'tira']
+        case Locale.Korean:
+          return ['밀기', '당그기']
+        case Locale.English:
+        default:
+          return ['pull', 'push']
+      }
 
     case WidgetType.Twist:
-      return ['twist', 'spin']
+      switch (locale) {
+        case Locale.Spanish:
+          return ['gira', 'rota', 'retuerce']
+        case Locale.Korean:
+          return ['돌리기', '비틀기', '회전']
+        case Locale.English:
+        default:
+          return ['twist', 'spin']   
+      }
 
     case WidgetType.Key:
-      return ['type', 'key']
+      switch (locale) {
+        case Locale.Spanish:
+          return ['teclea', 'toca', 'ingresa']
+        case Locale.Korean:
+          return ['치기']
+        case Locale.English:
+        default:
+          return ['type', 'key']
+      }
 
     case WidgetType.Path:
-      return ['trace', 'draw']
+      switch (locale) {
+        case Locale.Spanish:
+          return []
+        case Locale.Korean:
+          return ['따르기', '긋기', '그리기']
+        case Locale.English:
+        default:
+          return ['trace', 'draw']
+      }
     
     case WidgetType.KeyPad:
-      return ['write', 'spell', 'code']
+      switch (locale) {
+        case Locale.Spanish:
+          return ['escribe', 'deletrea', 'ingresa']
+        case Locale.Korean:
+          return ['쓰기', '입력']
+        case Locale.English:
+        default:
+          return ['write', 'spell', 'code']
+      }
 
     case WidgetType.Wait:
-      return ['wait', 'freeze', 'leave']
+      switch (locale) {
+        case Locale.Spanish:
+          return ['espera', 'pausa', 'deja']
+        case Locale.Korean:
+          return ['기다리기', '대기중', '그대로 두기']
+        case Locale.English:
+        default:
+          return ['wait', 'freeze', 'leave']
+      }
 
     default:
       throw new Error(`cannot get default command for invalid widget type ${type}`)
   }
 }
 
-export function defaultWidgetLabel(type: WidgetType) {
+export function defaultWidgetLabel(type: WidgetType, locale?: Locale) {
   switch (type) {
     case WidgetType.Button:
-      return 'button'
+      switch (locale) {
+        case Locale.Spanish:
+          return 'botón'
+        case Locale.Korean:
+          return '단추'
+        case Locale.English:
+        default:
+          return 'button'
+      }
 
     case WidgetType.Lever:
-      return 'lever'
+      switch (locale) {
+        case Locale.Spanish:
+          return 'palanca'
+        case Locale.Korean:
+          return '지렛대'
+        case Locale.English:
+        default:
+          return 'lever'
+      }
 
     case WidgetType.Twist:
-      return 'knob'
+      switch (locale) {
+        case Locale.Spanish:
+          return 'perilla'
+        case Locale.Korean:
+          return '손잡이'
+        case Locale.English:
+        default:
+          return 'knob'
+      }
 
     case WidgetType.Key:
-      return 'key'
+      switch (locale) {
+        case Locale.Spanish:
+          return 'tecla'
+        case Locale.Korean:
+          return '키'
+        case Locale.English:
+        default:
+          return 'key'
+      }
 
     case WidgetType.Path:
-      return 'path'
+      switch (locale) {
+        case Locale.Spanish:
+          return 'trayecto'
+        case Locale.Korean:
+          return '동선'
+        case Locale.English:
+        default:
+          return 'path'
+      }
     
     case WidgetType.KeyPad:
-      return 'keypad'
+      switch (locale) {
+        case Locale.Spanish:
+          return 'teclado'
+        case Locale.Korean:
+          return '자판'
+        case Locale.English:
+        default:
+          return 'keypad'
+      }
 
     case WidgetType.Wait:
-      return 'lag'
+      switch (locale) {
+        case Locale.Spanish:
+          return 'demora'
+        case Locale.Korean:
+          return '정지'
+        case Locale.English:
+        default:
+          return 'lag'
+      }
 
     default:
       throw new Error(`cannot get default label for invalid widget type ${type}`)

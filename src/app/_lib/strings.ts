@@ -26,7 +26,9 @@ export enum StringsNamespace {
   CommandCaptions = 'commandCaptions',
   WidgetLabel = 'widgetLabel',
   WidgetDelete = 'widgetDelete',
-  WidgetReplaceRandom = 'WidgetReplaceRandom'
+  WidgetReplaceRandom = 'widgetReplaceRandom',
+  WidgetConfig = 'widgetConfig',
+  WidgetCommand = 'widgetCommand'
 }
 
 const internationalFormatters = new Map([
@@ -121,6 +123,31 @@ const internationalStrings = new Map([
     ])],
     [StringsNamespace.WidgetReplaceRandom, new Map([
       ['title', 'Replace with a random widget']
+    ])],
+    [StringsNamespace.WidgetConfig, new Map([
+      ['valueText.lever', 'The direction to pull'],
+      ['valueText.path', 'Path data'],
+      ['valueText.default', 'The text value of this widget'],
+      ['valueLabel.lever', 'direction (U D R L)'],
+      ['valueLabel.key', 'key value'],
+      ['valueLabel.keypad', 'text'],
+      ['valueLabel.path', 'path'],
+      ['color.label', 'color'],
+      ['color.title', 'Primary color of this widget icon'],
+      ['width.title', 'Size of this widget icon'],
+      ['width.label', 'size'],
+      ['duration.title', 'Amount of extra time needed to do this widget, in seconds'],
+      ['duration.label', 'duration'],
+      ['duration.unitSecond', 'sec']
+    ])],
+    [StringsNamespace.WidgetCommand, new Map([
+      ['label', 'command'],
+      ['title', 'The verb/action done to this widget'],
+      ['audio.yes', 'Widget has command audio'],
+      ['audio.no', 'No command audio'],
+      ['record.title', 'Record custom command audio'],
+      ['upload.title', 'Upload custom command audio'],
+      ['delete.title', 'Delete command audio']
     ])]
   ])],
   [Locale.Spanish, new Map([
@@ -196,6 +223,31 @@ const internationalStrings = new Map([
     ])],
     [StringsNamespace.WidgetReplaceRandom, new Map([
       ['title', 'Sustituir con control aleatorio']
+    ])],
+    [StringsNamespace.WidgetConfig, new Map([
+      ['valueText.lever', 'Dirección de tira'],
+      ['valueText.path', 'Datos de trayecto'],
+      ['valueText.default', 'Valor de texto del control'],
+      ['valueLabel.lever', 'dirección (U↑ D↓ R→ L←)'],
+      ['valueLabel.key', 'valor de tecla'],
+      ['valueLabel.keypad', 'texto'],
+      ['valueLabel.path', 'trayecto'],
+      ['color.label', 'color'],
+      ['color.title', 'Color primario de ícono del control'],
+      ['width.title', 'Tamaño de ícono del control'],
+      ['width.label', 'tamaño'],
+      ['duration.title', 'Cantidad de tiempo extra para efectuar este control, en segundos'],
+      ['duration.label', 'duración'],
+      ['duration.unitSecond', 'seg']
+    ])],
+    [StringsNamespace.WidgetCommand, new Map([
+      ['label', 'comando'],
+      ['title', 'Verbo/acción hecho a este control'],
+      ['audio.yes', 'Con audio de comando'],
+      ['audio.no', 'Sin audio de comando'],
+      ['record.title', 'Grabar audio de comando'],
+      ['upload.title', 'Subir audio de comando'],
+      ['delete.title', 'Eliminar audio de comando']
     ])]
   ])],
   [Locale.Korean, new Map([
@@ -271,6 +323,31 @@ const internationalStrings = new Map([
     ])],
     [StringsNamespace.WidgetReplaceRandom, new Map([
       ['title', '임의 입력장치로 대체하기']
+    ])],
+    [StringsNamespace.WidgetConfig, new Map([
+      ['valueText.lever', '어느 쪽으로 당길 방향'],
+      ['valueText.path', '동선 정보'],
+      ['valueText.default', '이 입력장치의 문자 값'],
+      ['valueLabel.lever', '방향 (U↑ D↓ R→ L←)'],
+      ['valueLabel.key', '키 값'],
+      ['valueLabel.keypad', '문자 값'],
+      ['valueLabel.path', '동선'],
+      ['color.label', '색깔'],
+      ['color.title', '이 입력장치 아이콘 주된 색깔'],
+      ['width.title', '이 입력장치 아이콘 크기'],
+      ['width.label', '크기'],
+      ['duration.title', '입력할 때 필요한 가외 기간, 초 단위'],
+      ['duration.label', '기간'],
+      ['duration.unitSecond', '초']
+    ])],
+    [StringsNamespace.WidgetCommand, new Map([
+      ['label', '명령'],
+      ['title', '이 입력의 동사'],
+      ['audio.yes', '명령 녹음이 있음'],
+      ['audio.no', '명령 녹음이 없음'],
+      ['record.title', '명령 녹음하기'],
+      ['upload.title', '명령 녹음 파일 올리기'],
+      ['delete.title', '명령 녹음 삭제하기']
     ])]
   ])]
 ])
