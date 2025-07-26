@@ -10,7 +10,7 @@ Beep It starts with a core concept— have a set of widgets on a board/console t
 
 When visiting the site, each client device/browser is assigned a game `id` and `deviceId`. These are visible in the web address search query.
 
-`https://` `subd.domain.tld` `?` id=**g1** `&` deviceId=**amber**
+`https://` `subd.domain.tld` `?` `id=`**g1** `&` `deviceId=`**amber**
 
 If you leave the site and return relatively soon (see game delete delay) with the same game `id`, your configuration should be restored.
 To invite other player devices to join, you can tap the share button to copy the link. It omits `deviceId`.
@@ -50,7 +50,7 @@ Tap it to rejoin/reconnect.
 
 ## Set player count
 
-Next in the game controls bar is the player count. This is separate from the device list because the number of people playing can be independent of the number of devices we’re using. Beep It does not yet use player count.
+Next in the game controls bar is the player count. This is separate from the device list because the number of people playing can be independent of the number of devices we’re using. **Beep It** does not yet use player count.
 
 ## Set board display mode
 

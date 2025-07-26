@@ -326,9 +326,9 @@ const internationalStrings = new Map([
     ])],
     [StringsNamespace.TurnMode, new Map([
       ['turnMode', '차례 모드'],
-      ['collab', '통합'],
+      ['collab', '공동'],
       ['compete', '경쟁'],
-      ['collabTitle', '통합 - 아무 선수나 아무 때나 한수를 할 수 있음'],
+      ['collabTitle', '공동 - 아무 선수나 아무 때나 한수를 할 수 있음'],
       ['competeTitle', '경쟁 - 선수들 차례로 행동하고서 패자 탈락됨.']
     ])],
     [StringsNamespace.DeviceFeatures, new Map([
