@@ -28,25 +28,41 @@ export enum StringsNamespace {
   WidgetDelete = 'widgetDelete',
   WidgetReplaceRandom = 'widgetReplaceRandom',
   WidgetConfig = 'widgetConfig',
-  WidgetCommand = 'widgetCommand'
+  WidgetCommand = 'widgetCommand',
+  Color = 'color'
 }
 
 const internationalFormatters = new Map([
   [Locale.English, new Map([
     [StringsNamespace.WidgetDelete, new Map([
       ['title', ((...w: string[]) => `Remove ${w[0]} from the board`)]
+    ])],
+    [StringsNamespace.RandomWidget, new Map([
+      ['label.lever', ((...[c, t, l]: string[]) => `${c} ${t} ${l}`)],
+      ['label.key', ((...[t, l]: string[]) => `${t} ${l}`)],
+      ['label.default', ((...[c, l]: string[]) => `${c} ${l}`)]
     ])]
   ])],
   [Locale.Spanish, new Map([
     [StringsNamespace.WidgetDelete, new Map([
       ['title', ((...w: string[]) => `Quitar ${w[0]} del tablero`)]
+    ])],
+    [StringsNamespace.RandomWidget, new Map([
+      ['label.lever', ((...[c, t, l]: string[]) => `${l} ${t} ${c}`)],
+      ['label.key', ((...[t, l]: string[]) => `${l} ${t}`)],
+      ['label.default', ((...[c, l]: string[]) => `${l} ${c}`)]
     ])]
   ])],
   [Locale.Korean, new Map([
     [StringsNamespace.WidgetDelete, new Map([
       ['title', ((...w: string[]) => `보드에서 ${w[0]} 빼기`)]
+    ])],
+    [StringsNamespace.RandomWidget, new Map([
+      ['label.lever', ((...[c, t, l]: string[]) => `${c} ${t} ${l}`)],
+      ['label.key', ((...[t, l]: string[]) => `${t} ${l}`)],
+      ['label.default', ((...[c, l]: string[]) => `${c} ${l}`)]
     ])]
-  ])]
+  ])],
 ])
 
 const internationalStrings = new Map([
@@ -148,6 +164,25 @@ const internationalStrings = new Map([
       ['record.title', 'Record custom command audio'],
       ['upload.title', 'Upload custom command audio'],
       ['delete.title', 'Delete command audio']
+    ])],
+    [StringsNamespace.Color, new Map([
+      ['white', 'white'],
+      ['maroon', 'maroon'],
+      ['red', 'red'],
+      ['purple', 'purple'],
+      ['magenta', 'magenta'],
+      ['green', 'green'],
+      ['lime', 'lime'],
+      ['olive', 'olive'],
+      ['yellow', 'yellow'],
+      ['navy', 'navy'],
+      ['blue', 'blue'],
+      ['teal', 'teal'],
+      ['aqua', 'aqua'],
+      ['chocolate', 'chocolate'],
+      ['coral', 'coral'],
+      ['plum', 'plum'],
+      ['salmon', 'salmon']
     ])]
   ])],
   [Locale.Spanish, new Map([
@@ -248,6 +283,25 @@ const internationalStrings = new Map([
       ['record.title', 'Grabar audio de comando'],
       ['upload.title', 'Subir audio de comando'],
       ['delete.title', 'Eliminar audio de comando']
+    ])],
+    [StringsNamespace.Color, new Map([
+      ['white', 'blanco'],
+      ['maroon', 'tinto'],
+      ['red', 'rojo'],
+      ['purple', 'morado'],
+      ['magenta', 'rosa'],
+      ['green', 'verde'],
+      ['lime', 'lima'],
+      ['olive', 'oliva'],
+      ['yellow', 'amarillo'],
+      ['navy', 'marino'],
+      ['blue', 'azul'],
+      ['teal', 'turquesa'],
+      ['aqua', 'cielo'],
+      ['chocolate', 'chocolate'],
+      ['coral', 'arrecife'],
+      ['plum', 'ciruela'],
+      ['salmon', 'salmOn']
     ])]
   ])],
   [Locale.Korean, new Map([
@@ -348,6 +402,25 @@ const internationalStrings = new Map([
       ['record.title', '명령 녹음하기'],
       ['upload.title', '명령 녹음 파일 올리기'],
       ['delete.title', '명령 녹음 삭제하기']
+    ])],
+    [StringsNamespace.Color, new Map([
+      ['white', '하양'],
+      ['maroon', '점토'],
+      ['red', '빨강'],
+      ['purple', '보라'],
+      ['magenta', '분홍'],
+      ['green', '초록'],
+      ['lime', '라임'],
+      ['olive', '연두색'],
+      ['yellow', '노랑'],
+      ['navy', '남색'],
+      ['blue', '파랑'],
+      ['teal', '청록'],
+      ['aqua', '얼음'],
+      ['chocolate', '초콜릿'],
+      ['coral', '복숭아'],
+      ['plum', '담자색'],
+      ['salmon', '연어']
     ])]
   ])]
 ])

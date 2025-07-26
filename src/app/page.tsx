@@ -232,7 +232,7 @@ export default function Home() {
               game={game}
               deviceId={clientDeviceId} />
 
-            <div className='w-full h-svh' id={boardId} >
+            <div className='w-full h-svh overflow-scroll' id={boardId} >
               <ActionValueTextCtx value={new ActionValueTextPayload()}>
                 <CommandCaptions game={game} />
                 <Board game={game} deviceId={clientDeviceId} />

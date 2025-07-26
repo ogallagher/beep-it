@@ -3,7 +3,7 @@ import Game from '@lib/game/game'
 import { RefObject } from 'react'
 import { cardinalDirections, crossPlatformWidgetTypes, defaultWidgetCommands, defaultWidgetLabel, randomChar, WidgetType } from './const'
 import { clientSendConfigEvent, GameEventType } from '@lib/game/gameEvent'
-import { Locale } from '@lib/strings'
+import getStrings, { getFormatters, Locale, StringsNamespace } from '@lib/strings'
 
 /**
  * CSS color names that a random widget can be.
@@ -42,6 +42,7 @@ export function generateRandomWidget(
   const colorNameKeys = Object.keys(colorNames)
   const colorNameKey = colorNameKeys[Math.trunc(Math.random() * colorNameKeys.length)]
   widget.color = colorNames[colorNameKey]
+  const colorName = getStrings(locale!, StringsNamespace.Color)(colorNameKey)
   // duration
   widget.duration = Math.round(Math.random() * 3000)
   // command
@@ -57,18 +58,26 @@ export function generateRandomWidget(
     widget.valueText = randomChar()
   }
   else if (type === WidgetType.KeyPad) {
-    widget.valueText = colorNameKey
+    if (locale === Locale.Korean) {
+      // currently cannot support multikey chars #85
+      widget.valueText = colorNameKey
+    }
+    else {
+      widget.valueText = colorName
+    }
   }
 
   // label
+  const f = getFormatters(locale!, StringsNamespace.RandomWidget)
+  const _label = defaultWidgetLabel(type, locale)
   if (type === WidgetType.Lever) {
-    widget.label = `${colorNameKey} ${widget.valueText} ${defaultWidgetLabel(type, locale)}`
+    widget.label = f('label.lever')(colorName, widget.valueText!, _label)
   }
   else if (type === WidgetType.Key) {
-    widget.label = `${widget.valueText} ${defaultWidgetLabel(type, locale)}`
+    widget.label = f('label.key')(widget.valueText!, _label)
   }
   else {
-    widget.label = `${colorNameKey} ${defaultWidgetLabel(type, locale)}`
+    widget.label = f('label.default')(colorName, _label)
   }
 
   // size
