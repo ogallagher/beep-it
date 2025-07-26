@@ -13,7 +13,7 @@ When visiting the site, each client device/browser is assigned a game `id` and `
 `https://` `subd.domain.tld` `?` id=**g1** `&` deviceId=**amber**
 
 If you leave the site and return relatively soon (see game delete delay) with the same game `id`, your configuration should be restored.
-To invite other player devices to join, you can tap the share button and copy the link. It omits `deviceId`.
+To invite other player devices to join, you can tap the share button to copy the link. It omits `deviceId`.
 
 # Local device keyboard type
 
@@ -120,7 +120,7 @@ Tap it again to resume configuring widgets.
 
 Tap the play button near the end of the game controls bar to begin.
 
-<img alt="close widgets drawer" src="doc/game-controls_play.jpeg" style="display: block; float: left; padding-right: 1em; padding-bottom: 1em;" />
+<img alt="play game" src="doc/game-controls_play.jpeg" style="display: block; float: left; padding-right: 1em; padding-bottom: 1em;" />
 
 The game will emit a command and wait for a player device to do the corresponding widget action. If the wrong widget is done, or none are done quickly enough, the game ends. If the right widget is done, then score increments and the next command is emitted.
 
@@ -177,7 +177,7 @@ Action is to trace the single connected path, starting from either endpoint.
 The configurable `path` to trace is in [`svg.path.d` string format](https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Attribute/d). Define it by dragging in the widget's control graphic area. The text input provides access to manually edit the control points. Their coordinates are expressed in the icon's source viewport space (90x90).
 
 <br style="clear: right" />
-<img alt="path" src="doc/widget-icon_keypad.svg" style="float: right; padding-left: 1em; padding-bottom: 1em; width: 10em;" />
+<img alt="keypad" src="doc/widget-icon_keypad.svg" style="float: right; padding-left: 1em; padding-bottom: 1em; width: 10em;" />
 
 **Keypad**
 

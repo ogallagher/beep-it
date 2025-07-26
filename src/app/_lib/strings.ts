@@ -35,7 +35,7 @@ export enum StringsNamespace {
 const internationalFormatters = new Map([
   [Locale.English, new Map([
     [StringsNamespace.WidgetDelete, new Map([
-      ['title', ((...w: string[]) => `Remove ${w[0]} from the board`)]
+      ['title', ((...[w]: string[]) => `Remove ${w} from the board`)]
     ])],
     [StringsNamespace.RandomWidget, new Map([
       ['label.lever', ((...[c, t, l]: string[]) => `${c} ${t} ${l}`)],
@@ -45,7 +45,7 @@ const internationalFormatters = new Map([
   ])],
   [Locale.Spanish, new Map([
     [StringsNamespace.WidgetDelete, new Map([
-      ['title', ((...w: string[]) => `Quitar ${w[0]} del tablero`)]
+      ['title', ((...[w]: string[]) => `Quitar ${w} del tablero`)]
     ])],
     [StringsNamespace.RandomWidget, new Map([
       ['label.lever', ((...[c, t, l]: string[]) => `${l} ${t} ${c}`)],
@@ -55,7 +55,7 @@ const internationalFormatters = new Map([
   ])],
   [Locale.Korean, new Map([
     [StringsNamespace.WidgetDelete, new Map([
-      ['title', ((...w: string[]) => `보드에서 ${w[0]} 빼기`)]
+      ['title', ((...[w]: string[]) => `보드에서 ${w} 빼기`)]
     ])],
     [StringsNamespace.RandomWidget, new Map([
       ['label.lever', ((...[c, t, l]: string[]) => `${c} ${t} ${l}`)],
