@@ -1,7 +1,9 @@
+import { LocaleCtx } from '@component/context'
 import { GameConfigListenerKey, GameStateListenerKey } from '@lib/game/const'
 import Game from '@lib/game/game'
 import StaticRef from '@lib/staticRef'
-import { RefObject, useEffect, useState } from 'react'
+import getStrings, { StringsNamespace } from '@lib/strings'
+import { RefObject, useContext, useEffect, useState } from 'react'
 import { PlayCircle } from 'react-bootstrap-icons'
 
 export default function GamePlay(
@@ -10,6 +12,8 @@ export default function GamePlay(
     game: StaticRef<Game> | RefObject<Game>
   }
 ) {
+  const locale = useContext(LocaleCtx)
+  const s = getStrings(locale, StringsNamespace.Play)
   function getEnable() {
     return (
       game.current.config.widgets.size > 0
@@ -47,7 +51,7 @@ export default function GamePlay(
       <button
         className='cursor-pointer hover:scale-105'
         type='button' onClick={startGame}
-        title='Start new game'
+        title={s('playTitle')}
         disabled={enable ? undefined : true} >
         <PlayCircle />
       </button>

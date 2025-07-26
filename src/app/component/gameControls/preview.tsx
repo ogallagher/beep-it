@@ -1,6 +1,8 @@
+import { LocaleCtx } from '@component/context'
 import { GameStateListenerKey } from '@lib/game/const'
 import Game from '@lib/game/game'
-import { Dispatch, RefObject, SetStateAction, useEffect, useState } from 'react'
+import getStrings, { StringsNamespace } from '@lib/strings'
+import { Dispatch, RefObject, SetStateAction, useContext, useEffect, useState } from 'react'
 import { Eye, Gear } from 'react-bootstrap-icons'
 
 export default function Preview(
@@ -9,6 +11,8 @@ export default function Preview(
     setWidgetsDrawerOpen: Dispatch<SetStateAction<boolean>>
   }
 ) {
+  const locale = useContext(LocaleCtx)
+  const s = getStrings(locale, StringsNamespace.Preview)
   const [previewPlay, setPreviewPlay] = useState(game.current?.getPreview() || false)
 
   useEffect(
@@ -33,7 +37,7 @@ export default function Preview(
             }
           }}
           title={
-            previewPlay ? 'Open game controls, close preview.' : 'Preview board during gameplay.'
+            previewPlay ? s('closePreview') : s('openPreview')
           } >
           {previewPlay ? <Gear /> : <Eye />}
         </button>

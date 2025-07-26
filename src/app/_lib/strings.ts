@@ -12,7 +12,12 @@ export enum StringsNamespace {
   GameDevice = 'devices',
   GamePlayers = 'players',
   BoardMode = 'boardMode',
-  TurnMode = 'turnMode'
+  TurnMode = 'turnMode',
+  DeviceFeatures = 'deviceFeatures',
+  Play = 'play',
+  Preview = 'preview',
+  RandomWidget = 'randomWidget',
+  RejoinGame = 'rejoin'
 }
 
 const internationalStrings = new Map([
@@ -42,6 +47,23 @@ const internationalStrings = new Map([
       ['compete', 'compete'],
       ['collabTitle', 'Collab - Any player can do a widget at any time.'],
       ['competeTitle', 'Compete - Players take turns and loser is eliminated.']
+    ])],
+    [StringsNamespace.DeviceFeatures, new Map([
+      ['keyboard', 'use physical keyboard'],
+      ['touch', 'use touch screen']
+    ])],
+    [StringsNamespace.Play, new Map([
+      ['playTitle', 'Start new game']
+    ])],
+    [StringsNamespace.Preview, new Map([
+      ['closePreview', 'Open game controls, close preview.'],
+      ['openPreview', 'Preview board during gameplay.']
+    ])],
+    [StringsNamespace.RandomWidget, new Map([
+      ['title', 'Add a random widget to the board']
+    ])],
+    [StringsNamespace.RejoinGame, new Map([
+      ['title', 'Rejoin game']
     ])]
   ])],
   [Locale.Spanish, new Map([
@@ -70,6 +92,23 @@ const internationalStrings = new Map([
       ['compete', 'competi'],
       ['collabTitle', 'Colaborativo - Cualquier jugador puede actuar en cualquier momento.'],
       ['competeTitle', 'Competitivo - Jugadores van turnando y el que pierda se elimina.']
+    ])],
+    [StringsNamespace.DeviceFeatures, new Map([
+      ['keyboard', 'usar teclado físico'],
+      ['touch', 'usar pantalla táctil']
+    ])],
+    [StringsNamespace.Play, new Map([
+      ['playTitle', 'Arrancar juego']
+    ])],
+    [StringsNamespace.Preview, new Map([
+      ['closePreview', 'Configurar juego, cerrar vista previa.'],
+      ['openPreview', 'Vista previa de tabla activa.']
+    ])],
+    [StringsNamespace.RandomWidget, new Map([
+      ['title', 'Agregar control aleatorio a la tabla']
+    ])],
+    [StringsNamespace.RejoinGame, new Map([
+      ['title', 'Reconectar a juego']
     ])]
   ])],
   [Locale.Korean, new Map([
@@ -87,10 +126,10 @@ const internationalStrings = new Map([
     ])],
     [StringsNamespace.BoardMode, new Map([
       ['boardMode', '보드 모드'],
-      ['extend', '연장'],
+      ['extend', '확장'],
       ['mirror', '복제'],
-      ['extendTitle', '연장 - ...' ],
-      ['mirrorTitle', 'Mirror - ...']
+      ['extendTitle', '확장 - 공유의 단일 화면이듯이 입력장치들이 화면들 간에 나눠 배치됨'],
+      ['mirrorTitle', '복제 - 화면마다 각자의 보드에 입력장치들이 모두 표시됨']
     ])],
     [StringsNamespace.TurnMode, new Map([
       ['turnMode', '차례 모드'],
@@ -98,6 +137,23 @@ const internationalStrings = new Map([
       ['compete', '경쟁'],
       ['collabTitle', '통합 - 아무 선수나 아무 때나 한수를 할 수 있음'],
       ['competeTitle', '경쟁 - 선수들 차례로 행동하고서 패자 탈락됨.']
+    ])],
+    [StringsNamespace.DeviceFeatures, new Map([
+      ['keyboard', '물질적 자판 사용'],
+      ['touch', '터치스크린 사용']
+    ])],
+    [StringsNamespace.Play, new Map([
+      ['playTitle', '경기 시작']
+    ])],
+    [StringsNamespace.Preview, new Map([
+      ['closePreview', '게임 설정하느라 미리보기 닫기'],
+      ['openPreview', '경기 중의 보드 미리보기 열기']
+    ])],
+    [StringsNamespace.RandomWidget, new Map([
+      ['title', '임의 입력장치를 보드에 추가']
+    ])],
+    [StringsNamespace.RejoinGame, new Map([
+      ['title', '게임 접근 회복']
     ])]
   ])]
 ])
@@ -122,6 +178,9 @@ export default function getStrings(locale: Locale, namespace: StringsNamespace) 
     locale = defaultLocale
   }
   const strings = internationalStrings.get(locale)!.get(namespace)!
+  if (strings === undefined) {
+    throw new Error(`strings error ns=${namespace}`)
+  }
 
   return ((key: string) => {
     return strings.get(key) || internationalStrings.get(defaultLocale)!.get(namespace)!.get(key)

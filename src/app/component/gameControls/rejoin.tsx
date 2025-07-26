@@ -2,8 +2,10 @@ import { GameStateListenerKey } from '@lib/game/const'
 import Game from '@lib/game/game'
 import StaticRef from '@lib/staticRef'
 import { joinGame } from '@lib/page'
-import { RefObject, useEffect, useState } from 'react'
+import { RefObject, useContext, useEffect, useState } from 'react'
 import { Plugin } from 'react-bootstrap-icons'
+import getStrings, { StringsNamespace } from '@lib/strings'
+import { LocaleCtx } from '@component/context'
 
 export default function RejoinGame(
   { game, clientDeviceId, gameEventSource, onGameEvent, closeGameEventSource }: {
@@ -14,6 +16,8 @@ export default function RejoinGame(
     closeGameEventSource: RefObject<() => void>
   }
 ) {
+  const locale = useContext(LocaleCtx)
+  const s = getStrings(locale, StringsNamespace.RejoinGame)
   const [joinedGame, setJoinedGame] = useState(false)
 
   useEffect(
@@ -41,7 +45,7 @@ export default function RejoinGame(
             game.current.setJoined(true)
           })
         }}
-        title='Rejoin game' >
+        title={s('title')} >
         <Plugin />
       </button>
     </div>
