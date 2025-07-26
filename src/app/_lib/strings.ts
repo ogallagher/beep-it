@@ -21,8 +21,31 @@ export enum StringsNamespace {
   WidgetCount = 'widgetCount',
   WidgetsDrawerControl = 'widgetsDrawerControl',
   Save = 'save',
-  Share = 'share'
+  Share = 'share',
+  Header = 'header',
+  CommandCaptions = 'commandCaptions',
+  WidgetLabel = 'widgetLabel',
+  WidgetDelete = 'widgetDelete',
+  WidgetReplaceRandom = 'WidgetReplaceRandom'
 }
+
+const internationalFormatters = new Map([
+  [Locale.English, new Map([
+    [StringsNamespace.WidgetDelete, new Map([
+      ['title', ((...w: string[]) => `Remove ${w[0]} from the board`)]
+    ])]
+  ])],
+  [Locale.Spanish, new Map([
+    [StringsNamespace.WidgetDelete, new Map([
+      ['title', ((...w: string[]) => `Quitar ${w[0]} del tablero`)]
+    ])]
+  ])],
+  [Locale.Korean, new Map([
+    [StringsNamespace.WidgetDelete, new Map([
+      ['title', ((...w: string[]) => `보드에서 ${w[0]} 빼기`)]
+    ])]
+  ])]
+])
 
 const internationalStrings = new Map([
   [Locale.English, new Map([
@@ -81,6 +104,23 @@ const internationalStrings = new Map([
     ])],
     [StringsNamespace.Share, new Map([
       ['title', 'Share game link to add devices to the board.']
+    ])],
+    [StringsNamespace.Header, new Map([
+      ['title', 'Help']
+    ])],
+    [StringsNamespace.CommandCaptions, new Map([
+      ['score', 'score'],
+      ['over', 'Game Over'],
+      ['startDelay', 'game expired; reconnect devices to play'],
+      ['actionDelay', 'too slow'],
+      ['actionMismatch', 'wrong widget'],
+      ['unknown', 'reason unknown']
+    ])],
+    [StringsNamespace.WidgetLabel, new Map([
+      ['toggle', 'Toggle show widget label.']
+    ])],
+    [StringsNamespace.WidgetReplaceRandom, new Map([
+      ['title', 'Replace with a random widget']
     ])]
   ])],
   [Locale.Spanish, new Map([
@@ -139,6 +179,23 @@ const internationalStrings = new Map([
     ])],
     [StringsNamespace.Share, new Map([
       ['title', 'Enlace de compartir juego para agregar más dispositivos.']
+    ])],
+    [StringsNamespace.Header, new Map([
+      ['title', 'Ayuda']
+    ])],
+    [StringsNamespace.CommandCaptions, new Map([
+      ['score', 'puntaje'],
+      ['over', 'Fin'],
+      ['startDelay', 'juego se venció; reconectar dispositivos para jugar'],
+      ['actionDelay', 'demasiado lento'],
+      ['actionMismatch', 'control equivocado'],
+      ['unknown', 'razón desconocida']
+    ])],
+    [StringsNamespace.WidgetLabel, new Map([
+      ['toggle', 'Alternar vista de etiqueta del control.']
+    ])],
+    [StringsNamespace.WidgetReplaceRandom, new Map([
+      ['title', 'Sustituir con control aleatorio']
     ])]
   ])],
   [Locale.Korean, new Map([
@@ -197,6 +254,23 @@ const internationalStrings = new Map([
     ])],
     [StringsNamespace.Share, new Map([
       ['title', '또한 기기 화면을 추가할 경기 공유 링크']
+    ])],
+    [StringsNamespace.Header, new Map([
+      ['title', '도움말']
+    ])],
+    [StringsNamespace.CommandCaptions, new Map([
+      ['score', '점수'],
+      ['over', '경기 끝'],
+      ['startDelay', '게임 만료됐어서 작동시키려면 다시 접근하세요'],
+      ['actionDelay', '너무 늦었으므로'],
+      ['actionMismatch', '잘못된 입력으로'],
+      ['unknown', '미지의 원인']
+    ])],
+    [StringsNamespace.WidgetLabel, new Map([
+      ['toggle', '입력장치 명함 표시 유무']
+    ])],
+    [StringsNamespace.WidgetReplaceRandom, new Map([
+      ['title', '임의 입력장치로 대체하기']
     ])]
   ])]
 ])
@@ -220,7 +294,7 @@ export default function getStrings(locale: Locale, namespace: StringsNamespace) 
   if (!internationalStrings.has(locale)) {
     locale = defaultLocale
   }
-  const strings = internationalStrings.get(locale)!.get(namespace)!
+  const strings = internationalStrings.get(locale)!.get(namespace)
   if (strings === undefined) {
     throw new Error(`strings error ns=${namespace}`)
   }
@@ -228,7 +302,26 @@ export default function getStrings(locale: Locale, namespace: StringsNamespace) 
   return ((key: string) => {
     return (
       strings.get(key) 
-      || internationalStrings.get(defaultLocale)!.get(namespace)!.get(key))
+      || internationalStrings.get(defaultLocale)?.get(namespace)?.get(key)
       || `strings error key=${key}`
+    )
+  })
+}
+
+export function getFormatters(locale: Locale, namespace: StringsNamespace) {
+  if (!internationalFormatters.has(locale)) {
+    locale = defaultLocale
+  }
+  const formatters = internationalFormatters.get(locale)!.get(namespace)
+  if (formatters === undefined) {
+    throw new Error(`formatters error ns=${namespace}`)
+  }
+
+  return ((key: string) => {
+    return (
+      formatters.get(key)
+      || internationalFormatters.get(defaultLocale)?.get(namespace)?.get(key)
+      || ((_w: string) => `formatters error key=${key}`)
+    )
   })
 }

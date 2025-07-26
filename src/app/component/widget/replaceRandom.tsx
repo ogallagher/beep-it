@@ -1,8 +1,10 @@
+import { LocaleCtx } from '@component/context'
 import Game from '@lib/game/game'
 import StaticRef from '@lib/staticRef'
+import getStrings, { StringsNamespace } from '@lib/strings'
 import { WidgetExport } from '@lib/widget/const'
 import { generateRandomWidget } from '@lib/widget/random'
-import { RefObject } from 'react'
+import { RefObject, useContext } from 'react'
 import { LightningFill } from 'react-bootstrap-icons'
 
 export default function WidgetReplaceRandom(
@@ -12,6 +14,8 @@ export default function WidgetReplaceRandom(
     deviceId: StaticRef<string> | RefObject<string>
   }
 ) {
+  const s = getStrings(useContext(LocaleCtx), StringsNamespace.WidgetReplaceRandom)
+
   function randomReplaceWidget() {
     const width = game.current.config.widgets.get(widget.id)?.width
     const widgetIds = [...game.current.config.widgets.keys()]
@@ -26,7 +30,7 @@ export default function WidgetReplaceRandom(
       className={
         'cursor-pointer hover:scale-105 text-4xl '
       }
-      title={`Replace with a random widget`}
+      title={s('title')}
       onClick={randomReplaceWidget} >
       <LightningFill />
     </button>

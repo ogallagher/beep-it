@@ -2,9 +2,11 @@
 
 import { Github, QuestionCircle } from 'react-bootstrap-icons'
 import { About } from '@component/about/about'
-import { RefObject, useEffect, useState } from 'react'
+import { RefObject, useContext, useEffect, useState } from 'react'
 import Game from '@lib/game/game'
 import { GameStateListenerKey } from '@lib/game/const'
+import getStrings, { StringsNamespace } from '@lib/strings'
+import { LocaleCtx } from './context'
 
 export default function Header(
   { githubUrl, game }: {
@@ -12,6 +14,7 @@ export default function Header(
     game: RefObject<Game|null>
   }
 ) {
+  const s = getStrings(useContext(LocaleCtx), StringsNamespace.Header)
   const [aboutOpen, setAboutOpen] = useState(false)
   const [showHeader, setShowHeader] = useState(true)
 
@@ -53,7 +56,7 @@ export default function Header(
             <a href='/quizcard-generator' className='font-mono hover:font-bold'>quizcard</a>
 
             <button 
-              title='Help'
+              title={s('title')}
               type='button' onClick={() => {
                 setAboutOpen(!aboutOpen)
               }} >

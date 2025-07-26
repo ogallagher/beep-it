@@ -1,12 +1,14 @@
 'use client'
 
+import { LocaleCtx } from '@component/context'
 import { Input } from '@headlessui/react'
 import { DeviceId, GameConfigListenerKey } from '@lib/game/const'
 import Game from '@lib/game/game'
 import { clientSendConfigEvent, GameEventType } from '@lib/game/gameEvent'
 import StaticRef from '@lib/staticRef'
+import getStrings, { StringsNamespace } from '@lib/strings'
 import { WidgetId } from '@lib/widget/const'
-import { RefObject, useEffect, useState } from 'react'
+import { RefObject, useContext, useEffect, useState } from 'react'
 import { ChatSquare, ChatSquareDots } from 'react-bootstrap-icons'
 
 export default function WidgetLabel(
@@ -18,6 +20,7 @@ export default function WidgetLabel(
     deviceId: StaticRef<DeviceId> | RefObject<DeviceId>
   }
 ) {
+  const s = getStrings(useContext(LocaleCtx), StringsNamespace.WidgetLabel)
   const [labelValue, setLabelValue] = useState(valueRef.current)
   const [showLabel, setShowLabel] = useState(() => {
     const widget = game.current.config.widgets.get(widgetId)
@@ -101,7 +104,7 @@ export default function WidgetLabel(
             // persist to game model
             changeLabel(_showLabel)
           }}
-          title='Toggle show widget label.' >
+          title={s('toggle')} >
           {showLabel ? <ChatSquare /> : <ChatSquareDots />}
         </button>
       </div>

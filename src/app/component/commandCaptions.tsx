@@ -2,9 +2,11 @@ import { GameStateListenerKey, TimeoutReference } from '@lib/game/const'
 import Game from '@lib/game/game'
 import { GameEndReason } from '@lib/game/gameEvent'
 import StaticRef from '@lib/staticRef'
-import { RefObject, useEffect, useRef, useState } from 'react'
+import { RefObject, useContext, useEffect, useRef, useState } from 'react'
 import ActionText from './widget/control/actionText'
 import { WidgetType } from '@lib/widget/const'
+import getStrings, { StringsNamespace } from '@lib/strings'
+import { LocaleCtx } from './context'
 
 /**
  * Period of command delay progress update cycle, in milliseconds.
@@ -16,6 +18,7 @@ export default function CommandCaptions(
     game: StaticRef<Game> | RefObject<Game>
   }
 ) {
+  const s = getStrings(useContext(LocaleCtx), StringsNamespace.CommandCaptions)
   function getCommand() {
     const commandWidgetId = game.current.getCommandWidgetId()
     if (commandWidgetId === undefined) {
@@ -114,7 +117,7 @@ export default function CommandCaptions(
           + (command?.type === WidgetType.KeyPad && !gameEnd.ended ? 'hidden md:block' : '')
         }>
           <div className='text-2xl text-nowrap'>
-            <b>score: </b>
+            <b>{s('score')}: </b>
             <span className='font-mono'>{score}</span>
           </div>
         </div>
@@ -134,21 +137,21 @@ export default function CommandCaptions(
             + (gameEnd.ended ? '' : 'hidden')
           } >
           <div className='flex flex-col justify-center'>
-            <div className='font-bold text-2xl'>Game Over</div>
+            <div className='font-bold text-2xl'>{s('over')}</div>
           </div>
           <div className='flex flex-col justify-center'>
             <div className='text-1xl'>
               ({ ( () => {
                 switch (gameEnd.endReason) {
                   case GameEndReason.StartDelay:
-                    return 'game expired; reconnect devices to play'
+                    return s('startDelay')
                   case GameEndReason.ActionDelay:
-                    return 'too slow'
+                    return s('actionDelay')
                   case GameEndReason.ActionMismatch:
-                    return 'wrong widget'
+                    return s('actionMismatch')
                   case GameEndReason.Unknown:
                   default:
-                    return 'reason unknown'
+                    return s('unknown')
                 }
               } )() })
             </div>

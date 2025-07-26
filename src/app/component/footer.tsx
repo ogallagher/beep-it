@@ -42,6 +42,7 @@ export default function Footer(
             ? (
               [...getLocales()].map(l => (
                 <button 
+                  key={l}
                   className='font-mono cursor-pointer hover:font-bold hover:scale-110'
                   type='button'
                   title={l}
