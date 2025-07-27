@@ -2,7 +2,7 @@
 
 <img alt="logo beep it" src="doc/icon0.svg" style="float: right; padding-left: 1em; padding-bottom: 1em; width: 6em;" />
 
-Beep It inicia con un concepto básico- haber un conjunto de controles en un tablero/consola que el jugador tiene que hacer en orden y acelerando- y lo lleva al siguiente nivel. En particular, maneja **varios dispositivos/pantallas** por juego, y es muy **configurable**.
+Beep It inicia con un concepto básico- haber un conjunto de controles en un tablero/consola que el jugador tiene que hacer en orden y acelerando- y lo lleva al siguiente nivel. En particular, maneja **varios dispositivos/pantallas** por juego, y es altamente **configurable**.
 
 <br style="clear: right;" />
 
@@ -97,81 +97,85 @@ Cada control en el **tablero** tiene tanto un botón para eliminarse (`X`), como
 
 | attribute | description |
 | --- | --- |
-| `label` |  |
-| `color` |  |
-| `size` |  |
-| `duration` |  |
-| `command text` |  |
-| `command audio` |  |
+| `nombre` | En la cabecera de la tarjeta de control está una caja de texto para nombrar el control. Puede dejarse en blanco. Cuando el juego emite un comando, este `nombre` es el objeto. |
+| `color` | Todo control por defecto tiene el primero plano blanco; use el selector de color para cambiarlo. |
+| `tamaño` | Si controles están saliendo del rango de vista de la pantalla, use este para reducir el tamaño del ícono. |
+| `duración` | Cantidad de tiempo extra dado para que un jugador haga este control. |
+| `comando texto` | Cuando el juego emite un comando, `comando` es el verbo. |
+| `comando audio` | Grabar audio en el navegador con el botón de micrófono (puede que no funcione en ciertos dispositivos), o subir un archivo de audio. Este audio se sonará al darse el comando correspondiente. |
 
 ## Vista previa del tablero
 
 <img alt="vista previa de controles en tablero" src="doc/game-controls_preview-yes.jpeg" style="display: block; float: right; padding-left: 1em; padding-bottom: 1em;" />
 
-...
+Para ocultar la mayor parte de configuración de controles en el tablero, toque el botón de vista previa cerca del final de la barra de config de juego.
 
 <img alt="configurar controles en tablero" src="doc/game-controls_preview-no.jpeg" style="display: block; float: left; padding-right: 1em; padding-bottom: 1em;" />
 
-...
+Tóquelo de nuevo para seguir configurando controles.
 
 <br style="clear: left" />
 
 # Arrancar a jugar
 
-...
+Pulse el botón de jugar cerca del final de la barra de config de juego para iniciar la partida.
 
 <img alt="jugar partida" src="doc/game-controls_play.jpeg" style="display: block; float: left; padding-right: 1em; padding-bottom: 1em;" />
 
-...
+El juego emitirá un comando y esperar a que un jugador haga la acción del control correspondiente. Si se hace el control equivocado, o ninguno se hace a tiempo, la partida termina. Si se hace el control correcto, se incrementa la puntuación y emite el próximo comando.
 
 <br style="clear: left" />
 
 <h1 id="readme-widget-types">Tipos de controles</h1>
 
-<img alt="button" src="public/widgetIcon/button.svg" style="float: right; padding-left: 1em; padding-bottom: 1em; width: 10em;" />
+<img alt="button" src="widgetIcon/button.svg" style="float: right; padding-left: 1em; padding-bottom: 1em; width: 10em;" />
 
 **Botón**
 
-...
+Acción es clic de ratón o toque, entregada al **pulsar** (no al soltar).
 
 <br style="clear: right" />
-<img alt="knob" src="public/widgetIcon/twist.svg" style="float: right; padding-left: 1em; padding-bottom: 1em; width: 10em;" />
+<img alt="knob" src="widgetIcon/twist.svg" style="float: right; padding-left: 1em; padding-bottom: 1em; width: 10em;" />
 
 **Perilla**
 
-...
+Acción es arrastrar en un círculo. Precisamente, el arrastre debe pasar por **3/4** cuadrantes alrededor del centro (tres cuartos de un círculo).
 
 <br style="clear: right" />
-<img alt="lever" src="public/widgetIcon/lever.svg" style="float: right; padding-left: 1em; padding-bottom: 1em; width: 10em;" />
+<img alt="lever" src="widgetIcon/lever.svg" style="float: right; padding-left: 1em; padding-bottom: 1em; width: 10em;" />
 
 **Palanca**
 
-...
+Acción es arrastrar en la dirección que corresponde, entregada cuando el arrastre está más largo que **50%** del tamaño(=ancho=alto) del control.
 
 <br style="clear: right" />
-<img alt="key" src="public/widgetIcon/key.svg" style="float: right; padding-left: 1em; padding-bottom: 1em; width: 10em;" />
+<img alt="key" src="widgetIcon/key.svg" style="float: right; padding-left: 1em; padding-bottom: 1em; width: 10em;" />
 
 **Tecla**
 
-...
+Acción es tocar la tecla correspondiente del teclado si se usa teclado físico (consulte [tipo de teclado](#tipo-de-teclado-en-dispositivo-local)), o pulsar el ícono, tal como un **botón**.
+
+La `tecla` configurable para tocar distingue minúscula de mayúscula de debe de aceptar cualquier letra (todavía diéresis, acentos son la excepción), incluso si el teclado fuente requiere una combinación de teclas.
 
 <br style="clear: right" />
-<img alt="wait" src="public/widgetIcon/wait.svg" style="float: right; padding-left: 1em; padding-bottom: 1em; width: 10em;" />
+<img alt="wait" src="widgetIcon/wait.svg" style="float: right; padding-left: 1em; padding-bottom: 1em; width: 10em;" />
 
 **Demora / Espera**
 
-...
+Acción es **no hacer nada**, entregada cuando se cumple la duración de espera. Tocar este control o hacer cualquier otro control antes termina la partida.
 
 <br style="clear: right" />
-<img alt="path" src="public/widgetIcon/path.svg" style="float: right; padding-left: 1em; padding-bottom: 1em; width: 10em;" />
+<img alt="path" src="widgetIcon/path.svg" style="float: right; padding-left: 1em; padding-bottom: 1em; width: 10em;" />
 
 **Trayecto / Dibujo**
 
-...
+Acción es trazar el singular trayecto conexo, desde cualquier punto extremo.
+
+El configurable `trayecto` para trazar usa [formato `svg.path.d`](https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Attribute/d). Defínalo por arrastrar dentro de la zona del gráfico del control. La caja de texto proporciona acceso para manualmente editar los puntos de control. Sus coordenadas se expresan en el espacio fuente del ícono (90x90).
 
 <br style="clear: right" />
 <img alt="path" src="doc/widget-icon_keypad.svg" style="float: right; padding-left: 1em; padding-bottom: 1em; width: 10em;" />
 
 **Teclado / Keypad**
 
-...
+Acción es escribir una frase/combinación de teclas, configurable con `texto`. Tal como **tecla**, el método de ingreso depende del [tipo de teclado](#tipo-de-teclado-en-dispositivo-local).
