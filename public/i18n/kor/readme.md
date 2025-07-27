@@ -130,21 +130,21 @@ _이 번역을 개선해주시려면 github에서 pull request로 제안하시�
 
 <h1 id="readme-widget-types">입력장치 종류</h1>
 
-<img alt="단추" src="public/widgetIcon/button.svg" style="float: right; padding-left: 1em; padding-bottom: 1em; width: 10em;" />
+<img alt="단추" src="widgetIcon/button.svg" style="float: right; padding-left: 1em; padding-bottom: 1em; width: 10em;" />
 
 **단추 / 버튼**
 
 입력은 마우스 클릭이나 누르기며, 제출이 **누르기** (놔두기 않은) 할 때 된다.
 
 <br style="clear: right" />
-<img alt="손잡이" src="public/widgetIcon/twist.svg" style="float: right; padding-left: 1em; padding-bottom: 1em; width: 10em;" />
+<img alt="손잡이" src="widgetIcon/twist.svg" style="float: right; padding-left: 1em; padding-bottom: 1em; width: 10em;" />
 
 **손잡이**
 
 입력은 동그라미로 끌기이다. 정확히 말하자면, 끌 동선이 중앙 둘레 사분역 **3/4** (원형 4분의 3) 으로 통과해야 된다.
 
 <br style="clear: right" />
-<img alt="지렛대" src="public/widgetIcon/lever.svg" style="float: right; padding-left: 1em; padding-bottom: 1em; width: 10em;" />
+<img alt="지렛대" src="widgetIcon/lever.svg" style="float: right; padding-left: 1em; padding-bottom: 1em; width: 10em;" />
 
 **지렛대**
 
@@ -154,7 +154,7 @@ _이 번역을 개선해주시려면 github에서 pull request로 제안하시�
 값은 다음 중 하나: `U`(위쪽) `D`(아래쪽) `L`(왼쪽) `R`(오른쪽).
 
 <br style="clear: right" />
-<img alt="키" src="public/widgetIcon/key.svg" style="float: right; padding-left: 1em; padding-bottom: 1em; width: 10em;" />
+<img alt="키" src="widgetIcon/key.svg" style="float: right; padding-left: 1em; padding-bottom: 1em; width: 10em;" />
 
 **키**
 
@@ -163,14 +163,14 @@ _이 번역을 개선해주시려면 github에서 pull request로 제안하시�
 설정 가능한 `키`는 대문자/소문자 구분하고, 아무 쓰일 수 있는 글자 (한글은 아직 예외), 복수의 근원 키 필요해도, 유효일 거다.
 
 <br style="clear: right" />
-<img alt="정지" src="public/widgetIcon/wait.svg" style="float: right; padding-left: 1em; padding-bottom: 1em; width: 10em;" />
+<img alt="정지" src="widgetIcon/wait.svg" style="float: right; padding-left: 1em; padding-bottom: 1em; width: 10em;" />
 
 **정지**
 
 입력은 **없다**. 제출은 대기 기간 만료할 때 된다. 이전 아무 입력이나 하면 경기 마무리된다.
 
 <br style="clear: right" />
-<img alt="동선" src="public/widgetIcon/path.svg" style="float: right; padding-left: 1em; padding-bottom: 1em; width: 10em;" />
+<img alt="동선" src="widgetIcon/path.svg" style="float: right; padding-left: 1em; padding-bottom: 1em; width: 10em;" />
 
 **동선 / 그림**
 

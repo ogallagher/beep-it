@@ -29,7 +29,8 @@ export enum StringsNamespace {
   WidgetReplaceRandom = 'widgetReplaceRandom',
   WidgetConfig = 'widgetConfig',
   WidgetCommand = 'widgetCommand',
-  Color = 'color'
+  Color = 'color',
+  About = 'about'
 }
 
 const internationalFormatters = new Map([
@@ -183,6 +184,9 @@ const internationalStrings = new Map([
       ['coral', 'coral'],
       ['plum', 'plum'],
       ['salmon', 'salmon']
+    ])],
+    [StringsNamespace.About, new Map([
+      ['readmePath', 'readme.md']
     ])]
   ])],
   [Locale.Spanish, new Map([
@@ -302,6 +306,9 @@ const internationalStrings = new Map([
       ['coral', 'arrecife'],
       ['plum', 'ciruela'],
       ['salmon', 'salmOn']
+    ])],
+    [StringsNamespace.About, new Map([
+      ['readmePath', `i18n/${Locale.Spanish}/readme.md`]
     ])]
   ])],
   [Locale.Korean, new Map([
@@ -421,6 +428,9 @@ const internationalStrings = new Map([
       ['coral', '복숭아'],
       ['plum', '담자색'],
       ['salmon', '연어']
+    ])],
+    [StringsNamespace.About, new Map([
+      ['readmePath', `i18n/${Locale.Korean}/readme.md`]
     ])]
   ])]
 ])

@@ -1,9 +1,11 @@
 import { Dialog, DialogPanel } from '@headlessui/react'
-import { Dispatch, SetStateAction, Suspense, useEffect, useMemo, useRef } from 'react'
+import { Dispatch, SetStateAction, Suspense, useContext, useEffect, useMemo, useRef } from 'react'
 import Readme from '@component/about/readme'
 import { getMarkdown } from '@lib/markdown'
 import { websiteBasePath } from '@api/const'
 import { XCircle } from 'react-bootstrap-icons'
+import getStrings, { StringsNamespace } from '@lib/strings'
+import { LocaleCtx } from '@component/context'
 
 export function About(
   { open, setOpen }: {
@@ -11,12 +13,14 @@ export function About(
     setOpen: Dispatch<SetStateAction<boolean>>
   }
 ) {
+  const locale = useContext(LocaleCtx)
+  const s = getStrings(locale, StringsNamespace.About)
   const renderCount = useRef(0)
   const readmePromise = useMemo(
     () => {
       // this complex workaround is to prevent attempting to call getMarkdown in server
       if (renderCount.current > 0) {
-        return getMarkdown('readme.md', websiteBasePath)
+        return getMarkdown(s('readmePath'), websiteBasePath)
       }
       else {
         return Promise.resolve({
@@ -24,7 +28,7 @@ export function About(
         })
       }
     },
-    [renderCount.current]
+    [renderCount.current, locale]
   )
 
   useEffect(
