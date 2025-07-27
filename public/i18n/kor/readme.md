@@ -99,32 +99,32 @@ _이 번역을 개선해주시려면 github에서 pull request로 제안하시�
 
 | 속성 | 설명 |
 | --- | --- |
-| `명함` | ... |
-| `색깔` |  |
-| `크기` |  |
-| `기간` |  |
-| `명령 문자` |  |
-| `명령 녹음` |  |
+| `명함` | 입력장치 패 상단에 이름을 정할 문자입력이 있다. 비어 있어도 된다. 게임이 명령을 낼 때, 이 `명함`은 객체다. |
+| `색깔` | 입력장치들 다 기본값으로 하얀색인 전경이라, 색깔 입력이 전경을 바꾼다. |
+| `크기` | 입력장치 기기 화면 밖으로 빠져나가면 이 입력이 아이콘을 축소한다. |
+| `기간` | 선수가 이 입력하기 위한 추가의 기간. |
+| `명령 문자` | 게임 명령 낼 때, 이건 동사다. |
+| `명령 녹음` | 브라우서 속 마이크 단추로 녹음 (어떤 기기에서 무효) 하거나 녹음 파일을 올린다. 해당 명령할 때 이 오디오는 재생할 거다. |
 
 ## 보드 미리보기
 
 <img alt="보드 미리보기" src="doc/game-controls_preview-yes.jpeg" style="display: block; float: right; padding-left: 1em; padding-bottom: 1em;" />
 
-...
+대부분의 입력장치 설정 항목을 숨기려면, 게임 설정 막대기 끝머리 쯤의 미리보기 버튼은 누르세요.
 
 <img alt="보드 설정하기" src="doc/game-controls_preview-no.jpeg" style="display: block; float: left; padding-right: 1em; padding-bottom: 1em;" />
 
-...
+입력장치 설정하기 재개하려면, 다시 누르세요.
 
 <br style="clear: left" />
 
 # 경기 시작
 
-...
+경기 시작하려면 게임 설정 막대기 끝머리 쯤의 **경기 시작** 버튼을 누르세요.
 
 <img alt="경기 시작" src="doc/game-controls_play.jpeg" style="display: block; float: left; padding-right: 1em; padding-bottom: 1em;" />
 
-...
+그다음 게임이 명령을 발표하고서 어느 참가 기기가 해당 입력하기를 기다릴 거다. 입력이 잘못이거나, 아무 입력도 기한 전 안 하면, 경기 끝나다. 맞은 입력하면, 득점이고 다음 명령이 발표된다.  
 
 <br style="clear: left" />
 
