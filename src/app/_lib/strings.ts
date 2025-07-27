@@ -8,7 +8,7 @@ export const cookieLocale = 'locale'
 export const defaultLocale: Locale = Locale.English
 
 export enum StringsNamespace {
-  Footer = 'footer',
+  LocaleSelector = 'locales',
   GameDevice = 'devices',
   GamePlayers = 'players',
   BoardMode = 'boardMode',
@@ -68,7 +68,7 @@ const internationalFormatters = new Map([
 
 const internationalStrings = new Map([
   [Locale.English, new Map([
-    [StringsNamespace.Footer, new Map([
+    [StringsNamespace.LocaleSelector, new Map([
       ['selectLanguage', 'Change language.']
     ])],
     [StringsNamespace.GameDevice, new Map([
@@ -190,7 +190,7 @@ const internationalStrings = new Map([
     ])]
   ])],
   [Locale.Spanish, new Map([
-    [StringsNamespace.Footer, new Map([
+    [StringsNamespace.LocaleSelector, new Map([
       ['selectLanguage', 'Cambiar idioma.']
     ])],
     [StringsNamespace.GameDevice, new Map([
@@ -312,7 +312,7 @@ const internationalStrings = new Map([
     ])]
   ])],
   [Locale.Korean, new Map([
-    [StringsNamespace.Footer, new Map([
+    [StringsNamespace.LocaleSelector, new Map([
       ['selectLanguage', '언어 바꾸기']
     ])],
     [StringsNamespace.GameDevice, new Map([

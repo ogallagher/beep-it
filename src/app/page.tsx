@@ -17,7 +17,6 @@ import { joinGame, scrollLock, scrollUnlock } from '@lib/page'
 import { initKeyboardDispatcher } from '@lib/keyboardDispatcher'
 import { initDeviceFeatures } from '@lib/deviceFeatures'
 import { ActionValueTextCtx, ActionValueTextPayload, HasDeviceFeaturesCtx } from '@component/context'
-import StaticRef from '@lib/staticRef'
 
 export default function Home() {
   const urlParams = useSearchParams()
@@ -232,7 +231,7 @@ export default function Home() {
               game={game}
               deviceId={clientDeviceId} />
 
-            <div className='w-full h-svh overflow-scroll' id={boardId} >
+            <div className='w-full h-svh' id={boardId} >
               <ActionValueTextCtx value={new ActionValueTextPayload()}>
                 <CommandCaptions game={game} />
                 <Board game={game} deviceId={clientDeviceId} />

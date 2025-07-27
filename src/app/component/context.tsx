@@ -1,4 +1,4 @@
-import { defaultLocale } from '@lib/strings'
+import { defaultLocale, Locale } from '@lib/strings'
 import { WidgetId } from '@lib/widget/const'
 import { createContext } from 'react'
 
@@ -18,3 +18,5 @@ export class ActionValueTextPayload {
 export const ActionValueTextCtx = createContext(new ActionValueTextPayload())
 
 export const LocaleCtx = createContext(defaultLocale)
+
+export const SetLocaleCtx = createContext((locale: Locale) => {})

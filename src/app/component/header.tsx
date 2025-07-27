@@ -7,6 +7,7 @@ import Game from '@lib/game/game'
 import { GameStateListenerKey } from '@lib/game/const'
 import getStrings, { StringsNamespace } from '@lib/strings'
 import { LocaleCtx } from './context'
+import LocaleSelector from './locales'
 
 export default function Header(
   { githubUrl, game }: {
@@ -43,14 +44,14 @@ export default function Header(
         'border-b md:text-2xl text-lg '
         + (showHeader ? '' : 'hidden')
       }>
-        <nav className='mx-auto flex flex-row items-center justify-between md:p-4 p-1'>
+        <nav className='mx-auto flex flex-row flex-wrap gap-2 items-center justify-between md:p-4 p-1'>
           <a href={githubUrl}>
               <Github/>
           </a>
 
           <span className='font-mono font-bold'>beep-it</span>
           
-          <div className='flex flex-row gap-4'>
+          <div className='flex flex-row flex-wrap gap-4'>
             <a href='/wordsearch' className='font-mono hover:font-bold'>wordsearch</a>
 
             <a href='/quizcard-generator' className='font-mono hover:font-bold'>quizcard</a>
@@ -62,6 +63,8 @@ export default function Header(
               }} >
                 <QuestionCircle className='hover:scale-105'/>
             </button>
+
+            <LocaleSelector />
           </div>
         </nav>
       </header>

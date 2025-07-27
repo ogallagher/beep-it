@@ -2,10 +2,9 @@
 
 import { Geist, Geist_Mono } from 'next/font/google'
 import { Suspense, useRef } from 'react'
-import Footer from './footer'
 import { cookieLocale, defaultLocale, Locale } from '@lib/strings'
 import { CookiesProvider, useCookies } from 'react-cookie'
-import { LocaleCtx } from './context'
+import { LocaleCtx, SetLocaleCtx } from './context'
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -39,11 +38,11 @@ function CookiesBody(
         `${geistSans.variable} ${geistMono.variable} antialiased`
       } >
       <LocaleCtx value={locale}>
-        <Suspense>
-          {children}
-        </Suspense>
-
-        <Footer creditsUrl='https://github.com/ogallagher' setLocale={setLocale} />
+        <SetLocaleCtx value={setLocale.current}>
+          <Suspense>
+            {children}
+          </Suspense>
+        </SetLocaleCtx>
       </LocaleCtx>
     </body>
   )
