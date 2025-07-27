@@ -134,46 +134,53 @@ _이 번역을 개선해주시려면 github에서 pull request로 제안하시�
 
 **단추 / 버튼**
 
-...
+입력은 마우스 클릭이나 누르기며, 제출이 **누르기** (놔두기 않은) 할 때 된다.
 
 <br style="clear: right" />
 <img alt="손잡이" src="public/widgetIcon/twist.svg" style="float: right; padding-left: 1em; padding-bottom: 1em; width: 10em;" />
 
 **손잡이**
 
-...
+입력은 동그라미로 끌기이다. 정확히 말하자면, 끌 동선이 중앙 둘레 사분역 **3/4** (원형 4분의 3) 으로 통과해야 된다.
 
 <br style="clear: right" />
 <img alt="지렛대" src="public/widgetIcon/lever.svg" style="float: right; padding-left: 1em; padding-bottom: 1em; width: 10em;" />
 
 **지렛대**
 
-...
+입력은 해당 방향으로 끌기이며, 제출은 끌 동선 길이가 아이콘 크기(=너비=높이)의 **50%** 이상 넘어설 때 된다.
+
+설정 가능한 `방향`은 그쪽으로 당겨야 될 기본방향 네 중 하나다.
+값은 다음 중 하나: `U`(위쪽) `D`(아래쪽) `L`(왼쪽) `R`(오른쪽).
 
 <br style="clear: right" />
 <img alt="키" src="public/widgetIcon/key.svg" style="float: right; padding-left: 1em; padding-bottom: 1em; width: 10em;" />
 
 **키**
 
-...
+입력은 물질적 자판 이용하면 ([기기 자판 종류](#기기-자판-종유) 참고) 해당 자판 키를 치기거나, **단추**처럼 아이콘을 누르기다.
+
+설정 가능한 `키`는 대문자/소문자 구분하고, 아무 쓰일 수 있는 글자 (한글은 아직 예외), 복수의 근원 키 필요해도, 유효일 거다.
 
 <br style="clear: right" />
 <img alt="정지" src="public/widgetIcon/wait.svg" style="float: right; padding-left: 1em; padding-bottom: 1em; width: 10em;" />
 
 **정지**
 
-...
+입력은 **없다**. 제출은 대기 기간 만료할 때 된다. 이전 아무 입력이나 하면 경기 마무리된다.
 
 <br style="clear: right" />
 <img alt="동선" src="public/widgetIcon/path.svg" style="float: right; padding-left: 1em; padding-bottom: 1em; width: 10em;" />
 
 **동선 / 그림**
 
-...
+입력은 단수의 이어진 동선을 따라, 아무 종점부터, 덧그림이다.
+
+설정 가능한 덧그려야겠단 `동선`은 [`svg.path.d` 포맷](https://developer.mozilla.org/en-US/docs/Web/SVG/Reference/Attribute/d)이다. 입력장치 아이콘 구역에서 끌어당김으로 동선을 정한다. 문자입력은 수동으로 구성 요소 점 수정 가능하게 한다. 좌표는 아이콘 보임창 공간에 속한다 (90x90).
 
 <br style="clear: right" />
 <img alt="자판" src="doc/widget-icon_keypad.svg" style="float: right; padding-left: 1em; padding-bottom: 1em; width: 10em;" />
 
 **자판 / 키패드**
 
-...
+입력은 `문자`로 설정 가능한 키 배열/어구를 치기이다. **키**처럼 임력 방식이 [기기 자판 종류](#기기-자판-종유)에 의한다.
