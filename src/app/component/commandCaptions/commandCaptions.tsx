@@ -36,7 +36,8 @@ export default function CommandCaptions(
   function getGameEnd() {
     return {
       ended: game.current.getEnded(),
-      endReason: game.current.getEndReason()
+      endReason: game.current.getEndReason(),
+      playersEliminatedCount: game.current.getPlayersEliminatedCount()
     }
   }
   function getScore() {
@@ -135,7 +136,7 @@ export default function CommandCaptions(
             </div>
 
             {/* turn */}
-            <Turn game={game} gameEnded={gameEnd.ended} />
+            <Turn game={game} gameEnded={gameEnd.ended} playersEliminatedCount={gameEnd.playersEliminatedCount} />
           </div>
         </div>
 

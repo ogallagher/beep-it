@@ -37,6 +37,9 @@ export default class Game {
       count: 0,
       ids: new Set(),
       aliases: new Map()
+    },
+    players: {
+      eliminatedCount: 0
     }
   }
   protected startTimeout: NodeJS.Timeout | null = null
@@ -62,7 +65,8 @@ export default class Game {
     [GameStateListenerKey.Started, new Map()],
     [GameStateListenerKey.Ended, new Map()],
     [GameStateListenerKey.CommandWidgetId, new Map()],
-    [GameStateListenerKey.TurnPlayerIdx, new Map()]
+    [GameStateListenerKey.TurnPlayerIdx, new Map()],
+    [GameStateListenerKey.PlayersEliminated, new Map()]
   ])
   /**
    * References to config and state listeners by widget, to enable child listener
@@ -405,6 +409,18 @@ export default class Game {
     }
   }
 
+  getPlayersEliminatedCount() {
+    return this.state.players.eliminatedCount
+  }
+
+  /**
+   * Sets {@linkcode GameState.players | Game.state.players.eliminatedCount}.
+   */
+  setPlayersEliminatedCount(playersEliminatedCount: number) {
+    this.state.players.eliminatedCount = playersEliminatedCount
+    this.stateListeners.get(GameStateListenerKey.PlayersEliminated)?.forEach(l => l(playersEliminatedCount))
+  }
+
   /**
    * Schedule a method for when a game has been idle without starting for too long.
    * Replaces any earlier start timeout if exists.
@@ -507,7 +523,7 @@ export default class Game {
   }
 
   /**
-   * Start game, send first command.
+   * Start game (or round), send first command.
    * 
    * This is an event sender method, called by the game host. 
    * Does not call `setStarted`, which is an event recipient method.
@@ -529,6 +545,15 @@ export default class Game {
     this.state.turnCommandCount = -1
     this.state.ended = false
     this.state.endReason = GameEndReason.Unknown
+
+    // turn-mode compete: handle next vs first round
+    if (this.config.gameTurnMode === GameTurnMode.Competitive) {
+      if (this.config.players.count - this.state.players.eliminatedCount <= 1) {
+        // 1 remaining player; reset to first round
+        this.state.players.eliminatedCount = 0
+      }
+      // else, proceed to next round
+    }
 
     if (this.startTimeout !== null) {
       clearTimeout(this.startTimeout)
@@ -647,7 +672,7 @@ export default class Game {
   }
 
   /**
-   * End game.
+   * End game (or round).
    * 
    * @param listener 
    * @param deviceId Device that emits end event. Does not use instance var in case this game was never started.
@@ -657,12 +682,22 @@ export default class Game {
     this.state.ended = true
     this.state.endReason = reason
 
+    // turn-mode compete: handle round
+    if (this.config.gameTurnMode === GameTurnMode.Competitive) {
+      if (this.config.players.count - this.state.players.eliminatedCount > 1) {
+        // more than 1 player remains; eliminate someone before next round
+        this.state.players.eliminatedCount++
+      }
+      // else, 1 player remains; game over without eliminating anyone
+    }
+
     const event: EndEvent = {
       deviceId,
       gameId: this.id,
       gameEventType: this.state.lastEventType,
       commandCount: this.state.commandCount,
-      endReason: reason
+      endReason: reason,
+      playersEliminatedCount: this.state.players.eliminatedCount
     }
     listener(event)
   }

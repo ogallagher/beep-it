@@ -65,7 +65,8 @@ export enum GameStateListenerKey {
   /**
    * Used for `setTurn`, `setTurnCommandCount`.
    */
-  TurnPlayerIdx = 'turnPlayerIdx'
+  TurnPlayerIdx = 'turnPlayerIdx',
+  PlayersEliminated = 'players.eliminatedCount'
 }
 
 export type GameAnyListenerKey = GameConfigListenerKey | GameStateListenerKey
@@ -74,6 +75,9 @@ export interface GameConfig {
   boardDisplayMode: BoardDisplayMode
   gameTurnMode: GameTurnMode
   players: {
+    /**
+     * Total (static) count of players.
+     */
     count: number
   }
   difficulty: number
@@ -136,6 +140,17 @@ export interface GameState {
      * Map device ids to aliases.
      */
     aliases: Map<DeviceId, string | undefined>
+  }
+  /**
+   * Dynamic game players info.
+   */
+  players: {
+    /**
+     * Count of players eliminated since the game started. 
+     * Subtract from {@linkcode GameConfig.players.count} to determine number of remaining players.
+     * Only used for {@linkcode GameTurnMode.Competitive}; otherwise, always `0`.
+     */
+    eliminatedCount: number
   }
 }
 

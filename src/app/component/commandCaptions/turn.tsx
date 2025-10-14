@@ -7,9 +7,10 @@ import getStrings, { StringsNamespace } from '@lib/strings'
 import { LocaleCtx } from '@component/context'
 
 export default function Turn(
-  { game, gameEnded }: {
+  { game, gameEnded, playersEliminatedCount }: {
     game: StaticRef<Game> | RefObject<Game>
     gameEnded: boolean
+    playersEliminatedCount: number
   }
 ) {
   // TODO create a separate child strings namespace for Turn
@@ -70,10 +71,10 @@ export default function Turn(
             className='w-10 md:w-20' />
         </div>
 
-        {/* turn player value */}
+        {/* turn player value, remaining players */}
         <div 
-          className='flex flex-col font-mono' >
-          {turn.playerIdx + 1}
+          className='flex flex-col font-mono text-nowrap' >
+          {turn.playerIdx + 1} / {game.current.config.players.count - playersEliminatedCount}
         </div>
       </div>
     </div>

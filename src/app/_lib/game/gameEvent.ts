@@ -117,6 +117,7 @@ export enum GameEndReason {
 export interface EndEvent extends GameEvent {
   commandCount: number
   endReason: GameEndReason
+  playersEliminatedCount: number
 }
 
 export type GameEventListener = (event: GameEvent) => void
