@@ -118,6 +118,10 @@ Tap it again to resume configuring widgets.
 
 <br style="clear: left" />
 
+# Reset game
+
+If turn mode is **competitive**, tap this reset button near the end of the game controls bar to return to the first round, so that the number of eliminated players is zero.
+
 # Play the game
 
 Tap the play button near the end of the game controls bar to begin.

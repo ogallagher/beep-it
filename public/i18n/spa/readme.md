@@ -118,6 +118,10 @@ Tóquelo de nuevo para seguir configurando controles.
 
 <br style="clear: left" />
 
+# Reiniciar juego
+
+Si modo de turno es **competitivo**, pulse este botón de reinicio cerca del final de la barra de config de juego para volver a la primera ronda, con el número de jugadores eliminados en cero.
+
 # Arrancar a jugar
 
 Pulse el botón de jugar cerca del final de la barra de config de juego para iniciar la partida.
