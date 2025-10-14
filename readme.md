@@ -50,7 +50,7 @@ Tap it to rejoin/reconnect.
 
 ## Set player count
 
-Next in the game controls bar is the player count. This is separate from the device list because the number of people playing can be independent of the number of devices we’re using. **Beep It** does not yet use player count.
+Next in the game controls bar is the player count. This is separate from the device list because the number of people playing can be independent of the number of devices we’re using. It currently only matters for **competitive** turn mode.
 
 ## Set board display mode
 
@@ -68,7 +68,9 @@ or different widgets (**extend**). In extend mode, widgets are evenly distribute
 
 ## Set turn mode
 
-The turn mode determines whether players take turns (competitive; not yet supported) or not (collaborative).
+The turn mode determines whether players take turns (competitive) or not (collaborative). 
+
+If **compete**, the player number for the current turn is shown next to the score as the numerator, and number of remaining players as the denominator. The number of total commands and current command per turn are dynamic, and are indicated with a progress bar. Score is still shared between players, but whoever ends the round on their turn is eliminated.
 
 ## Add widgets
 
