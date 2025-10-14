@@ -50,7 +50,7 @@ Púlselo para volver a unirse/conectarse.
 
 ## Número de jugadores
 
-Siguiente en la barra de config de juego es el número de jugadoes. Está separado de la lista de dispositivos porque la cantidad de gente jugando puede ser independiente de la de los dispositivos que usamos. Beep It aún no usa el número de jugadores.
+Siguiente en la barra de config de juego es el número de jugadoes. Está separado de la lista de dispositivos porque la cantidad de gente jugando puede ser independiente de la de los dispositivos que usamos. Actualmente solo se usa para el modo de turno **competitivo**.
 
 ## Fijar modo de tablero
 
@@ -68,7 +68,9 @@ o controles diferentes (**extensión**). En modo extensión, los controles se di
 
 ## Fijar modo de turno
 
-El modo de turno determina si jugadores esperan turnos (competitivo; aún no funciona) o no (colaborativo).
+El modo de turno determina si jugadores esperan turnos (competitivo) o no (colaborativo).
+
+Si es **competi**, el número de jugador del turno actual se ve junto al puntaje como numerador, y número de jugadores restantes como el denominador. El número total de comandos y actual de commando por turno son dinámicos, y se indican con una barra de progreso. Puntaje igual se comparte entre jugadores, pero quien sea que terminó la ronda en su turno es eliminado.
 
 ## Agregar controles
 
@@ -115,6 +117,10 @@ Para ocultar la mayor parte de configuración de controles en el tablero, toque 
 Tóquelo de nuevo para seguir configurando controles.
 
 <br style="clear: left" />
+
+# Reiniciar juego
+
+Si modo de turno es **competitivo**, pulse este botón de reinicio cerca del final de la barra de config de juego para volver a la primera ronda, con el número de jugadores eliminados en cero.
 
 # Arrancar a jugar
 

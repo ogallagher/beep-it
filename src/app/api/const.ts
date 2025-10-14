@@ -7,7 +7,8 @@ export enum ApiRoute {
   LeaveGame = `${ApiRoute.Root}/leaveGame`,
   ConfigGame = `${ApiRoute.Root}/configGame`,
   DoWidget = `${ApiRoute.Root}/doWidget`,
-  GameAsset = `${ApiRoute.Root}/gameAsset`
+  GameAsset = `${ApiRoute.Root}/gameAsset`,
+  EndGame = `${ApiRoute.Root}/endGame`
 }
 
 export const serverDeviceId = ulid()

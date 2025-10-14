@@ -16,6 +16,7 @@ export default function GamePlay(
   const s = getStrings(locale, StringsNamespace.Play)
   function getEnable() {
     return (
+      // board not empty
       game.current.config.widgets.size > 0
       // client joined the game
       && game.current.getJoined()

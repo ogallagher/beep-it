@@ -31,11 +31,19 @@ export enum GameEventType {
    */
   Command = 'command',
   /**
+   * Game emitted a new player turn.
+   */
+  Turn = 'turn',
+  /**
    * Player did an action on a widget.
    */
   DoWidget = 'doWidget',
   /**
-   * Game ended.
+   * Update game state outside of gameplay.
+   */
+  Reset = 'reset',
+  /**
+   * Game (or round) ended.
    */
   End = 'end',
   /**
@@ -58,6 +66,12 @@ export interface GameEvent {
    */
   deviceId: string
 }
+
+interface RoundEvent extends GameEvent {
+  playersEliminatedCount: number
+}
+
+export type StartEvent = RoundEvent
 
 export interface JoinEvent extends GameEvent {
   deviceAlias?: string
@@ -91,6 +105,12 @@ export interface CommandEvent extends GameEvent {
    */
   commandDelay: number
   commandCount: number
+  turnCommandCount: number
+}
+
+export interface TurnEvent extends GameEvent {
+  turnPlayerIdx: number
+  turnCommandCountTotal: number
 }
 
 export interface DoWidgetEvent extends GameEvent {
@@ -101,10 +121,14 @@ export enum GameEndReason {
   Unknown = 'unknown',
   StartDelay = 'startDelay',
   ActionDelay = 'actionDelay',
-  ActionMismatch = 'actionMismatch'
+  ActionMismatch = 'actionMismatch',
+  /**
+   * Reset game state outside of gameplay.
+   */
+  Reset = 'reset'
 }
 
-export interface EndEvent extends GameEvent {
+export interface EndEvent extends RoundEvent {
   commandCount: number
   endReason: GameEndReason
 }
@@ -147,6 +171,10 @@ export async function clientSendConfigEvent(event: ConfigEvent) {
 
 export async function clientSendLeaveEvent(event: LeaveEvent) {
   await clientSendGameEvent(event, ApiRoute.LeaveGame, 'GET')
+}
+
+export async function clientSendEndEvent(event: EndEvent) {
+  await clientSendGameEvent(event, ApiRoute.EndGame, 'GET')
 }
 
 /**

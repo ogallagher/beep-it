@@ -7,9 +7,9 @@ import WidgetsDrawer from '@component/widgetsDrawer'
 import Game from '@lib/game/game'
 import { useSearchParams } from 'next/navigation'
 import { ApiRoute, serverEventPingDelay, websiteBasePath } from '@api/const'
-import { CommandEvent, ConfigEvent, DoWidgetEvent, EndEvent, GameEndReason, GameEvent, GameEventKey, GameEventType, JoinEvent } from '@lib/game/gameEvent'
+import { CommandEvent, ConfigEvent, DoWidgetEvent, EndEvent, GameEndReason, GameEvent, GameEventKey, GameEventType, JoinEvent, StartEvent, TurnEvent } from '@lib/game/gameEvent'
 import { ulid } from 'ulid'
-import CommandCaptions from '@component/commandCaptions'
+import CommandCaptions from '@component/commandCaptions/commandCaptions'
 import { boardId } from '@lib/widget/const'
 import Header from '@component/header'
 import { TimeoutReference } from '@lib/game/const'
@@ -98,26 +98,39 @@ export default function Home() {
         break
 
       case GameEventType.Start:
-        console.log(`confirmed start of game=${gameEvent.gameId}`)
+        const _startEvent = gameEvent as StartEvent
+        console.log(`confirmed start of game=${_startEvent.gameId}`)
+        game.current.setPlayersEliminatedCount(_startEvent.playersEliminatedCount)
         game.current.setStarted(true)
         // anchor scroll
         scrollLock()
         break
 
+      case GameEventType.Turn:
+        const _turnEvent = gameEvent as TurnEvent
+        console.log(
+          `turn.playerIdx=${_turnEvent.turnPlayerIdx} `
+          + `commandCountTotal=${_turnEvent.turnCommandCountTotal}`
+        )
+        game.current.setTurn(_turnEvent.turnPlayerIdx, _turnEvent.turnCommandCountTotal)
+        break
+
       case GameEventType.Command:
-        const widgetId = (gameEvent as CommandEvent).widgetId
+        const _cmdEvent = gameEvent as CommandEvent
+        const widgetId = _cmdEvent.widgetId
         
         console.log(
-          `command=${(gameEvent as CommandEvent).command} `
+          `command=${_cmdEvent.command} `
           + `widget=${widgetId} `
-          + `delay=${(gameEvent as CommandEvent).commandDelay}`
+          + `delay=${_cmdEvent.commandDelay}`
         )
 
-        // since commandWidgetId and commandCount map to same listeners, only invoke them once
-        game.current.setCommandCount((gameEvent as CommandEvent).commandCount, false)
-        game.current.setCommandDelay((gameEvent as CommandEvent).commandDelay, false)
+        // since commandWidgetId, commandCount map to same listeners, only invoke them once
+        game.current.setCommandCount(_cmdEvent.commandCount, false)
+        game.current.setCommandDelay(_cmdEvent.commandDelay, false)
         game.current.setCommandWidgetId(widgetId)
 
+        game.current.setTurnCommandCount(_cmdEvent.turnCommandCount, true)
         break
 
       case GameEventType.DoWidget:
@@ -129,15 +142,17 @@ export default function Home() {
 
       case GameEventType.End:
         console.log('game ended')
-        const endReason = (gameEvent as EndEvent).endReason
+        const _endEvent = gameEvent as EndEvent
+        // end round
+        game.current.setPlayersEliminatedCount(_endEvent.playersEliminatedCount, false)
         // end game
-        game.current.setEndReason(endReason, false)
+        game.current.setEndReason(_endEvent.endReason, false)
         game.current.setEnded(true)
         
         // release scroll lock
         scrollUnlock()
         // clear devices and disconnect
-        if (endReason === GameEndReason.StartDelay) {
+        if (_endEvent.endReason === GameEndReason.StartDelay) {
           game.current.setJoined(false)
           game.current.setDevices([], [])
           closeGameEventSource.current()

@@ -1,12 +1,12 @@
 import { GameStateListenerKey, TimeoutReference } from '@lib/game/const'
 import Game from '@lib/game/game'
-import { GameEndReason } from '@lib/game/gameEvent'
 import StaticRef from '@lib/staticRef'
-import { RefObject, useContext, useEffect, useRef, useState } from 'react'
-import ActionText from './widget/control/actionText'
+import { RefObject, useEffect, useRef, useState } from 'react'
+import ActionText from '@component/widget/control/actionText'
 import { WidgetType } from '@lib/widget/const'
-import getStrings, { StringsNamespace } from '@lib/strings'
-import { LocaleCtx } from './context'
+import Turn from './turn'
+import GameEnd from './gameEnd'
+import Score from './score'
 
 /**
  * Period of command delay progress update cycle, in milliseconds.
@@ -18,7 +18,6 @@ export default function CommandCaptions(
     game: StaticRef<Game> | RefObject<Game>
   }
 ) {
-  const s = getStrings(useContext(LocaleCtx), StringsNamespace.CommandCaptions)
   function getCommand() {
     const commandWidgetId = game.current.getCommandWidgetId()
     if (commandWidgetId === undefined) {
@@ -34,16 +33,18 @@ export default function CommandCaptions(
   function getGameEnd() {
     return {
       ended: game.current.getEnded(),
-      endReason: game.current.getEndReason()
+      endReason: game.current.getEndReason(),
+      playersEliminatedCount: game.current.getPlayersEliminatedCount()
     }
+  }
+  function getScore() {
+    return Math.max(0, game.current.getCommandCount()-1)
   }
 
   const [command, setCommand] = useState(getCommand)
   const [commandDelayProgress, setCommandDelayProgress] = useState(0)
   const commandDelayInterval = useRef(undefined as TimeoutReference)
-  function getScore() {
-    return Math.max(0, game.current.getCommandCount()-1)
-  }
+  
   const [score, setScore] = useState(getScore)
   const [gameEnd, setGameEnd] = useState(getGameEnd)
 
@@ -51,7 +52,7 @@ export default function CommandCaptions(
     () => {
       // state listener for command
       game.current.addStateListener(GameStateListenerKey.CommandWidgetId, CommandCaptions.name, () => {
-        // latest states are not available without being dependencies,
+        // latest states are not available without being useEffect dependencies,
         // and are not dependencies to prevent overwriting the state listener.
         // So we create local references to latest state values, similar to useRef.
         const command = getCommand()
@@ -75,7 +76,8 @@ export default function CommandCaptions(
           commandDelayIntervalPeriod
         )
       })
-      // listener for game end
+
+      // listener for game/round end
       game.current.addStateListener(GameStateListenerKey.Ended, CommandCaptions.name, () => {
         setGameEnd(getGameEnd())
         clearInterval(commandDelayInterval.current)
@@ -110,15 +112,17 @@ export default function CommandCaptions(
               className='w-10 md:w-20' />
           </div>
         </div>
-
-        {/* score */}
+        
         <div className={
           'flex flex-col justify-center text-center '
           + (command?.type === WidgetType.KeyPad && !gameEnd.ended ? 'hidden md:block' : '')
         }>
-          <div className='text-2xl text-nowrap'>
-            <b>{s('score')}: </b>
-            <span className='font-mono'>{score}</span>
+          <div className='flex flex-row gap-4'>
+            {/* score */}
+            <Score score={score} />
+
+            {/* turn */}
+            <Turn game={game} gameEnded={gameEnd.ended} playersEliminatedCount={gameEnd.playersEliminatedCount} />
           </div>
         </div>
 
@@ -131,32 +135,10 @@ export default function CommandCaptions(
         </div>
         
         {/* game end */}
-        <div 
-          className={
-            'flex flex-row gap-2 justify-center text-right '
-            + (gameEnd.ended ? '' : 'hidden')
-          } >
-          <div className='flex flex-col justify-center'>
-            <div className='font-bold text-2xl'>{s('over')}</div>
-          </div>
-          <div className='flex flex-col justify-center'>
-            <div className='text-1xl'>
-              ({ ( () => {
-                switch (gameEnd.endReason) {
-                  case GameEndReason.StartDelay:
-                    return s('startDelay')
-                  case GameEndReason.ActionDelay:
-                    return s('actionDelay')
-                  case GameEndReason.ActionMismatch:
-                    return s('actionMismatch')
-                  case GameEndReason.Unknown:
-                  default:
-                    return s('unknown')
-                }
-              } )() })
-            </div>
-          </div>
-        </div>
+        <GameEnd 
+          game={game}
+          ended={gameEnd.ended} endReason={gameEnd.endReason}
+          playersEliminatedCount={gameEnd.playersEliminatedCount} />
       </div>
     </div>
   )

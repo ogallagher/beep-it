@@ -15,6 +15,7 @@ import Preview from './preview'
 import RandomWidget from './randomWidget'
 import DeviceFeaturesCmp from './deviceFeaturesCmp'
 import WidgetCount from './widgetCount'
+import GameResetRounds from './resetRounds'
 
 export default function GameControls(
   { widgetsDrawerOpen, setWidgetsDrawerOpen, startGame, game, deviceId, gameEventSource, onGameEvent, closeGameEventSource } : {
@@ -86,6 +87,8 @@ export default function GameControls(
 
       <div className='flex flex-row gap-2'>
         <Preview game={game} setWidgetsDrawerOpen={setWidgetsDrawerOpen} />
+
+        <GameResetRounds game={game} deviceId={deviceId} />
 
         <GamePlay game={game} startGame={startGame} />
 

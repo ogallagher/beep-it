@@ -50,29 +50,31 @@ export default function TurnMode(
   return (
     <div className="flex flex-col justify-center">
       <div className="flex flex-row gap-2">
-        <div>{s('turnMode')}:</div>
+        <div className="flex flex-col">{s('turnMode')}:</div>
 
-        <div className="font-bold">
+        <div className="flex flex-col font-bold">
           {game.current.config.gameTurnMode === GameTurnMode.Competitive ? s('compete') : s('collab')}
         </div>
-
-        <button 
-          className={
-            (
-              gameStarted && !gameEnded
-              ? 'cursor-default' 
-              : 'hover:scale-105 cursor-pointer'
-            )
-          }
-          type='button' onClick={onClick}
-          disabled={gameStarted && !gameEnded ? true : undefined}
-          title={
-            game.current.config.gameTurnMode === GameTurnMode.Competitive 
-            ? s('competeTitle') 
-            : s('collabTitle')
-          } >
-          {game.current.config.gameTurnMode === GameTurnMode.Competitive ? <ArrowsAngleExpand /> : <ArrowsAngleContract />}
-        </button>
+        
+        <div className="flex flex-col">
+          <button 
+            className={
+              (
+                gameStarted && !gameEnded
+                ? 'cursor-default' 
+                : 'hover:scale-105 cursor-pointer'
+              )
+            }
+            type='button' onClick={onClick}
+            disabled={gameStarted && !gameEnded ? true : undefined}
+            title={
+              game.current.config.gameTurnMode === GameTurnMode.Competitive 
+              ? s('competeTitle') 
+              : s('collabTitle')
+            } >
+            {game.current.config.gameTurnMode === GameTurnMode.Competitive ? <ArrowsAngleExpand /> : <ArrowsAngleContract />}
+          </button>
+        </div>
       </div>
     </div>
   )

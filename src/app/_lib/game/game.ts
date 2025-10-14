@@ -1,7 +1,7 @@
 import { ulid } from 'ulid'
 import Widget from '@lib/widget/widget'
-import { CommandEvent, ConfigEvent, DoWidgetEvent, EndEvent, GameEndReason, GameEvent, GameEventListener, GameEventType } from './gameEvent'
-import { BoardDisplayMode, GameTurnMode, GameConfigListenerKey, GameStateListenerKey, commandDelayMin, ConfigListener, GameConfig, gameStartDelayMax, GameState, StateListener, gameDeleteDelay, commandDelayDefault, GameId, DeviceId, GameAnyListenerKey } from './const'
+import { CommandEvent, ConfigEvent, DoWidgetEvent, EndEvent, GameEndReason, GameEvent, GameEventListener, GameEventType, StartEvent, TurnEvent } from './gameEvent'
+import { BoardDisplayMode, GameTurnMode, GameConfigListenerKey, GameStateListenerKey, commandDelayMin, ConfigListener, GameConfig, gameStartDelayMax, GameState, StateListener, gameDeleteDelay, commandDelayDefault, GameId, DeviceId, GameAnyListenerKey, turnCommandCountMax, turnCommandCountMin } from './const'
 import { WidgetExport, WidgetId, WidgetType } from '@lib/widget/const'
 
 export default class Game {
@@ -20,6 +20,9 @@ export default class Game {
     commandDelay: commandDelayDefault,
     commandTimeout: null,
     commandWidgetId: '',
+    turnPlayerIdx: -1,
+    turnCommandCountTotal: 0,
+    turnCommandCount: -1,
     lastEventType: GameEventType.Pending,
     preview: false,
     started: false,
@@ -34,6 +37,9 @@ export default class Game {
       count: 0,
       ids: new Set(),
       aliases: new Map()
+    },
+    players: {
+      eliminatedCount: 0
     }
   }
   protected startTimeout: NodeJS.Timeout | null = null
@@ -58,7 +64,8 @@ export default class Game {
     [GameStateListenerKey.Preview, new Map()],
     [GameStateListenerKey.Started, new Map()],
     [GameStateListenerKey.Ended, new Map()],
-    [GameStateListenerKey.CommandWidgetId, new Map()]
+    [GameStateListenerKey.CommandWidgetId, new Map()],
+    [GameStateListenerKey.TurnPlayerIdx, new Map()]
   ])
   /**
    * References to config and state listeners by widget, to enable child listener
@@ -343,7 +350,7 @@ export default class Game {
   }
 
   /**
-   * Returns {@linkcode GameState#commandDelay | Game.state.commandDelay}.
+   * Returns {@linkcode GameState.commandDelay | Game.state.commandDelay}.
    * 
    * @param includeWidgetDuration Include widget duration as component of sum. Default `true`.
    */
@@ -361,6 +368,57 @@ export default class Game {
     this.state.commandDelay = commandDelay
     if (invokeListeners) {
       this.stateListeners.get(GameStateListenerKey.CommandWidgetId)?.forEach(l => l(this.state.commandWidgetId))
+    }
+  }
+
+  /**
+   * Returns {@linkcode GameState.turnPlayerIdx | Game.state.turnPlayerIdx}.
+   */
+  getTurnPlayerIdx() {
+    return this.state.turnPlayerIdx
+  }
+
+  /**
+   * Returns {@linkcode GameState.turnCommandCountTotal | Game.state.turnCommandCountTotal}.
+   */
+  getTurnCommandCountTotal() {
+    return this.state.turnCommandCountTotal
+  }
+
+  /**
+   * Returns {@linkcode GameState.turnCommandCount | Game.state.turnCommandCount}.
+   */
+  getTurnCommandCount() {
+    return this.state.turnCommandCount
+  }
+
+  setTurn(turnPlayerIdx: number, turnCommandCountTotal: number) {
+    this.state.turnPlayerIdx = turnPlayerIdx
+    this.state.turnCommandCountTotal = turnCommandCountTotal
+    this.stateListeners.get(GameStateListenerKey.TurnPlayerIdx)?.forEach(l => l(turnPlayerIdx))
+  }
+
+  /**
+   * Sets {@linkcode GameState.turnCommandCount | Game.state.turnCommandCount}.
+   */
+  setTurnCommandCount(turnCommandCount: number, invokeListeners: boolean = true) {
+    this.state.turnCommandCount = turnCommandCount
+    if (invokeListeners) {
+      this.stateListeners.get(GameStateListenerKey.TurnPlayerIdx)?.forEach(l => l(this.state.turnPlayerIdx))
+    }
+  }
+
+  getPlayersEliminatedCount() {
+    return this.state.players.eliminatedCount
+  }
+
+  /**
+   * Sets {@linkcode GameState.players | Game.state.players.eliminatedCount}.
+   */
+  setPlayersEliminatedCount(playersEliminatedCount: number, invokeListeners: boolean = true) {
+    this.state.players.eliminatedCount = playersEliminatedCount
+    if (invokeListeners) {
+      this.stateListeners.get(GameStateListenerKey.Ended)?.forEach(l => l(this.state.ended))
     }
   }
 
@@ -466,16 +524,16 @@ export default class Game {
   }
 
   /**
-   * Start game, send first command.
+   * Start game (or round), send first command.
    * 
    * This is an event sender method, called by the game host. 
    * Does not call `setStarted`, which is an event recipient method.
    * 
-   * @param listener Game event handler that propogates to client pages.
+   * @param listener Game event handler that propagates to client pages.
    * @param deviceId Device hosting the game (server if multi device, client if single device).
    * @returns Game start event.
    */
-  public start(listener: GameEventListener, deviceId: string): GameEvent {
+  public start(listener: GameEventListener, deviceId: string): StartEvent {
     this.state.deviceId = deviceId
     this.state.lastEventType = GameEventType.Start
 
@@ -483,8 +541,20 @@ export default class Game {
     this.state.started = true
     this.state.commandCount = 0
     this.state.commandDelay = commandDelayDefault
+    this.state.turnPlayerIdx = -1
+    this.state.turnCommandCountTotal = 0
+    this.state.turnCommandCount = -1
     this.state.ended = false
     this.state.endReason = GameEndReason.Unknown
+
+    // turn-mode compete: handle next vs first round
+    if (this.config.gameTurnMode === GameTurnMode.Competitive) {
+      if (this.config.players.count - this.state.players.eliminatedCount <= 1) {
+        // 1 remaining player; reset to first round
+        this.state.players.eliminatedCount = 0
+      }
+      // else, proceed to next round
+    }
 
     if (this.startTimeout !== null) {
       clearTimeout(this.startTimeout)
@@ -495,10 +565,11 @@ export default class Game {
       this.deleteTimeout = null
     }
     
-    const start: GameEvent = {
+    const start: StartEvent = {
       deviceId,
       gameId: this.id,
-      gameEventType: this.state.lastEventType
+      gameEventType: this.state.lastEventType,
+      playersEliminatedCount: this.state.players.eliminatedCount
     }
     listener(start)
 
@@ -508,12 +579,39 @@ export default class Game {
     return start
   }
 
+  protected sendTurn(listener: GameEventListener) {
+    this.state.turnPlayerIdx = (this.state.turnPlayerIdx+1) % this.config.players.count
+    this.state.turnCommandCount = 0
+    this.state.turnCommandCountTotal = Math.round(
+      Math.random() * (turnCommandCountMax-turnCommandCountMin) 
+      + turnCommandCountMin
+    )
+
+    // send turn event
+    const turn: TurnEvent = {
+      deviceId: this.state.deviceId!,
+      gameId: this.id,
+      gameEventType: GameEventType.Turn,
+      turnPlayerIdx: this.state.turnPlayerIdx,
+      turnCommandCountTotal: this.state.turnCommandCountTotal
+    }
+    listener(turn)
+  }
+
   protected sendCommand(listener: GameEventListener) {
     this.state.lastEventType = GameEventType.Command
 
     // select a random widget
     const commandWidgetIdx = Math.round(Math.random() * (this.config.widgets.size-1))
     this.state.commandWidgetId = [...this.config.widgets.keys()][commandWidgetIdx]
+
+    // turn-mode compete: handle turn
+    if (this.config.gameTurnMode === GameTurnMode.Competitive) {
+      if (this.state.turnCommandCount >= this.state.turnCommandCountTotal || this.state.turnCommandCount < 0) {
+        // new turn
+        this.sendTurn(listener)
+      }
+    }
 
     // send command
     const command: CommandEvent = {
@@ -523,7 +621,8 @@ export default class Game {
       widgetId: this.state.commandWidgetId,
       command: this.config.widgets.get(this.state.commandWidgetId)!.command,
       commandDelay: this.state.commandDelay,
-      commandCount: ++this.state.commandCount
+      commandCount: ++this.state.commandCount,
+      turnCommandCount: ++this.state.turnCommandCount
     }
     listener(command)
 
@@ -575,22 +674,42 @@ export default class Game {
   }
 
   /**
-   * End game.
+   * End game (or round).
    * 
    * @param listener 
    * @param deviceId Device that emits end event. Does not use instance var in case this game was never started.
+   * @param playersEliminatedCount Explicitly override/reset round with `state.players.eliminatedCount`.
    */
-  public end(reason: GameEndReason, listener: GameEventListener, deviceId: string) {
+  public end(
+    reason: GameEndReason, 
+    listener: GameEventListener, 
+    deviceId: string, 
+    playersEliminatedCount?: number
+  ) {
     this.state.lastEventType = GameEventType.End
     this.state.ended = true
     this.state.endReason = reason
+
+    // override/reset round
+    if (playersEliminatedCount !== undefined) {
+      this.state.players.eliminatedCount = playersEliminatedCount
+    }
+    // turn-mode compete: handle round
+    else if (this.config.gameTurnMode === GameTurnMode.Competitive) {
+      if (this.config.players.count - this.state.players.eliminatedCount > 1) {
+        // more than 1 player remains; eliminate someone before next round
+        this.state.players.eliminatedCount++
+      }
+      // else, 1 player remains; game over without eliminating anyone
+    }
 
     const event: EndEvent = {
       deviceId,
       gameId: this.id,
       gameEventType: this.state.lastEventType,
       commandCount: this.state.commandCount,
-      endReason: reason
+      endReason: reason,
+      playersEliminatedCount: this.state.players.eliminatedCount
     }
     listener(event)
   }

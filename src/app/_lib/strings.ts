@@ -14,6 +14,7 @@ export enum StringsNamespace {
   BoardMode = 'boardMode',
   TurnMode = 'turnMode',
   DeviceFeatures = 'deviceFeatures',
+  GameResetRounds = 'resetRounds',
   Play = 'play',
   Preview = 'preview',
   RandomWidget = 'randomWidget',
@@ -24,6 +25,9 @@ export enum StringsNamespace {
   Share = 'share',
   Header = 'header',
   CommandCaptions = 'commandCaptions',
+  GameEnd = 'gameEnd',
+  Score = 'score',
+  Turn = 'turn',
   WidgetLabel = 'widgetLabel',
   WidgetDelete = 'widgetDelete',
   WidgetReplaceRandom = 'widgetReplaceRandom',
@@ -42,6 +46,9 @@ const internationalFormatters = new Map([
       ['label.lever', ((...[c, t, l]: string[]) => `${c} ${t} ${l}`)],
       ['label.key', ((...[t, l]: string[]) => `${t} ${l}`)],
       ['label.default', ((...[c, l]: string[]) => `${c} ${l}`)]
+    ])],
+    [StringsNamespace.GameEnd, new Map([
+      ['roundOver', ((...[r]: string[]) => `End Round ${r}`)]
     ])]
   ])],
   [Locale.Spanish, new Map([
@@ -52,6 +59,9 @@ const internationalFormatters = new Map([
       ['label.lever', ((...[c, t, l]: string[]) => `${l} ${t} ${c}`)],
       ['label.key', ((...[t, l]: string[]) => `${l} ${t}`)],
       ['label.default', ((...[c, l]: string[]) => `${l} ${c}`)]
+    ])],
+    [StringsNamespace.GameEnd, new Map([
+      ['roundOver', ((...[r]: string[]) => `Fin de ronda ${r}`)]
     ])]
   ])],
   [Locale.Korean, new Map([
@@ -62,8 +72,11 @@ const internationalFormatters = new Map([
       ['label.lever', ((...[c, t, l]: string[]) => `${c} ${t} ${l}`)],
       ['label.key', ((...[t, l]: string[]) => `${t} ${l}`)],
       ['label.default', ((...[c, l]: string[]) => `${c} ${l}`)]
+    ])],
+    [StringsNamespace.GameEnd, new Map([
+      ['roundOver', ((...[r]: string[]) => `${r}판 끝`)]
     ])]
-  ])],
+  ])]
 ])
 
 const internationalStrings = new Map([
@@ -101,6 +114,9 @@ const internationalStrings = new Map([
     [StringsNamespace.Play, new Map([
       ['playTitle', 'Start new game']
     ])],
+    [StringsNamespace.GameResetRounds, new Map([
+      ['resetRoundsTitle', 'Reset game to first round.']
+    ])],
     [StringsNamespace.Preview, new Map([
       ['closePreview', 'Open game controls, close preview.'],
       ['openPreview', 'Preview board during gameplay.']
@@ -128,12 +144,21 @@ const internationalStrings = new Map([
       ['title', 'Help']
     ])],
     [StringsNamespace.CommandCaptions, new Map([
-      ['score', 'score'],
+    ])],
+    [StringsNamespace.Score, new Map([
+      ['score', 'score']
+    ])],
+    [StringsNamespace.GameEnd, new Map([
       ['over', 'Game Over'],
       ['startDelay', 'game expired; reconnect devices to play'],
       ['actionDelay', 'too slow'],
       ['actionMismatch', 'wrong widget'],
+      ['reset', 'game reset'],
       ['unknown', 'reason unknown']
+    ])],
+    [StringsNamespace.Turn, new Map([
+      ['turnTitle', 'turn'],
+      ['playersRemainingTitle', 'remaining players']
     ])],
     [StringsNamespace.WidgetLabel, new Map([
       ['toggle', 'Toggle show widget label.']
@@ -223,6 +248,9 @@ const internationalStrings = new Map([
     [StringsNamespace.Play, new Map([
       ['playTitle', 'Arrancar juego']
     ])],
+    [StringsNamespace.GameResetRounds, new Map([
+      ['resetRoundsTitle', 'Reestablecer juego en primera ronda.']
+    ])],
     [StringsNamespace.Preview, new Map([
       ['closePreview', 'Configurar juego, cerrar vista previa.'],
       ['openPreview', 'Vista previa de tablero activa.']
@@ -250,12 +278,21 @@ const internationalStrings = new Map([
       ['title', 'Ayuda']
     ])],
     [StringsNamespace.CommandCaptions, new Map([
-      ['score', 'puntaje'],
+    ])],
+    [StringsNamespace.Score, new Map([
+      ['score', 'puntaje']
+    ])],
+    [StringsNamespace.GameEnd, new Map([
       ['over', 'Fin'],
       ['startDelay', 'juego se venció; reconectar dispositivos para jugar'],
       ['actionDelay', 'demasiado lento'],
       ['actionMismatch', 'control equivocado'],
+      ['reset', 'reinicio de juego'],
       ['unknown', 'razón desconocida']
+    ])],
+    [StringsNamespace.Turn, new Map([
+      ['turnTitle', 'turno'],
+      ['playersRemainingTitle', 'jugadores restantes']
     ])],
     [StringsNamespace.WidgetLabel, new Map([
       ['toggle', 'Alternar vista de etiqueta del control.']
@@ -345,6 +382,9 @@ const internationalStrings = new Map([
     [StringsNamespace.Play, new Map([
       ['playTitle', '경기 시작']
     ])],
+    [StringsNamespace.GameResetRounds, new Map([
+      ['resetRoundsTitle', '1판으로 경기를 재시작']
+    ])],
     [StringsNamespace.Preview, new Map([
       ['closePreview', '게임 설정하느라 미리보기 닫기'],
       ['openPreview', '경기 중의 보드 미리보기 열기']
@@ -371,13 +411,22 @@ const internationalStrings = new Map([
     [StringsNamespace.Header, new Map([
       ['title', '도움말']
     ])],
-    [StringsNamespace.CommandCaptions, new Map([
-      ['score', '점수'],
+    [StringsNamespace.CommandCaptions, new Map([      
+    ])],
+    [StringsNamespace.Score, new Map([
+      ['score', '점수']
+    ])],
+    [StringsNamespace.GameEnd, new Map([
       ['over', '경기 끝'],
       ['startDelay', '게임 만료됐어서 작동시키려면 다시 접근하세요'],
       ['actionDelay', '너무 늦었으므로'],
       ['actionMismatch', '잘못된 입력으로'],
+      ['reset', '경기판 재설정'],
       ['unknown', '미지의 원인']
+    ])],
+    [StringsNamespace.Turn, new Map([
+      ['turnTitle', '차례'],
+      ['playersRemainingTitle', '남는 선수 인원']
     ])],
     [StringsNamespace.WidgetLabel, new Map([
       ['toggle', '입력장치 명함 표시 유무']
@@ -459,12 +508,12 @@ export default function getStrings(locale: Locale, namespace: StringsNamespace) 
     throw new Error(`strings error ns=${namespace}`)
   }
 
-  return ((key: string) => {
+  return ((key: string): string => {
     return (
       strings.get(key) 
       || internationalStrings.get(defaultLocale)?.get(namespace)?.get(key)
       || `strings error key=${key}`
-    )
+    ) as string
   })
 }
 
