@@ -71,9 +71,7 @@ interface RoundEvent extends GameEvent {
   playersEliminatedCount: number
 }
 
-export interface StartEvent extends RoundEvent {
-  // no additional members
-}
+export type StartEvent = RoundEvent
 
 export interface JoinEvent extends GameEvent {
   deviceAlias?: string
