@@ -425,7 +425,7 @@ const internationalStrings = new Map([
       ['unknown', '미지의 원인']
     ])],
     [StringsNamespace.Turn, new Map([
-      ['turn', '차례'],
+      ['turnTitle', '차례'],
       ['playersRemainingTitle', '남는 선수 인원']
     ])],
     [StringsNamespace.WidgetLabel, new Map([
