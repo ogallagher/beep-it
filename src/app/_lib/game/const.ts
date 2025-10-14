@@ -15,6 +15,14 @@ export const commandDelayMin = 800
 export const gameDeleteDelay = 1000 * 60 * 15
 
 export const commandDelayDefault = 1000 * 3
+/**
+ * Min number of commands in a player turn.
+ */
+export const turnCommandCountMin = 3
+/**
+ * Max number of commands in a player turn.
+ */
+export const turnCommandCountMax = 10
 
 export type GameId = string
 export type DeviceId = string
@@ -82,10 +90,20 @@ export interface GameState {
   commandTimeout: NodeJS.Timeout | null
   commandWidgetId: string
   /**
-   * Index of the player whose turn it is. Only used for {@linkcode GameTurnMode.Competitive}. 
-   * Otherwise, always `-1`.
+   * Index of the player whose turn it is. 
+   * Only used for {@linkcode GameTurnMode.Competitive}; otherwise, always `-1`.
    */
   turnPlayerIdx: number
+  /**
+   * Total count of commands in current turn. 
+   * Only used for {@linkcode GameTurnMode.Competitive}; otherwise, always `0`.
+   */
+  turnCommandCountTotal: number
+  /**
+   * Current count of commands sent in current turn.
+   * Only used for {@linkcode GameTurnMode.Competitive}; otherwise, always `-1`.
+   */
+  turnCommandCount: number
   lastEventType: GameEventType
   /**
    * Whether to simulate the game having started, without the game emitting commands or receiving widget actions.

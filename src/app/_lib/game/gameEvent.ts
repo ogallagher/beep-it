@@ -31,6 +31,10 @@ export enum GameEventType {
    */
   Command = 'command',
   /**
+   * Game emitted a new player turn.
+   */
+  Turn = 'turn',
+  /**
    * Player did an action on a widget.
    */
   DoWidget = 'doWidget',
@@ -91,6 +95,12 @@ export interface CommandEvent extends GameEvent {
    */
   commandDelay: number
   commandCount: number
+  turnCommandCount: number
+}
+
+export interface TurnEvent extends GameEvent {
+  turnPlayerIdx: number
+  turnCommandCountTotal: number
 }
 
 export interface DoWidgetEvent extends GameEvent {

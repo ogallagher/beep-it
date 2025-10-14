@@ -1,7 +1,7 @@
 import { ulid } from 'ulid'
 import Widget from '@lib/widget/widget'
-import { CommandEvent, ConfigEvent, DoWidgetEvent, EndEvent, GameEndReason, GameEvent, GameEventListener, GameEventType } from './gameEvent'
-import { BoardDisplayMode, GameTurnMode, GameConfigListenerKey, GameStateListenerKey, commandDelayMin, ConfigListener, GameConfig, gameStartDelayMax, GameState, StateListener, gameDeleteDelay, commandDelayDefault, GameId, DeviceId, GameAnyListenerKey } from './const'
+import { CommandEvent, ConfigEvent, DoWidgetEvent, EndEvent, GameEndReason, GameEvent, GameEventListener, GameEventType, TurnEvent } from './gameEvent'
+import { BoardDisplayMode, GameTurnMode, GameConfigListenerKey, GameStateListenerKey, commandDelayMin, ConfigListener, GameConfig, gameStartDelayMax, GameState, StateListener, gameDeleteDelay, commandDelayDefault, GameId, DeviceId, GameAnyListenerKey, turnCommandCountMax, turnCommandCountMin } from './const'
 import { WidgetExport, WidgetId, WidgetType } from '@lib/widget/const'
 
 export default class Game {
@@ -21,6 +21,8 @@ export default class Game {
     commandTimeout: null,
     commandWidgetId: '',
     turnPlayerIdx: -1,
+    turnCommandCountTotal: 0,
+    turnCommandCount: -1,
     lastEventType: GameEventType.Pending,
     preview: false,
     started: false,
@@ -485,7 +487,7 @@ export default class Game {
    * This is an event sender method, called by the game host. 
    * Does not call `setStarted`, which is an event recipient method.
    * 
-   * @param listener Game event handler that propogates to client pages.
+   * @param listener Game event handler that propagates to client pages.
    * @param deviceId Device hosting the game (server if multi device, client if single device).
    * @returns Game start event.
    */
@@ -497,6 +499,9 @@ export default class Game {
     this.state.started = true
     this.state.commandCount = 0
     this.state.commandDelay = commandDelayDefault
+    this.state.turnPlayerIdx = -1
+    this.state.turnCommandCountTotal = 0
+    this.state.turnCommandCount = -1
     this.state.ended = false
     this.state.endReason = GameEndReason.Unknown
 
@@ -522,12 +527,39 @@ export default class Game {
     return start
   }
 
+  protected sendTurn(listener: GameEventListener) {
+    this.state.turnPlayerIdx = (this.state.turnPlayerIdx+1) % this.config.players.count
+    this.state.turnCommandCount = 0
+    this.state.turnCommandCountTotal = Math.round(
+      Math.random() * (turnCommandCountMax-turnCommandCountMin) 
+      + turnCommandCountMin
+    )
+
+    // send turn event
+    const turn: TurnEvent = {
+      deviceId: this.state.deviceId!,
+      gameId: this.id,
+      gameEventType: GameEventType.Turn,
+      turnPlayerIdx: this.state.turnPlayerIdx,
+      turnCommandCountTotal: this.state.turnCommandCountTotal
+    }
+    listener(turn)
+  }
+
   protected sendCommand(listener: GameEventListener) {
     this.state.lastEventType = GameEventType.Command
 
     // select a random widget
     const commandWidgetIdx = Math.round(Math.random() * (this.config.widgets.size-1))
     this.state.commandWidgetId = [...this.config.widgets.keys()][commandWidgetIdx]
+
+    // turn-mode compete: handle turn
+    if (this.config.gameTurnMode === GameTurnMode.Competitive) {
+      if (this.state.turnCommandCount >= this.state.turnCommandCountTotal || this.state.turnCommandCount < 0) {
+        // new turn
+        this.sendTurn(listener)
+      }
+    }
 
     // send command
     const command: CommandEvent = {
@@ -537,7 +569,8 @@ export default class Game {
       widgetId: this.state.commandWidgetId,
       command: this.config.widgets.get(this.state.commandWidgetId)!.command,
       commandDelay: this.state.commandDelay,
-      commandCount: ++this.state.commandCount
+      commandCount: ++this.state.commandCount,
+      turnCommandCount: ++this.state.turnCommandCount
     }
     listener(command)
 
