@@ -1,13 +1,14 @@
-import { GameConfigListenerKey, GameStateListenerKey, GameTurnMode, TimeoutReference } from '@lib/game/const'
+import { GameStateListenerKey, TimeoutReference } from '@lib/game/const'
 import Game from '@lib/game/game'
 import { GameEndReason } from '@lib/game/gameEvent'
 import StaticRef from '@lib/staticRef'
 import { RefObject, useContext, useEffect, useRef, useState } from 'react'
-import ActionText from './widget/control/actionText'
+import ActionText from '../widget/control/actionText'
 import { WidgetType } from '@lib/widget/const'
 import getStrings, { StringsNamespace } from '@lib/strings'
-import { LocaleCtx } from './context'
+import { LocaleCtx } from '../context'
 import { Gem, Person } from 'react-bootstrap-icons'
+import Turn from './turn'
 
 /**
  * Period of command delay progress update cycle, in milliseconds.
@@ -38,15 +39,14 @@ export default function CommandCaptions(
       endReason: game.current.getEndReason()
     }
   }
+  function getScore() {
+    return Math.max(0, game.current.getCommandCount()-1)
+  }
 
   const [command, setCommand] = useState(getCommand)
   const [commandDelayProgress, setCommandDelayProgress] = useState(0)
   const commandDelayInterval = useRef(undefined as TimeoutReference)
-  function getScore() {
-    return Math.max(0, game.current.getCommandCount()-1)
-  }
-  const [turnMode, setTurnMode] = useState(() => game.current.config.gameTurnMode)
-  const [turn, setTurn] = useState(() => game.current.getTurnPlayerIdx())
+  
   const [score, setScore] = useState(getScore)
   const [gameEnd, setGameEnd] = useState(getGameEnd)
 
@@ -77,14 +77,6 @@ export default function CommandCaptions(
           },
           commandDelayIntervalPeriod
         )
-      })
-      // config listener for turn mode
-      game.current.addConfigListener(GameConfigListenerKey.GameTurnMode, CommandCaptions.name, (turnMode) => {
-        setTurnMode(turnMode as GameTurnMode)
-      })
-      // state listener for turn player
-      game.current.addStateListener(GameStateListenerKey.TurnPlayerIdx, CommandCaptions.name, (turnPlayerIdx) => {
-        setTurn(turnPlayerIdx as number)
       })
 
       // listener for game end
@@ -129,22 +121,21 @@ export default function CommandCaptions(
         }>
           <div className='flex flex-row gap-4'>
             {/* score */}
-            <div className='text-2xl text-nowrap' title={s('score')}>
-              {/* icon candidates: coin, star, stars, speedometer, suit-diamond, gem */}
-              <b><Gem className='inline text-xl' /> </b>
-              <span className='font-mono'>{score}</span>
+            <div className='flex flex-col text-2xl' title={s('score')}>
+              <div className='flex flex-row gap-2'>
+                <div className='flex flex-col justify-center text-xl'>
+                  {/* icon suggestions: coin, star, stars, speedometer, suit-diamond, gem */}
+                  <Gem />
+                </div>
+                
+                <div className='flex flex-col font-mono justify-center'>
+                  {score}
+                </div>
+              </div>
             </div>
 
-            {/* player turn */}
-            <div 
-              className={
-                'text-2xl text-nowrap '
-                + (turnMode === GameTurnMode.Competitive ? '' : 'hidden')
-              }
-              title={s('turn')} >
-              <b><span><Person className='inline' /></span> </b>
-              <span className='font-mono'>{turn + 1}</span>
-            </div>
+            {/* turn */}
+            <Turn game={game} gameEnded={gameEnd.ended} />
           </div>
         </div>
 

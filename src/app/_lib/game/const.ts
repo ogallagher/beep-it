@@ -48,20 +48,23 @@ export enum GameConfigListenerKey {
 
 export enum GameStateListenerKey {
   /**
-   * Used for any change to config.devices.
+   * Used for any change to `config.devices`.
    */
   DevicesCount = 'devices.count',
   Joined = 'joined',
   Preview = 'preview',
   Started = 'started',
   /**
-   * Used for both setEnded and setEndReason.
+   * Used for both `setEnded` and `setEndReason`.
    */
   Ended = 'ended',
   /**
-   * Used for setCommandWidgetId, setCommandCount. setCommandDelay.
+   * Used for `setCommandWidgetId`, `setCommandCount`. `setCommandDelay`.
    */
   CommandWidgetId = 'commandWidgetId',
+  /**
+   * Used for `setTurn`, `setTurnCommandCount`.
+   */
   TurnPlayerIdx = 'turnPlayerIdx'
 }
 

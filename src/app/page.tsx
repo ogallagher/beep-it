@@ -7,9 +7,9 @@ import WidgetsDrawer from '@component/widgetsDrawer'
 import Game from '@lib/game/game'
 import { useSearchParams } from 'next/navigation'
 import { ApiRoute, serverEventPingDelay, websiteBasePath } from '@api/const'
-import { CommandEvent, ConfigEvent, DoWidgetEvent, EndEvent, GameEndReason, GameEvent, GameEventKey, GameEventType, JoinEvent } from '@lib/game/gameEvent'
+import { CommandEvent, ConfigEvent, DoWidgetEvent, EndEvent, GameEndReason, GameEvent, GameEventKey, GameEventType, JoinEvent, TurnEvent } from '@lib/game/gameEvent'
 import { ulid } from 'ulid'
-import CommandCaptions from '@component/commandCaptions'
+import CommandCaptions from '@component/commandCaptions/commandCaptions'
 import { boardId } from '@lib/widget/const'
 import Header from '@component/header'
 import { TimeoutReference } from '@lib/game/const'
@@ -104,20 +104,31 @@ export default function Home() {
         scrollLock()
         break
 
+      case GameEventType.Turn:
+        const _turnEvent = gameEvent as TurnEvent
+        console.log(
+          `turn.playerIdx=${_turnEvent.turnPlayerIdx} `
+          + `commandCountTotal=${_turnEvent.turnCommandCountTotal}`
+        )
+        game.current.setTurn(_turnEvent.turnPlayerIdx, _turnEvent.turnCommandCountTotal)
+        break
+
       case GameEventType.Command:
-        const widgetId = (gameEvent as CommandEvent).widgetId
+        const _cmdEvent = gameEvent as CommandEvent
+        const widgetId = _cmdEvent.widgetId
         
         console.log(
-          `command=${(gameEvent as CommandEvent).command} `
+          `command=${_cmdEvent.command} `
           + `widget=${widgetId} `
-          + `delay=${(gameEvent as CommandEvent).commandDelay}`
+          + `delay=${_cmdEvent.commandDelay}`
         )
 
-        // since commandWidgetId and commandCount map to same listeners, only invoke them once
-        game.current.setCommandCount((gameEvent as CommandEvent).commandCount, false)
-        game.current.setCommandDelay((gameEvent as CommandEvent).commandDelay, false)
+        // since commandWidgetId, commandCount map to same listeners, only invoke them once
+        game.current.setCommandCount(_cmdEvent.commandCount, false)
+        game.current.setCommandDelay(_cmdEvent.commandDelay, false)
         game.current.setCommandWidgetId(widgetId)
 
+        game.current.setTurnCommandCount(_cmdEvent.turnCommandCount, true)
         break
 
       case GameEventType.DoWidget:

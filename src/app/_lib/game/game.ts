@@ -347,7 +347,7 @@ export default class Game {
   }
 
   /**
-   * Returns {@linkcode GameState#commandDelay | Game.state.commandDelay}.
+   * Returns {@linkcode GameState.commandDelay | Game.state.commandDelay}.
    * 
    * @param includeWidgetDuration Include widget duration as component of sum. Default `true`.
    */
@@ -369,15 +369,40 @@ export default class Game {
   }
 
   /**
-   * Returns {@linkcode GameState#turnPlayerIdx | Game.state.turnPlayerIdx}.
+   * Returns {@linkcode GameState.turnPlayerIdx | Game.state.turnPlayerIdx}.
    */
   getTurnPlayerIdx() {
     return this.state.turnPlayerIdx
   }
 
-  setTurnPlayerIdx(turnPlayerIdx: number) {
+  /**
+   * Returns {@linkcode GameState.turnCommandCountTotal | Game.state.turnCommandCountTotal}.
+   */
+  getTurnCommandCountTotal() {
+    return this.state.turnCommandCountTotal
+  }
+
+  /**
+   * Returns {@linkcode GameState.turnCommandCount | Game.state.turnCommandCount}.
+   */
+  getTurnCommandCount() {
+    return this.state.turnCommandCount
+  }
+
+  setTurn(turnPlayerIdx: number, turnCommandCountTotal: number) {
     this.state.turnPlayerIdx = turnPlayerIdx
+    this.state.turnCommandCountTotal = turnCommandCountTotal
     this.stateListeners.get(GameStateListenerKey.TurnPlayerIdx)?.forEach(l => l(turnPlayerIdx))
+  }
+
+  /**
+   * Sets {@linkcode GameState.turnCommandCount | Game.state.turnCommandCount}.
+   */
+  setTurnCommandCount(turnCommandCount: number, invokeListeners: boolean = true) {
+    this.state.turnCommandCount = turnCommandCount
+    if (invokeListeners) {
+      this.stateListeners.get(GameStateListenerKey.TurnPlayerIdx)?.forEach(l => l(this.state.turnPlayerIdx))
+    }
   }
 
   /**
