@@ -18,11 +18,11 @@
         "name": "next"
       }
     ],
-    "baseUrl": "src/",
     "paths": {
-      "@lib/*": ["./app/_lib/*"],
-      "@component/*": ["./app/component/*"],
-      "@api/*": ["./app/api/*"]
+      "@root/*": ["./src/*"],
+      "@lib/*": ["./src/app/_lib/*"],
+      "@component/*": ["./src/app/component/*"],
+      "@api/*": ["./src/app/api/*"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
