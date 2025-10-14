@@ -383,7 +383,7 @@ const internationalStrings = new Map([
       ['playTitle', '경기 시작']
     ])],
     [StringsNamespace.GameResetRounds, new Map([
-      ['resetRoundsTitle', '1판으로 경기를 재설정']
+      ['resetRoundsTitle', '1판으로 경기를 재시작']
     ])],
     [StringsNamespace.Preview, new Map([
       ['closePreview', '게임 설정하느라 미리보기 닫기'],
