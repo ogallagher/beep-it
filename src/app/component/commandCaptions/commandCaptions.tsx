@@ -1,14 +1,12 @@
 import { GameStateListenerKey, TimeoutReference } from '@lib/game/const'
 import Game from '@lib/game/game'
-import { GameEndReason } from '@lib/game/gameEvent'
 import StaticRef from '@lib/staticRef'
-import { RefObject, useContext, useEffect, useRef, useState } from 'react'
-import ActionText from '../widget/control/actionText'
+import { RefObject, useEffect, useRef, useState } from 'react'
+import ActionText from '@component/widget/control/actionText'
 import { WidgetType } from '@lib/widget/const'
-import getStrings, { StringsNamespace } from '@lib/strings'
-import { LocaleCtx } from '../context'
-import { Gem, Person } from 'react-bootstrap-icons'
 import Turn from './turn'
+import GameEnd from './gameEnd'
+import Score from './score'
 
 /**
  * Period of command delay progress update cycle, in milliseconds.
@@ -20,7 +18,6 @@ export default function CommandCaptions(
     game: StaticRef<Game> | RefObject<Game>
   }
 ) {
-  const s = getStrings(useContext(LocaleCtx), StringsNamespace.CommandCaptions)
   function getCommand() {
     const commandWidgetId = game.current.getCommandWidgetId()
     if (commandWidgetId === undefined) {
@@ -80,7 +77,7 @@ export default function CommandCaptions(
         )
       })
 
-      // listener for game end
+      // listener for game/round end
       game.current.addStateListener(GameStateListenerKey.Ended, CommandCaptions.name, () => {
         setGameEnd(getGameEnd())
         clearInterval(commandDelayInterval.current)
@@ -122,18 +119,7 @@ export default function CommandCaptions(
         }>
           <div className='flex flex-row gap-4'>
             {/* score */}
-            <div className='flex flex-col text-2xl' title={s('score')}>
-              <div className='flex flex-row gap-2'>
-                <div className='flex flex-col justify-center text-xl'>
-                  {/* icon suggestions: coin, star, stars, speedometer, suit-diamond, gem */}
-                  <Gem />
-                </div>
-                
-                <div className='flex flex-col font-mono justify-center'>
-                  {score}
-                </div>
-              </div>
-            </div>
+            <Score score={score} />
 
             {/* turn */}
             <Turn game={game} gameEnded={gameEnd.ended} playersEliminatedCount={gameEnd.playersEliminatedCount} />
@@ -149,32 +135,10 @@ export default function CommandCaptions(
         </div>
         
         {/* game end */}
-        <div 
-          className={
-            'flex flex-row gap-2 justify-center text-right '
-            + (gameEnd.ended ? '' : 'hidden')
-          } >
-          <div className='flex flex-col justify-center'>
-            <div className='font-bold text-2xl'>{s('over')}</div>
-          </div>
-          <div className='flex flex-col justify-center'>
-            <div className='text-1xl'>
-              ({ ( () => {
-                switch (gameEnd.endReason) {
-                  case GameEndReason.StartDelay:
-                    return s('startDelay')
-                  case GameEndReason.ActionDelay:
-                    return s('actionDelay')
-                  case GameEndReason.ActionMismatch:
-                    return s('actionMismatch')
-                  case GameEndReason.Unknown:
-                  default:
-                    return s('unknown')
-                }
-              } )() })
-            </div>
-          </div>
-        </div>
+        <GameEnd 
+          game={game}
+          ended={gameEnd.ended} endReason={gameEnd.endReason}
+          playersEliminatedCount={gameEnd.playersEliminatedCount} />
       </div>
     </div>
   )

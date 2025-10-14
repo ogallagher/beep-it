@@ -8,7 +8,7 @@ import { Server } from 'http'
 import pino from 'pino'
 import { ApiRoute, gameServerPort, serverDeviceId, serverEventPingDelay, websiteBasePath } from '@api/const'
 import Game from '@lib/game/game'
-import { ConfigEvent, DoWidgetEvent, GameAssetEvent, GameEventKey, GameEventType, JoinEvent, LeaveEvent, serverSendGameEvent } from '@lib/game/gameEvent'
+import { ConfigEvent, DoWidgetEvent, EndEvent, GameAssetEvent, GameEndReason, GameEventKey, GameEventType, JoinEvent, LeaveEvent, serverSendGameEvent } from '@lib/game/gameEvent'
 import { addGameClient, configGame as operatorConfigGame, getGame, getGameEventListener, removeGameClient } from '@lib/game/gameOperator'
 import bodyParser from 'body-parser'
 import cors from 'cors'
@@ -244,6 +244,30 @@ function startGame(req: Request, res: Response) {
   res.json(event)
 }
 app.get(`${websiteBasePath}/${ApiRoute.StartGame}`, startGame)
+
+/**
+ * End/reset the requested game.
+ */
+function endGame(req: Request, res: Response) {
+  logger.debug(`GET.${ApiRoute.EndGame} start`)
+
+  const reqParams = new URLSearchParams(req.query as Record<string, string>)
+  const game = getGame(reqParams, serverDeviceId)
+  
+  // end game
+  logger.info(`end ${game}`)
+  const event = req.query as unknown as EndEvent
+  game.end(
+    event.endReason, 
+    getGameEventListener(game.id), 
+    event.deviceId,
+    (event.endReason === GameEndReason.Reset ? event.playersEliminatedCount : undefined)
+  )
+
+  logger.debug(`GET.${ApiRoute.EndGame} end`)
+  res.json(event)
+}
+app.get(`${websiteBasePath}/${ApiRoute.EndGame}`, endGame)
 
 /**
  * Do a widget action, during gameplay, in response to a command.

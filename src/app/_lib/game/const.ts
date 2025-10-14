@@ -55,7 +55,7 @@ export enum GameStateListenerKey {
   Preview = 'preview',
   Started = 'started',
   /**
-   * Used for both `setEnded` and `setEndReason`.
+   * Used for `setEnded`, `setEndReason`, `setPlayersEliminatedCount`.
    */
   Ended = 'ended',
   /**
@@ -65,8 +65,7 @@ export enum GameStateListenerKey {
   /**
    * Used for `setTurn`, `setTurnCommandCount`.
    */
-  TurnPlayerIdx = 'turnPlayerIdx',
-  PlayersEliminated = 'players.eliminatedCount'
+  TurnPlayerIdx = 'turnPlayerIdx'
 }
 
 export type GameAnyListenerKey = GameConfigListenerKey | GameStateListenerKey

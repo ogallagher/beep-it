@@ -13,8 +13,7 @@ export default function Turn(
     playersEliminatedCount: number
   }
 ) {
-  // TODO create a separate child strings namespace for Turn
-  const s = getStrings(useContext(LocaleCtx), StringsNamespace.CommandCaptions)
+  const s = getStrings(useContext(LocaleCtx), StringsNamespace.Turn)
   function getTurn() {
     return {
       playerIdx: game.current.getTurnPlayerIdx(),
@@ -26,6 +25,7 @@ export default function Turn(
   const [gameStarted, setGameStarted] = useState(() => game.current.getStarted())
   const [turnMode, setTurnMode] = useState(() => game.current.config.gameTurnMode)
   const [turn, setTurn] = useState(getTurn)
+  const [playersCount, setPlayersCount] = useState(() => game.current.getPlayerCount())
 
   useEffect(
     () => {
@@ -33,11 +33,16 @@ export default function Turn(
       game.current.addConfigListener(GameConfigListenerKey.GameTurnMode, Turn.name, (turnMode) => {
         setTurnMode(turnMode as GameTurnMode)
       })
+      // for player count
+      game.current.addConfigListener(GameConfigListenerKey.PlayersCount, Turn.name, (playersCount) => {
+        setPlayersCount(playersCount as number)
+      })
+
       // state listener for game start
       game.current.addStateListener(GameStateListenerKey.Started, Turn.name, (gameStarted) => {
         setGameStarted(gameStarted as boolean)
       })
-      // state listener for turn
+      // for turn
       game.current.addStateListener(GameStateListenerKey.TurnPlayerIdx, Turn.name, () => {
         setTurn(getTurn())
       })
@@ -51,7 +56,7 @@ export default function Turn(
         'flex flex-col '
         + (turnMode === GameTurnMode.Competitive ? '' : 'hidden')
       }
-      title={s('turn')} >
+      title={s('turnTitle')} >
       <div className='flex flex-row gap-2 text-2xl'>
         {/* turn player label */}
         <div 
@@ -73,8 +78,14 @@ export default function Turn(
 
         {/* turn player value, remaining players */}
         <div 
-          className='flex flex-col font-mono text-nowrap' >
-          {turn.playerIdx + 1} / {game.current.config.players.count - playersEliminatedCount}
+          className='flex flex-col font-mono' >
+          <span className='text-nowrap'>
+            <b>{turn.playerIdx + 1}</b>
+            {' / '}
+            <span title={s('playersRemainingTitle')}>
+              {playersCount - playersEliminatedCount}
+            </span>
+          </span>
         </div>
       </div>
     </div>

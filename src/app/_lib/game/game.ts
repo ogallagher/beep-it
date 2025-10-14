@@ -1,6 +1,6 @@
 import { ulid } from 'ulid'
 import Widget from '@lib/widget/widget'
-import { CommandEvent, ConfigEvent, DoWidgetEvent, EndEvent, GameEndReason, GameEvent, GameEventListener, GameEventType, TurnEvent } from './gameEvent'
+import { CommandEvent, ConfigEvent, DoWidgetEvent, EndEvent, GameEndReason, GameEvent, GameEventListener, GameEventType, StartEvent, TurnEvent } from './gameEvent'
 import { BoardDisplayMode, GameTurnMode, GameConfigListenerKey, GameStateListenerKey, commandDelayMin, ConfigListener, GameConfig, gameStartDelayMax, GameState, StateListener, gameDeleteDelay, commandDelayDefault, GameId, DeviceId, GameAnyListenerKey, turnCommandCountMax, turnCommandCountMin } from './const'
 import { WidgetExport, WidgetId, WidgetType } from '@lib/widget/const'
 
@@ -65,8 +65,7 @@ export default class Game {
     [GameStateListenerKey.Started, new Map()],
     [GameStateListenerKey.Ended, new Map()],
     [GameStateListenerKey.CommandWidgetId, new Map()],
-    [GameStateListenerKey.TurnPlayerIdx, new Map()],
-    [GameStateListenerKey.PlayersEliminated, new Map()]
+    [GameStateListenerKey.TurnPlayerIdx, new Map()]
   ])
   /**
    * References to config and state listeners by widget, to enable child listener
@@ -416,9 +415,11 @@ export default class Game {
   /**
    * Sets {@linkcode GameState.players | Game.state.players.eliminatedCount}.
    */
-  setPlayersEliminatedCount(playersEliminatedCount: number) {
+  setPlayersEliminatedCount(playersEliminatedCount: number, invokeListeners: boolean = true) {
     this.state.players.eliminatedCount = playersEliminatedCount
-    this.stateListeners.get(GameStateListenerKey.PlayersEliminated)?.forEach(l => l(playersEliminatedCount))
+    if (invokeListeners) {
+      this.stateListeners.get(GameStateListenerKey.Ended)?.forEach(l => l(this.state.ended))
+    }
   }
 
   /**
@@ -532,7 +533,7 @@ export default class Game {
    * @param deviceId Device hosting the game (server if multi device, client if single device).
    * @returns Game start event.
    */
-  public start(listener: GameEventListener, deviceId: string): GameEvent {
+  public start(listener: GameEventListener, deviceId: string): StartEvent {
     this.state.deviceId = deviceId
     this.state.lastEventType = GameEventType.Start
 
@@ -564,10 +565,11 @@ export default class Game {
       this.deleteTimeout = null
     }
     
-    const start: GameEvent = {
+    const start: StartEvent = {
       deviceId,
       gameId: this.id,
-      gameEventType: this.state.lastEventType
+      gameEventType: this.state.lastEventType,
+      playersEliminatedCount: this.state.players.eliminatedCount
     }
     listener(start)
 
@@ -676,14 +678,24 @@ export default class Game {
    * 
    * @param listener 
    * @param deviceId Device that emits end event. Does not use instance var in case this game was never started.
+   * @param playersEliminatedCount Explicitly override/reset round with `state.players.eliminatedCount`.
    */
-  public end(reason: GameEndReason, listener: GameEventListener, deviceId: string) {
+  public end(
+    reason: GameEndReason, 
+    listener: GameEventListener, 
+    deviceId: string, 
+    playersEliminatedCount?: number
+  ) {
     this.state.lastEventType = GameEventType.End
     this.state.ended = true
     this.state.endReason = reason
 
+    // override/reset round
+    if (playersEliminatedCount !== undefined) {
+      this.state.players.eliminatedCount = playersEliminatedCount
+    }
     // turn-mode compete: handle round
-    if (this.config.gameTurnMode === GameTurnMode.Competitive) {
+    else if (this.config.gameTurnMode === GameTurnMode.Competitive) {
       if (this.config.players.count - this.state.players.eliminatedCount > 1) {
         // more than 1 player remains; eliminate someone before next round
         this.state.players.eliminatedCount++

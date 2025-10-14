@@ -39,7 +39,11 @@ export enum GameEventType {
    */
   DoWidget = 'doWidget',
   /**
-   * Game ended.
+   * Update game state outside of gameplay.
+   */
+  Reset = 'reset',
+  /**
+   * Game (or round) ended.
    */
   End = 'end',
   /**
@@ -61,6 +65,14 @@ export interface GameEvent {
    * Device from which this event was generated.
    */
   deviceId: string
+}
+
+interface RoundEvent extends GameEvent {
+  playersEliminatedCount: number
+}
+
+export interface StartEvent extends RoundEvent {
+  // no additional members
 }
 
 export interface JoinEvent extends GameEvent {
@@ -111,13 +123,16 @@ export enum GameEndReason {
   Unknown = 'unknown',
   StartDelay = 'startDelay',
   ActionDelay = 'actionDelay',
-  ActionMismatch = 'actionMismatch'
+  ActionMismatch = 'actionMismatch',
+  /**
+   * Reset game state outside of gameplay.
+   */
+  Reset = 'reset'
 }
 
-export interface EndEvent extends GameEvent {
+export interface EndEvent extends RoundEvent {
   commandCount: number
   endReason: GameEndReason
-  playersEliminatedCount: number
 }
 
 export type GameEventListener = (event: GameEvent) => void
@@ -158,6 +173,10 @@ export async function clientSendConfigEvent(event: ConfigEvent) {
 
 export async function clientSendLeaveEvent(event: LeaveEvent) {
   await clientSendGameEvent(event, ApiRoute.LeaveGame, 'GET')
+}
+
+export async function clientSendEndEvent(event: EndEvent) {
+  await clientSendGameEvent(event, ApiRoute.EndGame, 'GET')
 }
 
 /**
