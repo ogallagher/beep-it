@@ -273,6 +273,11 @@ app.get(`${websiteBasePath}/${ApiRoute.DoWidget}`, doWidget)
  */
 async function cleanGameAssets() {
   const gamesDir = path.join(localGameAssetDir, GameAssetPathPart['1_GameId'])
+  if (!existsSync(gamesDir)) {
+    logger.info(`game assets dir not yet created at ${gamesDir}. skip clean game assets.`)
+    return
+  }
+
   const gameDirs = await readdir(gamesDir, {
     recursive: false
   })
