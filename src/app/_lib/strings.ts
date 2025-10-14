@@ -129,6 +129,7 @@ const internationalStrings = new Map([
     ])],
     [StringsNamespace.CommandCaptions, new Map([
       ['score', 'score'],
+      ['turn', 'turn'],
       ['over', 'Game Over'],
       ['startDelay', 'game expired; reconnect devices to play'],
       ['actionDelay', 'too slow'],
@@ -251,6 +252,7 @@ const internationalStrings = new Map([
     ])],
     [StringsNamespace.CommandCaptions, new Map([
       ['score', 'puntaje'],
+      ['turn', 'turno'],
       ['over', 'Fin'],
       ['startDelay', 'juego se venció; reconectar dispositivos para jugar'],
       ['actionDelay', 'demasiado lento'],
@@ -373,6 +375,7 @@ const internationalStrings = new Map([
     ])],
     [StringsNamespace.CommandCaptions, new Map([
       ['score', '점수'],
+      ['turn', '차례'],
       ['over', '경기 끝'],
       ['startDelay', '게임 만료됐어서 작동시키려면 다시 접근하세요'],
       ['actionDelay', '너무 늦었으므로'],

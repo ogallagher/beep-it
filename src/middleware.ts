@@ -82,6 +82,7 @@ export const config = {
     // wordsearch generator
     '/wordsearch(.*)', 
     // quizcard generator
-    '/quizcard-generator(.*)']
+    '/quizcard-generator(.*)'
+  ]
 }
 logger.info(`config=${JSON.stringify(config)}`)

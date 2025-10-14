@@ -53,7 +53,8 @@ export enum GameStateListenerKey {
   /**
    * Used for setCommandWidgetId, setCommandCount. setCommandDelay.
    */
-  CommandWidgetId = 'commandWidgetId'
+  CommandWidgetId = 'commandWidgetId',
+  TurnPlayerIdx = 'turnPlayerIdx'
 }
 
 export type GameAnyListenerKey = GameConfigListenerKey | GameStateListenerKey
@@ -80,6 +81,11 @@ export interface GameState {
   commandDelay: number
   commandTimeout: NodeJS.Timeout | null
   commandWidgetId: string
+  /**
+   * Index of the player whose turn it is. Only used for {@linkcode GameTurnMode.Competitive}. 
+   * Otherwise, always `-1`.
+   */
+  turnPlayerIdx: number
   lastEventType: GameEventType
   /**
    * Whether to simulate the game having started, without the game emitting commands or receiving widget actions.

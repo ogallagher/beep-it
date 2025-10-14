@@ -1,4 +1,4 @@
-import { GameStateListenerKey, TimeoutReference } from '@lib/game/const'
+import { GameConfigListenerKey, GameStateListenerKey, GameTurnMode, TimeoutReference } from '@lib/game/const'
 import Game from '@lib/game/game'
 import { GameEndReason } from '@lib/game/gameEvent'
 import StaticRef from '@lib/staticRef'
@@ -7,6 +7,7 @@ import ActionText from './widget/control/actionText'
 import { WidgetType } from '@lib/widget/const'
 import getStrings, { StringsNamespace } from '@lib/strings'
 import { LocaleCtx } from './context'
+import { Gem, Person } from 'react-bootstrap-icons'
 
 /**
  * Period of command delay progress update cycle, in milliseconds.
@@ -44,6 +45,8 @@ export default function CommandCaptions(
   function getScore() {
     return Math.max(0, game.current.getCommandCount()-1)
   }
+  const [turnMode, setTurnMode] = useState(() => game.current.config.gameTurnMode)
+  const [turn, setTurn] = useState(() => game.current.getTurnPlayerIdx())
   const [score, setScore] = useState(getScore)
   const [gameEnd, setGameEnd] = useState(getGameEnd)
 
@@ -51,7 +54,7 @@ export default function CommandCaptions(
     () => {
       // state listener for command
       game.current.addStateListener(GameStateListenerKey.CommandWidgetId, CommandCaptions.name, () => {
-        // latest states are not available without being dependencies,
+        // latest states are not available without being useEffect dependencies,
         // and are not dependencies to prevent overwriting the state listener.
         // So we create local references to latest state values, similar to useRef.
         const command = getCommand()
@@ -75,6 +78,15 @@ export default function CommandCaptions(
           commandDelayIntervalPeriod
         )
       })
+      // config listener for turn mode
+      game.current.addConfigListener(GameConfigListenerKey.GameTurnMode, CommandCaptions.name, (turnMode) => {
+        setTurnMode(turnMode as GameTurnMode)
+      })
+      // state listener for turn player
+      game.current.addStateListener(GameStateListenerKey.TurnPlayerIdx, CommandCaptions.name, (turnPlayerIdx) => {
+        setTurn(turnPlayerIdx as number)
+      })
+
       // listener for game end
       game.current.addStateListener(GameStateListenerKey.Ended, CommandCaptions.name, () => {
         setGameEnd(getGameEnd())
@@ -110,15 +122,29 @@ export default function CommandCaptions(
               className='w-10 md:w-20' />
           </div>
         </div>
-
-        {/* score */}
+        
         <div className={
           'flex flex-col justify-center text-center '
           + (command?.type === WidgetType.KeyPad && !gameEnd.ended ? 'hidden md:block' : '')
         }>
-          <div className='text-2xl text-nowrap'>
-            <b>{s('score')}: </b>
-            <span className='font-mono'>{score}</span>
+          <div className='flex flex-row gap-4'>
+            {/* score */}
+            <div className='text-2xl text-nowrap' title={s('score')}>
+              {/* icon candidates: coin, star, stars, speedometer, suit-diamond, gem */}
+              <b><Gem className='inline text-xl' /> </b>
+              <span className='font-mono'>{score}</span>
+            </div>
+
+            {/* player turn */}
+            <div 
+              className={
+                'text-2xl text-nowrap '
+                + (turnMode === GameTurnMode.Competitive ? '' : 'hidden')
+              }
+              title={s('turn')} >
+              <b><span><Person className='inline' /></span> </b>
+              <span className='font-mono'>{turn + 1}</span>
+            </div>
           </div>
         </div>
 

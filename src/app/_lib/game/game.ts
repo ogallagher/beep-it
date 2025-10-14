@@ -20,6 +20,7 @@ export default class Game {
     commandDelay: commandDelayDefault,
     commandTimeout: null,
     commandWidgetId: '',
+    turnPlayerIdx: -1,
     lastEventType: GameEventType.Pending,
     preview: false,
     started: false,
@@ -58,7 +59,8 @@ export default class Game {
     [GameStateListenerKey.Preview, new Map()],
     [GameStateListenerKey.Started, new Map()],
     [GameStateListenerKey.Ended, new Map()],
-    [GameStateListenerKey.CommandWidgetId, new Map()]
+    [GameStateListenerKey.CommandWidgetId, new Map()],
+    [GameStateListenerKey.TurnPlayerIdx, new Map()]
   ])
   /**
    * References to config and state listeners by widget, to enable child listener
@@ -362,6 +364,18 @@ export default class Game {
     if (invokeListeners) {
       this.stateListeners.get(GameStateListenerKey.CommandWidgetId)?.forEach(l => l(this.state.commandWidgetId))
     }
+  }
+
+  /**
+   * Returns {@linkcode GameState#turnPlayerIdx | Game.state.turnPlayerIdx}.
+   */
+  getTurnPlayerIdx() {
+    return this.state.turnPlayerIdx
+  }
+
+  setTurnPlayerIdx(turnPlayerIdx: number) {
+    this.state.turnPlayerIdx = turnPlayerIdx
+    this.stateListeners.get(GameStateListenerKey.TurnPlayerIdx)?.forEach(l => l(turnPlayerIdx))
   }
 
   /**
