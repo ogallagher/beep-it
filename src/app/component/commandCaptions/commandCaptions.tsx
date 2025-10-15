@@ -91,25 +91,30 @@ export default function CommandCaptions(
       className='w-full px-4 pb-2 pt-2' >
       <div className='flex flex-row gap-2 justify-between'>
         {/* command */}
-        <div
-          className={
-            'flex flex-row gap-2 justify-center text-left '
-            + (command === undefined ? 'hidden' : '')
-          } >
-          <div className='flex flex-col justify-center'>
-            <div className='font-bold text-2xl'>{command?.action}</div>
-          </div>
-          <div className='flex flex-col justify-center'>
-            <div className='text-1xl'>{command?.targetLabel}</div>
-          </div>
-          {/* command-action delay */}
+        <div className='flex flex-col justify-center' >
           <div
             className={
-              'flex flex-col justify-center '
-              + (command === undefined || gameEnd.ended ? 'hidden' : '')
+              'sm:flex sm:flex-row gap-2 justify-center text-left '
+              + (command === undefined ? 'hidden' : '')
             } >
-            <progress max={command?.delay} value={commandDelayProgress}
-              className='w-10 md:w-20' />
+            <div className='flex flex-col justify-center'>
+              {/* command action */}
+              <div className='font-bold md:text-2xl'>{command?.action}</div>
+            </div>
+            <div className='flex flex-col justify-center'>
+              {/* command target */}
+              <div className='text-sm'>{command?.targetLabel}</div>
+            </div>
+            
+            {/* command delay */}
+            <div
+              className={
+                'flex flex-col justify-center '
+                + (command === undefined || gameEnd.ended ? 'hidden' : '')
+              } >
+              <progress max={command?.delay} value={commandDelayProgress}
+                className='w-10 md:w-20' />
+            </div>
           </div>
         </div>
         
@@ -117,7 +122,7 @@ export default function CommandCaptions(
           'flex flex-col justify-center text-center '
           + (command?.type === WidgetType.KeyPad && !gameEnd.ended ? 'hidden md:block' : '')
         }>
-          <div className='flex flex-row gap-4'>
+          <div className='md:flex md:flex-row gap-4'>
             {/* score */}
             <Score score={score} />
 
