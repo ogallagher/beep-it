@@ -4,7 +4,7 @@ import Widget from '@lib/widget/widget'
 /**
  * Max delay between the definition of a game (first join) and game start.
  */
-export const gameStartDelayMax = 1000 * 60 * 15
+export const gameStartDelayMax = 1000 * 60 /* sec */ * 60 /* min */ * 2 /* hr */
 /**
  * Min delay between sending a command and ending a game for not receiving a widget action.
  */
@@ -12,7 +12,7 @@ export const commandDelayMin = 800
 /**
  * Delay between an operator ending a game, and deleting the reference to it.
  */
-export const gameDeleteDelay = 1000 * 60 * 15
+export const gameDeleteDelay = 1000 * 60 /* sec */ * 15 /* min */
 
 export const commandDelayDefault = 1000 * 3
 /**
