@@ -117,10 +117,11 @@ export function addGameClient(gameId: GameId, deviceId: DeviceId, deviceAlias?: 
  * 
  * @param gameId Game id.
  * @param deviceId Client device id.
+ * @param doBroadcast Notify other clients of `deviceId` removal.
  */
-export function removeGameClient(gameId: GameId, deviceId: DeviceId) {
+export function removeGameClient(gameId: GameId, deviceId: DeviceId, doBroadcast: boolean = true) {
   if (!games.has(gameId)) {
-    logger.warn(`cannot add client to missing game ${gameId}`)
+    logger.warn(`cannot remove client from missing game ${gameId}`)
   }
 
   clients.get(deviceId)?.emit('close')
@@ -129,14 +130,16 @@ export function removeGameClient(gameId: GameId, deviceId: DeviceId) {
   const game = games.get(gameId)!
   game.deleteDevice(deviceId)
 
-  // send leave event to clients in game
-  const event: LeaveEvent = {
-    gameId,
-    gameEventType: GameEventType.Leave,
-    deviceId,
-    deviceCount: game.getDeviceCount()
+  if (doBroadcast) {
+    // send leave event to other clients in game
+    const event: LeaveEvent = {
+      gameId,
+      gameEventType: GameEventType.Leave,
+      deviceId,
+      deviceCount: game.getDeviceCount()
+    }
+    getGameEventListener(gameId)(event)
   }
-  getGameEventListener(gameId)(event)
 }
 
 /**
@@ -198,7 +201,7 @@ export function configGame(configEvent: ConfigEvent) {
 function deleteGame(gameId: GameId) {
   logger.info(`delete game ${gameId}`)
   listeners.delete(gameId)
-  games.get(gameId)?.getDevices().forEach((deviceId) => removeGameClient(gameId, deviceId))
+  games.get(gameId)?.getDevices().forEach((deviceId) => removeGameClient(gameId, deviceId, false))
   games.delete(gameId)
 }
 
