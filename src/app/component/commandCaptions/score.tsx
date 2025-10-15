@@ -11,9 +11,9 @@ export default function Score(
   const s = getStrings(useContext(LocaleCtx), StringsNamespace.Score)
   
   return (
-    <div className='flex flex-col text-2xl' title={s('score')}>
+    <div className='flex flex-col sm:text-2xl' title={s('score')}>
       <div className='flex flex-row gap-2'>
-        <div className='flex flex-col justify-center text-xl'>
+        <div className='flex flex-col justify-center sm:text-xl'>
           {/* icon suggestions: coin, star, stars, speedometer, suit-diamond, gem */}
           <Gem />
         </div>
