@@ -422,6 +422,15 @@ export default class Game {
     }
   }
 
+  private clearTimeout(which: 'start'|'delete') {
+    const to = this[`${which}Timeout`]
+
+    if (to !== null) {
+      clearTimeout(to)
+      this[`${which}Timeout`] = null
+    }
+  }
+
   /**
    * Schedule a method for when a game has been idle without starting for too long.
    * Replaces any earlier start timeout if exists.
@@ -429,6 +438,7 @@ export default class Game {
    * @param onTimeout Callback for if game start delay exceeds max.
    */
   setStartTimeout(onTimeout: () => void): number {
+    this.clearTimeout('start')
     this.startTimeout = setTimeout(onTimeout, gameStartDelayMax)
     return gameStartDelayMax
   }
@@ -445,6 +455,7 @@ export default class Game {
    * @param onTimeout Callback for if delete delay exceeds max.
    */
   setDeleteTimeout(onTimeout: () => void): number {
+    this.clearTimeout('delete')
     this.deleteTimeout = setTimeout(onTimeout, gameDeleteDelay)
     return gameDeleteDelay
   }
@@ -555,15 +566,9 @@ export default class Game {
       }
       // else, proceed to next round
     }
-
-    if (this.startTimeout !== null) {
-      clearTimeout(this.startTimeout)
-      this.startTimeout = null
-    }
-    if (this.deleteTimeout !== null) {
-      clearTimeout(this.deleteTimeout)
-      this.deleteTimeout = null
-    }
+    
+    this.clearTimeout('start')
+    this.clearTimeout('delete')
     
     const start: StartEvent = {
       deviceId,

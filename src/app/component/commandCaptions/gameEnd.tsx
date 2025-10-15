@@ -38,11 +38,11 @@ export default function GameEnd(
   return (
     <div 
       className={
-        'flex flex-row gap-2 justify-center text-right '
+        'md:flex md:flex-row gap-2 justify-center text-right '
         + (ended ? '' : 'hidden')
       } >
       <div className='flex flex-col justify-center'>
-        <div className='font-bold text-2xl'>
+        <div className='font-bold md:text-2xl'>
           {
             (totalPlayerCount - playersEliminatedCount <= 1 || turnMode === GameTurnMode.Collaborative)
             // end game
@@ -53,7 +53,7 @@ export default function GameEnd(
         </div>
       </div>
       <div className='flex flex-col justify-center'>
-        <div className='text-1xl'>
+        <div>
           ({ ( () => {
             switch (endReason) {
               case GameEndReason.StartDelay:

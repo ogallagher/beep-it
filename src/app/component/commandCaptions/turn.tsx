@@ -57,7 +57,7 @@ export default function Turn(
         + (turnMode === GameTurnMode.Competitive ? '' : 'hidden')
       }
       title={s('turnTitle')} >
-      <div className='flex flex-row gap-2 text-2xl'>
+      <div className='flex flex-row gap-2 sm:text-2xl'>
         {/* turn player label */}
         <div 
           className='flex flex-col justify-center' >
@@ -81,9 +81,13 @@ export default function Turn(
           className='flex flex-col font-mono' >
           <span className='text-nowrap'>
             <b>{turn.playerIdx + 1}</b>
-            {' / '}
-            <span title={s('playersRemainingTitle')}>
-              {playersCount - playersEliminatedCount}
+            <span 
+              // hide remaining players during play
+              className={(gameEnded || !gameStarted ? '' : 'hidden')} >
+              {' / '}
+              <span title={s('playersRemainingTitle')}>
+                {playersCount - playersEliminatedCount}
+              </span>
             </span>
           </span>
         </div>

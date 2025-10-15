@@ -39,14 +39,7 @@ export function getGame(gameUrlParams: URLSearchParams, deviceId: DeviceId): Gam
 
     games.set(gameId, game)
 
-    const gameStartDelayMax = game.setStartTimeout(() => {
-      // end game and notify clients
-      game.end(GameEndReason.StartDelay, getGameEventListener(gameId), deviceId)
-
-      // delete game
-      queueDeleteGame(gameId)
-    })
-    logger.info(`${game} expires in ${gameStartDelayMax / 1000} sec`)
+    setGameExpiry(game, deviceId)
   }
 
   return games.get(gameId)!
@@ -117,10 +110,11 @@ export function addGameClient(gameId: GameId, deviceId: DeviceId, deviceAlias?: 
  * 
  * @param gameId Game id.
  * @param deviceId Client device id.
+ * @param doBroadcast Notify other clients of `deviceId` removal.
  */
-export function removeGameClient(gameId: GameId, deviceId: DeviceId) {
+export function removeGameClient(gameId: GameId, deviceId: DeviceId, doBroadcast: boolean = true) {
   if (!games.has(gameId)) {
-    logger.warn(`cannot add client to missing game ${gameId}`)
+    logger.warn(`cannot remove client from missing game ${gameId}`)
   }
 
   clients.get(deviceId)?.emit('close')
@@ -129,28 +123,34 @@ export function removeGameClient(gameId: GameId, deviceId: DeviceId) {
   const game = games.get(gameId)!
   game.deleteDevice(deviceId)
 
-  // send leave event to clients in game
-  const event: LeaveEvent = {
-    gameId,
-    gameEventType: GameEventType.Leave,
-    deviceId,
-    deviceCount: game.getDeviceCount()
+  if (doBroadcast) {
+    // send leave event to other clients in game
+    const event: LeaveEvent = {
+      gameId,
+      gameEventType: GameEventType.Leave,
+      deviceId,
+      deviceCount: game.getDeviceCount()
+    }
+    getGameEventListener(gameId)(event)
   }
-  getGameEventListener(gameId)(event)
 }
 
 /**
  * Create and register listener if not exists and return.
  * 
  * @param gameId Game id.
+ * @param deviceId Device id of game host, for handling special game events apart from broadcast.
+ * 
  * @returns Listener to broadcast game events to all client devices.
  */
-export function getGameEventListener(gameId: GameId): GameEventListener {
+export function getGameEventListener(gameId: GameId, deviceId?: DeviceId): GameEventListener {
   if (!listeners.has(gameId)) {
     logger.info(`create listener for ${gameId}`)
     listeners.set(gameId, (event) => {
+      const game = games.get(gameId)!
+
       // send event to all client devices
-      games.get(gameId)!.getDevices().forEach((clientDeviceId) => {
+      game.getDevices().forEach((clientDeviceId) => {
         try {
           serverSendGameEvent(event, clients.get(clientDeviceId)!)
         }
@@ -162,9 +162,9 @@ export function getGameEventListener(gameId: GameId): GameEventListener {
         }
       })
 
-      // delete game
       if (event.gameEventType === GameEventType.End) {
-        queueDeleteGame(gameId)
+        // wait for next start
+        setGameExpiry(game, game.getDeviceId() || event.deviceId)
       }
     })
   }
@@ -198,10 +198,13 @@ export function configGame(configEvent: ConfigEvent) {
 function deleteGame(gameId: GameId) {
   logger.info(`delete game ${gameId}`)
   listeners.delete(gameId)
-  games.get(gameId)?.getDevices().forEach((deviceId) => removeGameClient(gameId, deviceId))
+  games.get(gameId)?.getDevices().forEach((deviceId) => removeGameClient(gameId, deviceId, false))
   games.delete(gameId)
 }
 
+/**
+ * Queue game deletion with {@linkcode deleteGame} on delete timeout.
+ */
 function queueDeleteGame(gameId: GameId) {
   const game = games.get(gameId)
   if (game === undefined) {
@@ -212,4 +215,18 @@ function queueDeleteGame(gameId: GameId) {
     const deleteDelay = game.setDeleteTimeout(() => deleteGame(gameId))
     logger.info(`will delete game ${gameId} in ${deleteDelay / 1000}s`)
   }
+}
+
+/**
+ * Queue game deletion with {@linkcode queueDeleteGame} on start timeout.
+ */
+function setGameExpiry(game: Game, deviceId: DeviceId) {
+  const gameStartDelayMax = game.setStartTimeout(() => {
+    // end game and notify clients
+    game.end(GameEndReason.StartDelay, getGameEventListener(game.id), deviceId)
+
+    // delete game
+    queueDeleteGame(game.id)
+  })
+  logger.info(`${game} expires in ${gameStartDelayMax / 1000} sec`)
 }
