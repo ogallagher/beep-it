@@ -19,6 +19,10 @@ const siblingServers: Map<string, SiblingServerConfig> = new Map([
   [
     `${websiteBasePath}/quizcard-generator`, 
     {envKeyPort: 'QUIZCARD_PORT', envKeyPath: 'QUIZCARD_PATH', method: 'redirect'}
+  ],
+  [
+    `${websiteBasePath}/touch-keyboard`,
+    {envKeyPort: 'TOUCHKEY_PORT', envKeyPath: 'TOUCHKEY_PATH', method: 'rewrite'}
   ]
 ])
 
@@ -82,7 +86,9 @@ export const config = {
     // wordsearch generator
     '/wordsearch(.*)', 
     // quizcard generator
-    '/quizcard-generator(.*)'
+    '/quizcard-generator(.*)',
+    // touch keyboard proto
+    '/touch-keyboard(.*)'
   ]
 }
 logger.info(`config=${JSON.stringify(config)}`)

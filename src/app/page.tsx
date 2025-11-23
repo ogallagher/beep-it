@@ -230,8 +230,8 @@ export default function Home() {
     <div className='bg-black not-dark:bg-gray-200' >
       <Header game={game} githubUrl='https://github.com/ogallagher/beep-it'/>
 
-      <div className='py-4 font-[family-name:var(--font-geist-sans)] flex flex-col gap-2'>
-        <main className="flex flex-col gap-[32px] items-center sm:items-start">
+      <div className='py-4 font-(family-name:--font-geist-sans) flex flex-col gap-2'>
+        <main className="flex flex-col gap-8 items-center sm:items-start">
           <HasDeviceFeaturesCtx value={hasDeviceFeatures}>
             <GameControls
               widgetsDrawerOpen={widgetsDrawerOpen} setWidgetsDrawerOpen={setWidgetsDrawerOpen}
