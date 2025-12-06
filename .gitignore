@@ -7,8 +7,7 @@ public/public
 src/app/icon0.svg
 
 # game data
-gameAsset/*
-!gameAsset/readme.md
+apiPublic/gameAsset/
 
 # dependencies
 /node_modules

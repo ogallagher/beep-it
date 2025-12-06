@@ -14,7 +14,7 @@ import bodyParser from 'body-parser'
 import cors from 'cors'
 import multer from 'multer'
 import path from 'path'
-import { mkdir, readdir, rename, rm, stat, symlink } from 'fs/promises'
+import { mkdir, readdir, rename, rm, stat } from 'fs/promises'
 import { gameAssetDeleteDelay, GameAssetPathPart, generateAudioFilePath } from '@lib/widget/audio'
 import { existsSync } from 'fs'
 import expressAsyncHandler from 'express-async-handler'
@@ -34,24 +34,18 @@ app.use(bodyParser.json({
   limit: '5MB'
 }))
 
-const localGameAssetDir = GameAssetPathPart['0_Root']
+const localApiAssetDir = 'apiPublic'
+const localGameAssetDir = path.join(localApiAssetDir, GameAssetPathPart['0_Root'])
 const fileReceiver = multer({ 
   dest: path.join(localGameAssetDir, GameAssetPathPart['1_Temp'])
 }).any()
 
 async function serveGameAssets() {
-  // create link that nests game asset dir within itself
-  const nestedGameAssetDir = path.join(GameAssetPathPart['0_Root'], GameAssetPathPart['0_Root'])
-  if (!existsSync(nestedGameAssetDir)) {
-    logger.info('create symlink to nest game assets dir')
-    symlink(path.resolve(localGameAssetDir), nestedGameAssetDir, 'dir')
+  if (!existsSync(localGameAssetDir)) {
+    await mkdir(localGameAssetDir, { recursive: true })
   }
-  else {
-    logger.debug('symlink for nested game assets dir already exists')
-  }
-
   app.use(express.static(
-    GameAssetPathPart['0_Root'],
+    localApiAssetDir,
     {
       dotfiles: 'ignore'
     }
