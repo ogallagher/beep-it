@@ -1,6 +1,6 @@
 {
   "name": "beep-it",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "scripts": {
     "gameserver": "tsx src/app/api/server.ts",
