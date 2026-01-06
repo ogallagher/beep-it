@@ -23,7 +23,11 @@ const siblingServers: Map<string, SiblingServerConfig> = new Map([
   [
     `${websiteBasePath}/touch-keyboard`,
     {envKeyPort: 'TOUCHKEY_PORT', envKeyPath: 'TOUCHKEY_PATH', method: 'rewrite'}
-  ]
+  ],
+  [
+    `${websiteBasePath}/typereader`,
+    {envKeyPort: 'TYPEREAD_PORT', envKeyPath: 'TYPEREAD_PATH', method: 'redirect'}
+  ],
 ])
 
 /**
@@ -88,7 +92,9 @@ export const config = {
     // quizcard generator
     '/quizcard-generator(.*)',
     // touch keyboard proto
-    '/touch-keyboard(.*)'
+    '/touch-keyboard(.*)',
+    // typereader
+    '/typereader(.*)',
   ]
 }
 logger.info(`config=${JSON.stringify(config)}`)
