@@ -28,6 +28,10 @@ const siblingServers: Map<string, SiblingServerConfig> = new Map([
     `${websiteBasePath}/typereader`,
     {envKeyPort: 'TYPEREAD_PORT', envKeyPath: 'TYPEREAD_PATH', method: 'redirect'}
   ],
+  [
+    `${websiteBasePath}/anonymousanimals`,
+    {envKeyPort: 'ANONANIMALS_PORT', envKeyPath: 'ANONANIMALS_PATH', method: 'redirect'}
+  ],
 ])
 
 /**
@@ -95,6 +99,8 @@ export const config = {
     '/touch-keyboard(.*)',
     // typereader
     '/typereader(.*)',
+    // google anonymous animals
+    '/anonymousanimals(.*)',
   ]
 }
 logger.info(`config=${JSON.stringify(config)}`)
